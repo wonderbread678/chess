@@ -4,16 +4,18 @@ import java.util.List;
 
 public class PieceMoveCalculator {
 
-    private final ChessPosition [] moveList;
+    private final List <ChessPosition> moveList;
     private final ChessPosition startPosition;
     private final ChessPosition previousMove;
     private final ChessBoard board;
+    private final ChessGame.TeamColor pieceColor;
 
-    public PieceMoveCalculator (ChessPosition [] moveList, ChessPosition startPosition, ChessPosition previousMove, ChessBoard board){
+    public PieceMoveCalculator (List <ChessPosition> moveList, ChessPosition startPosition, ChessPosition previousMove, ChessBoard board, ChessGame.TeamColor pieceColor){
         this.moveList = moveList;
         this.startPosition = startPosition;
         this.previousMove = previousMove;
         this.board = board;
+        this.pieceColor = pieceColor;
     }
 
     public boolean checkPiece(ChessPosition position){
@@ -29,7 +31,7 @@ public class PieceMoveCalculator {
         }
     }
 
-    public ChessPosition moveUp(ChessPosition startposition, ChessPosition [] moveList){
+    public List <ChessPosition> moveUp(ChessPosition startposition, List <ChessPosition> moveList, ChessGame.TeamColor pieceColor, ChessBoard board){
         // Pseudo-code:
         // CM = true;
         // while(CM == true){
@@ -48,9 +50,28 @@ public class PieceMoveCalculator {
                 // return CM = true
         // return moveList
         // }
-        
-
-        throw new RuntimeException("Not implemented");
+        while(true){
+            int col = startposition.getColumn();
+            int row = startposition.getRow();
+            if(row + 1 <= 7){
+                ChessPosition new_position = new ChessPosition(row + 1, col);
+                if(checkPiece(new_position) == false){
+                    moveList.add(new_position);
+                }
+                else{
+                    if(board.getPiece(new_position).getTeamColor() != pieceColor){
+                        moveList.add(new_position);
+                        return moveList;
+                    }
+                    else{
+                        return moveList;
+                    }
+                }
+            }
+            else {
+                return moveList;
+            }
+        }
     }
 
     public ChessPosition moveDown(ChessPosition startposition){
