@@ -2,14 +2,45 @@ package chess;
 
 import java.util.List;
 
-public abstract class PieceMoveCalculator {
-    private List<ChessPosition[]> moves;
-    private ChessPiece piece;
+public class PieceMoveCalculator {
 
-    public ChessMove moves(ChessPiece piece, List<ChessPosition[]> moves){
-        this.piece = piece;
-        this.moves = moves;
+    private final ChessPosition [] moveList;
+    private final ChessPosition startPosition;
+    private final ChessPosition previousMove;
+
+    public PieceMoveCalculator (ChessPosition [] moveList, ChessPosition startPosition, ChessPosition previousMove){
+        this.moveList = moveList;
+        this.startPosition = startPosition;
+        this.previousMove = previousMove;
     }
 
-    public
+    public ChessPosition moveUpAndDown(ChessPosition startposition){
+        // Pseudo-code:
+
+        throw new RuntimeException("Not implemented");
+    }
+
+    public ChessPosition moveDiagonal(ChessPosition startposition){
+        // Pseudo-code:
+        
+        throw new RuntimeException("Not implemented");
+    }
+
+    public ChessPosition moveLeftAndRight(ChessPosition startPosition){
+        // Pseudo-code:
+
+        throw new RuntimeException("Not implemented");
+    }
+
+    public ChessPosition movePawn(ChessPosition startPosition, ChessPosition previousMove){
+        // Pseudo-code:
+
+        throw new RuntimeException("Not implemented");
+    }
+
+    public ChessPosition moveKnight(ChessPosition startPosition){
+        // Pseudo-code:
+
+        throw new RuntimeException("Not implemented");
+    }
 }
