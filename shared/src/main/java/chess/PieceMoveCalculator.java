@@ -31,6 +31,16 @@ public class PieceMoveCalculator {
         }
     }
 
+    public List <ChessPosition> handlePiece(ChessPosition new_position, List <ChessPosition> moveList, ChessGame.TeamColor pieceColor, ChessBoard board){
+        if(board.getPiece(new_position).getTeamColor() != pieceColor){
+            moveList.add(new_position);
+            return moveList;
+        }
+        else{
+            return moveList;
+        }
+    }
+
     public List <ChessPosition> moveUp(ChessPosition startposition, List <ChessPosition> moveList, ChessGame.TeamColor pieceColor, ChessBoard board){
         // Pseudo-code:
         // CM = true;
@@ -59,13 +69,7 @@ public class PieceMoveCalculator {
                     moveList.add(new_position);
                 }
                 else{
-                    if(board.getPiece(new_position).getTeamColor() != pieceColor){
-                        moveList.add(new_position);
-                        return moveList;
-                    }
-                    else{
-                        return moveList;
-                    }
+                    handlePiece(new_position, moveList, pieceColor, board);
                 }
             }
             else {
@@ -97,7 +101,7 @@ public class PieceMoveCalculator {
         throw new RuntimeException("Not implemented");
     }
 
-    public ChessPosition moveDiagonal(ChessPosition startposition){
+    public List <ChessPosition> moveDiagonal(ChessPosition startposition, List <ChessPosition> moveList, ChessGame.TeamColor pieceColor, ChessBoard board){
         // Pseudo-code:
         // CM = true;
         // DIAGONAL UP AND TO THE RIGHT
@@ -131,8 +135,29 @@ public class PieceMoveCalculator {
             // Repeat, but decrement startPosition <1, -1> if it won't go past the edge of the board
         // }
         // return moveList
-        
-        throw new RuntimeException("Not implemented");
+
+        while(true){
+            int col = startposition.getColumn();
+            int row = startposition.getRow();
+            if(row + 1 <= 7){
+                ChessPosition new_position = new ChessPosition(row + 1, col);
+                if(checkPiece(new_position) == false){
+                    moveList.add(new_position);
+                }
+                else{
+                    if(board.getPiece(new_position).getTeamColor() != pieceColor){
+                        moveList.add(new_position);
+                        return moveList;
+                    }
+                    else{
+                        return moveList;
+                    }
+                }
+            }
+            else {
+                return moveList;
+            }
+        }
     }
 
 
