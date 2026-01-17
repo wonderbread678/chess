@@ -31,7 +31,7 @@ public class PieceMoveCalculator {
         }
     }
 
-    public List <ChessPosition> handlePiece(ChessPosition new_position, List <ChessPosition> moveList, ChessGame.TeamColor pieceColor, ChessBoard board){
+    public List <ChessPosition> handlePiece(ChessPosition new_position, List <ChessPosition> moveList, ChessGame.TeamColor pieceColor){
         if(board.getPiece(new_position).getTeamColor() != pieceColor){
             moveList.add(new_position);
             return moveList;
@@ -69,7 +69,7 @@ public class PieceMoveCalculator {
                     moveList.add(new_position);
                 }
                 else{
-                    handlePiece(new_position, moveList, pieceColor, board);
+                    return handlePiece(new_position, moveList, pieceColor);
                 }
             }
             else {
@@ -135,29 +135,73 @@ public class PieceMoveCalculator {
             // Repeat, but decrement startPosition <1, -1> if it won't go past the edge of the board
         // }
         // return moveList
-
+        int col = startposition.getColumn();
+        int row = startposition.getRow();
+        // UP AND TO THE RIGHT (+1, +1)
         while(true){
-            int col = startposition.getColumn();
-            int row = startposition.getRow();
-            if(row + 1 <= 7){
-                ChessPosition new_position = new ChessPosition(row + 1, col);
+            if(row + 1 <= 7 && col + 1 <= 7){
+                ChessPosition new_position = new ChessPosition(row + 1, col +1);
                 if(checkPiece(new_position) == false){
                     moveList.add(new_position);
                 }
                 else{
-                    if(board.getPiece(new_position).getTeamColor() != pieceColor){
-                        moveList.add(new_position);
-                        return moveList;
-                    }
-                    else{
-                        return moveList;
-                    }
+                   handlePiece(new_position, moveList, pieceColor);
+                   break;
                 }
             }
             else {
-                return moveList;
+                break;
             }
         }
+        // UP AND TO THE LEFT (+1, -1)
+        while(true){
+            if(row + 1 <= 7 && col - 1 >= 0){
+                ChessPosition new_position = new ChessPosition(row + 1, col -1);
+                if(checkPiece(new_position) == false){
+                    moveList.add(new_position);
+                }
+                else{
+                   handlePiece(new_position, moveList, pieceColor);
+                   break;
+                }
+            }
+            else {
+                break;
+            }
+        }
+        // DOWN AND TO THE RIGHT (-1, +1)
+        while(true){
+            if(row - 1 >= 0 && col + 1 <= 7){
+                ChessPosition new_position = new ChessPosition(row - 1, col +1);
+                if(checkPiece(new_position) == false){
+                    moveList.add(new_position);
+                }
+                else{
+                   handlePiece(new_position, moveList, pieceColor);
+                   break;
+                }
+            }
+            else {
+                break;
+            }
+        }
+        // DOWN AND TO THE LEFT (-1, -1)
+        while(true){
+            if(row - 1 >= 0 && col - 1 >= 0){
+                ChessPosition new_position = new ChessPosition(row - 1, col -1);
+                if(checkPiece(new_position) == false){
+                    moveList.add(new_position);
+                }
+                else{
+                   handlePiece(new_position, moveList, pieceColor);
+                   break;
+                }
+            }
+            else {
+                break;
+            }
+        }
+        return moveList;
     }
 
 
