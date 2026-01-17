@@ -14,6 +14,18 @@ public class PieceMoveCalculator {
         this.previousMove = previousMove;
     }
 
+    public ChessGame.TeamColor checkColor(ChessPosition position){
+        // Pseudo-code
+
+        throw new RuntimeException("Not implemented");
+    }
+
+    public boolean ifPiece(ChessPosition position){
+        // Psuedo-code
+        
+        throw new RuntimeException("Not implemented");
+    }
+
     public ChessPosition moveUp(ChessPosition startposition, ChessPosition [] moveList){
         // Pseudo-code:
         // CM = true;
@@ -66,7 +78,7 @@ public class PieceMoveCalculator {
         // CM = true;
         // DIAGONAL UP AND TO THE RIGHT
         // while(CM == true){
-            // Decrement startPosition Y-value by 1 if it won't go past the edge of the board
+            // Increment startPosition <1, 1> if it won't go past the edge of the board
             // if it will go past the edge of the board:
                 // return CM = false
             // Otherwise, check if there is a piece at that position
@@ -82,7 +94,7 @@ public class PieceMoveCalculator {
                 // CM = true;
         // DIAGONAL UP AND TO THE LEFT
         // while(CM == true){
-            // Decrement startPosition Y-value by 1 if it won't go past the edge of the board
+            // Increment startPosition <-1, 1> if it won't go past the edge of the board
             // if it will go past the edge of the board:
                 // return CM = false
             // Otherwise, check if there is a piece at that position
@@ -99,7 +111,7 @@ public class PieceMoveCalculator {
         // CM = true;
         // DIAGONAL DOWN AND TO THE LEFT
         // while(CM == true){
-            // Decrement startPosition Y-value by 1 if it won't go past the edge of the board
+            // Decrement startPosition <-1, -1> if it won't go past the edge of the board
             // if it will go past the edge of the board:
                 // return CM = false
             // Otherwise, check if there is a piece at that position
@@ -116,7 +128,7 @@ public class PieceMoveCalculator {
         // CM = true;
         // DIAGONAL DOWN AND TO THE RIGHT
         // while(CM == true){
-            // Decrement startPosition Y-value by 1 if it won't go past the edge of the board
+            // Decrement startPosition <1, -1> if it won't go past the edge of the board
             // if it will go past the edge of the board:
                 // return CM = false
             // Otherwise, check if there is a piece at that position
