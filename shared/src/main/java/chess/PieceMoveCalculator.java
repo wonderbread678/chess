@@ -7,23 +7,26 @@ public class PieceMoveCalculator {
     private final ChessPosition [] moveList;
     private final ChessPosition startPosition;
     private final ChessPosition previousMove;
+    private final ChessBoard board;
 
-    public PieceMoveCalculator (ChessPosition [] moveList, ChessPosition startPosition, ChessPosition previousMove){
+    public PieceMoveCalculator (ChessPosition [] moveList, ChessPosition startPosition, ChessPosition previousMove, ChessBoard board){
         this.moveList = moveList;
         this.startPosition = startPosition;
         this.previousMove = previousMove;
+        this.board = board;
     }
 
-    public ChessGame.TeamColor checkColor(ChessPosition position){
-        // Pseudo-code
-
-        throw new RuntimeException("Not implemented");
-    }
-
-    public boolean ifPiece(ChessPosition position){
+    public boolean checkPiece(ChessPosition position){
         // Psuedo-code
-        
-        throw new RuntimeException("Not implemented");
+        // Based on the given position, check if there is a piece there
+        // If it is empty, return false
+        // If there is a piece, return true
+        if(board.getPiece(position) != null){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
     public ChessPosition moveUp(ChessPosition startposition, ChessPosition [] moveList){
