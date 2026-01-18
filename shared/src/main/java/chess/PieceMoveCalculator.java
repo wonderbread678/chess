@@ -12,7 +12,6 @@ public class PieceMoveCalculator {
     public PieceMoveCalculator (List <ChessPosition> moveList, ChessPosition startPosition, ChessPosition previousMove, ChessBoard board, ChessGame.TeamColor pieceColor){
         this.moveList = moveList;
         this.startPosition = startPosition;
-        this.previousMove = previousMove;
         this.board = board;
         this.pieceColor = pieceColor;
     }
@@ -306,9 +305,6 @@ public class PieceMoveCalculator {
             if(checkPiece(specialMove) == false){
                 moveList.add(specialMove);
             }
-            else{
-                return handlePiece(specialMove, moveList, pieceColor);
-            }
         }
         else{
             if(row + 1 <= 7){
@@ -316,8 +312,17 @@ public class PieceMoveCalculator {
                 if(checkPiece(normalMove) == false){
                     moveList.add(normalMove);
                 }
-                else{
-                    return handlePiece(normalMove, moveList, pieceColor);
+                if(col - 1 >= 0){
+                    ChessPosition diagonalLeft = new ChessPosition(row + 1, col - 1);
+                    if(checkPiece(diagonalLeft) == true){
+                        return handlePiece(diagonalLeft, moveList, pieceColor);
+                    } 
+                }
+                if (col + 1 <= 7){
+                    ChessPosition diagonalRight = new ChessPosition(row + 1, col + 1); 
+                    if(checkPiece(diagonalRight) == true){
+                        return handlePiece(diagonalRight, moveList, pieceColor);
+                    }
                 }
             }
         }
