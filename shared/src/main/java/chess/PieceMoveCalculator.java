@@ -78,7 +78,7 @@ public class PieceMoveCalculator {
         }
     }
 
-    public ChessPosition moveDown(ChessPosition startposition){
+    public List <ChessPosition> moveDown(ChessPosition startposition, List <ChessPosition> moveList, ChessGame.TeamColor pieceColor, ChessBoard board){
         // Pseudo-code:
         // CM = true;
         // while(CM == true){
@@ -97,8 +97,22 @@ public class PieceMoveCalculator {
                 // return CM = true
         // return moveList
         // }
-
-        throw new RuntimeException("Not implemented");
+        while(true){
+            int col = startposition.getColumn();
+            int row = startposition.getRow();
+            if(row - 1 >= 0){
+                ChessPosition new_position = new ChessPosition(row - 1, col);
+                if(checkPiece(new_position) == false){
+                    moveList.add(new_position);
+                }
+                else{
+                    return handlePiece(new_position, moveList, pieceColor);
+                }
+            }
+            else {
+                return moveList;
+            }
+        }
     }
 
     public List <ChessPosition> moveDiagonal(ChessPosition startposition, List <ChessPosition> moveList, ChessGame.TeamColor pieceColor, ChessBoard board){
@@ -205,7 +219,7 @@ public class PieceMoveCalculator {
     }
 
 
-    public ChessPosition moveLeft(ChessPosition startPosition){
+    public List <ChessPosition> moveLeft(ChessPosition startposition, List <ChessPosition> moveList, ChessGame.TeamColor pieceColor, ChessBoard board){
         // Pseudo-code:
         // CM = true;
         // while(CM == true){
@@ -224,10 +238,25 @@ public class PieceMoveCalculator {
                 // return CM = true
         // return moveList
         // }
-
-        throw new RuntimeException("Not implemented");
+        while(true){
+            int col = startposition.getColumn();
+            int row = startposition.getRow();
+            if(col - 1 >= 0){
+                ChessPosition new_position = new ChessPosition(row, col - 1);
+                if(checkPiece(new_position) == false){
+                    moveList.add(new_position);
+                }
+                else{
+                    return handlePiece(new_position, moveList, pieceColor);
+                }
+            }
+            else {
+                return moveList;
+            }
+        }
+        
     }
-    public ChessPosition moveRight(ChessPosition startPosition){
+    public List <ChessPosition> moveRight(ChessPosition startposition, List <ChessPosition> moveList, ChessGame.TeamColor pieceColor, ChessBoard board){
         // Pseudo-code:
         // CM = true;
         // while(CM == true){
@@ -246,11 +275,25 @@ public class PieceMoveCalculator {
                 // return CM = true
         // return moveList
         // }
-
-        throw new RuntimeException("Not implemented");
+        while(true){
+            int col = startposition.getColumn();
+            int row = startposition.getRow();
+            if(col + 1 <= 7){
+                ChessPosition new_position = new ChessPosition(row, col + 1);
+                if(checkPiece(new_position) == false){
+                    moveList.add(new_position);
+                }
+                else{
+                    return handlePiece(new_position, moveList, pieceColor);
+                }
+            }
+            else {
+                return moveList;
+            }
+        }
     }
 
-    public ChessPosition moveWhitePawn(ChessPosition startPosition, ChessPosition previousMove){
+    public List <ChessPosition> moveWhitePawn(ChessPosition startposition, List <ChessPosition> moveList, ChessGame.TeamColor pieceColor, ChessBoard board, ChessPosition previousMove){
         // Pseudo-code:
         // Check if the pawn can move 1 space or two
             // Based on that, increment start-position y-value by 1 or 2
@@ -261,7 +304,7 @@ public class PieceMoveCalculator {
         throw new RuntimeException("Not implemented");
     }
 
-    public ChessPosition moveBlackPawn(ChessPosition startPosition, ChessPosition previousMove){
+    public List <ChessPosition> moveBlackPawn(ChessPosition startposition, List <ChessPosition> moveList, ChessGame.TeamColor pieceColor, ChessBoard board, ChessPosition previousMove){
         // Pseudo-code:
         // Check if the pawn can move 1 space or two
             // Based on that, decrement start-position y-value by 1 or 2
@@ -272,7 +315,7 @@ public class PieceMoveCalculator {
         throw new RuntimeException("Not implemented");
     }
 
-    public ChessPosition moveKnight(ChessPosition startPosition){
+    public List <ChessPosition> moveKnight(ChessPosition startposition, List <ChessPosition> moveList, ChessGame.TeamColor pieceColor, ChessBoard board){
         // Pseudo-code:
         // Have two lists: one that contains all of the possible moves a knight can move, and one that is empty that will hold possibleMoves
         // Define all of the possibilites that a knight is able to move
