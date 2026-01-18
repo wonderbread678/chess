@@ -302,8 +302,10 @@ public class PieceMoveCalculator {
         int col = startposition.getColumn();
         if(row == 1){
             ChessPosition specialMove = new ChessPosition(row + 2, col);
-            if(checkPiece(specialMove) == false){
+            ChessPosition normalMove = new ChessPosition(row + 1, col);
+            if(checkPiece(specialMove) == false && checkPiece(normalMove) == false){
                 moveList.add(specialMove);
+                moveList.add(normalMove);
             }
         }
         else{
@@ -336,16 +338,14 @@ public class PieceMoveCalculator {
             // check if there is a piece blocking the pawn and what color that piece is
             // Otherwise, add the new position to moveList
         // return moveList
-
         int row = startposition.getRow();
         int col = startposition.getColumn();
         if(row == 6){
             ChessPosition specialMove = new ChessPosition(row - 2, col);
-            if(checkPiece(specialMove) == false){
+            ChessPosition normalMove = new ChessPosition(row - 1, col);
+            if(checkPiece(specialMove) == false && checkPiece(normalMove) == false){
                 moveList.add(specialMove);
-            }
-            else{
-                return handlePiece(specialMove, moveList, pieceColor);
+                moveList.add(normalMove);
             }
         }
         else{
@@ -354,8 +354,17 @@ public class PieceMoveCalculator {
                 if(checkPiece(normalMove) == false){
                     moveList.add(normalMove);
                 }
-                else{
-                    return handlePiece(normalMove, moveList, pieceColor);
+                if(col - 1 >= 0){
+                    ChessPosition diagonalLeft = new ChessPosition(row - 1, col - 1);
+                    if(checkPiece(diagonalLeft) == true){
+                        return handlePiece(diagonalLeft, moveList, pieceColor);
+                    } 
+                }
+                if (col + 1 <= 7){
+                    ChessPosition diagonalRight = new ChessPosition(row - 1, col + 1); 
+                    if(checkPiece(diagonalRight) == true){
+                        return handlePiece(diagonalRight, moveList, pieceColor);
+                    }
                 }
             }
         }
