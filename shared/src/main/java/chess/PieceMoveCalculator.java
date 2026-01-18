@@ -32,11 +32,8 @@ public class PieceMoveCalculator {
     public List <ChessPosition> handlePiece(ChessPosition new_position, List <ChessPosition> moveList, ChessGame.TeamColor pieceColor){
         if(board.getPiece(new_position).getTeamColor() != pieceColor){
             moveList.add(new_position);
-            return moveList;
         }
-        else{
-            return moveList;
-        }
+        return moveList;
     }
 
     public List <ChessPosition> moveUp(ChessPosition startposition, List <ChessPosition> moveList, ChessGame.TeamColor pieceColor, ChessBoard board){
@@ -387,6 +384,9 @@ public class PieceMoveCalculator {
         // (-1, -2) left and down one
         // (1, +2) right and up one
         // (-1, +2) right and down one
+        int row = startposition.getRow();
+        int col = startposition.getColumn();
+        
 
         throw new RuntimeException("Not implemented");
     }
