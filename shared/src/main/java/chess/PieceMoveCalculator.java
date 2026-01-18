@@ -6,7 +6,6 @@ public class PieceMoveCalculator {
 
     private final List <ChessPosition> moveList;
     private final ChessPosition startPosition;
-    private final ChessPosition previousMove;
     private final ChessBoard board;
     private final ChessGame.TeamColor pieceColor;
 
@@ -300,11 +299,32 @@ public class PieceMoveCalculator {
             // check if there is a piece blocking the pawn and what color that piece is
             // Otherwise, add the new position to moveList
         // return moveList
-
-        throw new RuntimeException("Not implemented");
+        int row = startposition.getRow();
+        int col = startposition.getColumn();
+        if(row == 1){
+            ChessPosition specialMove = new ChessPosition(row + 2, col);
+            if(checkPiece(specialMove) == false){
+                moveList.add(specialMove);
+            }
+            else{
+                return handlePiece(specialMove, moveList, pieceColor);
+            }
+        }
+        else{
+            if(row + 1 <= 7){
+                ChessPosition normalMove = new ChessPosition(row + 1, col);
+                if(checkPiece(normalMove) == false){
+                    moveList.add(normalMove);
+                }
+                else{
+                    return handlePiece(normalMove, moveList, pieceColor);
+                }
+            }
+        }
+        return moveList;
     }
 
-    public List <ChessPosition> moveBlackPawn(ChessPosition startposition, List <ChessPosition> moveList, ChessGame.TeamColor pieceColor, ChessBoard board, ChessPosition previousMove){
+    public List <ChessPosition> moveBlackPawn(ChessPosition startposition, List <ChessPosition> moveList, ChessGame.TeamColor pieceColor, ChessBoard board){
         // Pseudo-code:
         // Check if the pawn can move 1 space or two
             // Based on that, decrement start-position y-value by 1 or 2
@@ -312,7 +332,29 @@ public class PieceMoveCalculator {
             // Otherwise, add the new position to moveList
         // return moveList
 
-        throw new RuntimeException("Not implemented");
+        int row = startposition.getRow();
+        int col = startposition.getColumn();
+        if(row == 6){
+            ChessPosition specialMove = new ChessPosition(row - 2, col);
+            if(checkPiece(specialMove) == false){
+                moveList.add(specialMove);
+            }
+            else{
+                return handlePiece(specialMove, moveList, pieceColor);
+            }
+        }
+        else{
+            if(row - 1 >= 0){
+                ChessPosition normalMove = new ChessPosition(row - 1, col);
+                if(checkPiece(normalMove) == false){
+                    moveList.add(normalMove);
+                }
+                else{
+                    return handlePiece(normalMove, moveList, pieceColor);
+                }
+            }
+        }
+        return moveList;
     }
 
     public List <ChessPosition> moveKnight(ChessPosition startposition, List <ChessPosition> moveList, ChessGame.TeamColor pieceColor, ChessBoard board){
@@ -323,6 +365,14 @@ public class PieceMoveCalculator {
         // Then check if there is a piece at the possible positions and what color they are, if applicable
         // If there isn't a same-color piece, add the new position to moveList
         // return moveList
+        // (+2, -1) up and to the left
+        // (+2, 1) up and to the right
+        // (-2, -1) down and to the left
+        // (-2, 1) down and to the left
+        // (1, -2) left and up one
+        // (-1, -2) left and down one
+        // (1, +2) right and up one
+        // (-1, +2) right and down one
 
         throw new RuntimeException("Not implemented");
     }
