@@ -381,13 +381,96 @@ public class PieceMoveCalculator {
         // (-2, -1) down and to the left
         // (-2, 1) down and to the left
         // (1, -2) left and up one
-        // (-1, -2) left and down one
         // (1, +2) right and up one
+        // (-1, -2) left and down one
         // (-1, +2) right and down one
         int row = startposition.getRow();
         int col = startposition.getColumn();
-        
+        if(row + 2 <= 7){
+            if(col - 1 >= 0){
+                ChessPosition new_move = new ChessPosition(row + 2, col -1);
+                if(checkPiece(new_move) == false){
+                    moveList.add(new_move);
+                }
+                else{
+                    return handlePiece(new_move, moveList, pieceColor);
+                }
+            }
+            if(col + 1 <= 7){
+                ChessPosition new_move = new ChessPosition(row + 2, col + 1);
+                if(checkPiece(new_move) == false){
+                    moveList.add(new_move);
+                }
+                else{
+                    return handlePiece(new_move, moveList, pieceColor);
+                }
+            }
+        }
+        if(row - 2 >= 0){
+            if(col - 1 >= 0){
+                ChessPosition new_move = new ChessPosition(row - 2, col - 1);
+                if(checkPiece(new_move) == false){
+                    moveList.add(new_move);
+                }
+                else{
+                    return handlePiece(new_move, moveList, pieceColor);
+                }
+            }
+            if(col + 1 <= 7){
+                ChessPosition new_move = new ChessPosition(row - 2, col - 1);
+                if(checkPiece(new_move) == false){
+                    moveList.add(new_move);
+                }
+                else{
+                    return handlePiece(new_move, moveList, pieceColor);
+                }
+            }
+        }
+        if(col + 2 <= 7){
+            if(row + 1 <= 7){
+                ChessPosition new_move = new ChessPosition(row + 1, col + 2);
+                if(checkPiece(new_move) == false){
+                    moveList.add(new_move);
+                }
+                else{
+                    return handlePiece(new_move, moveList, pieceColor);
+                }
 
-        throw new RuntimeException("Not implemented");
+            }
+            if(row - 1 >= 0){
+                ChessPosition new_move = new ChessPosition(row - 1, col + 2);
+                if(checkPiece(new_move) == false){
+                    moveList.add(new_move);
+                }
+                else{
+                    return handlePiece(new_move, moveList, pieceColor);
+                }
+
+            }
+        }
+        if(col - 2 >= 0){
+            if(row + 1 <= 7){
+                ChessPosition new_move = new ChessPosition(row + 1, col - 2);
+                if(checkPiece(new_move) == false){
+                    moveList.add(new_move);
+                }
+                else{
+                    return handlePiece(new_move, moveList, pieceColor);
+                }
+
+            }
+            if(row - 1 >= 0){
+                ChessPosition new_move = new ChessPosition(row - 1, col - 2);
+                if(checkPiece(new_move) == false){
+                    moveList.add(new_move);
+                }
+                else{
+                    return handlePiece(new_move, moveList, pieceColor);
+                }
+                
+            }
+        }
+
+        return moveList;
     }
 }
