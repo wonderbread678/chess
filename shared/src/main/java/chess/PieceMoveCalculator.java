@@ -329,6 +329,10 @@ public class PieceMoveCalculator {
                 moveCollection.add(move1);
                 moveCollection.add(move2);
             }
+            else if(checkPiece(specialMove, board) && !checkPiece(normalMove, board)){
+                ChessMove move = new ChessMove(myPosition, normalMove, promotion);
+                moveCollection.add(move);
+            }
         }
         else{
             if(row - 1 >= 1) {
