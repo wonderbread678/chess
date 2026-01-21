@@ -1,12 +1,12 @@
 package chess;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 public class BishopMoveCalculator extends PieceMoveCalculator {
 
-    public List <ChessPosition> bishopMoveCalculations(ChessBoard board, ChessGame.TeamColor pieceColor, ChessPosition startPosition){
-        List <ChessPosition> moveList = new ArrayList<ChessPosition>();
-        moveList = moveDiagonal(startPosition, moveList, pieceColor, board);
-        return moveList;
+    public Collection <ChessMove> bishopMoveCalculations(ChessBoard board, ChessGame.TeamColor pieceColor, ChessPosition startPosition){
+        Collection <ChessMove> moveCollection = new ArrayList<ChessMove>();
+        moveCollection = moveDiagonal(startPosition, moveCollection, pieceColor, board);
+        return moveCollection;
     }
 }

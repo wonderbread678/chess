@@ -54,10 +54,37 @@ public class ChessPiece {
      *
      * @return Collection of valid moves
      */
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor color) {
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
         if (piece.getPieceType() == PieceType.BISHOP){
-            return null;
+            ChessGame.TeamColor color = piece.getTeamColor();
+            BishopMoveCalculator moves = new BishopMoveCalculator();
+            return moves.bishopMoveCalculations(board, color, myPosition);
+        }
+        else if(piece.getPieceType() == PieceType.ROOK){
+            ChessGame.TeamColor color = piece.getTeamColor();
+            RookMoveCalculator moves = new RookMoveCalculator();
+            return moves.rookMoveCalculator(board, color, myPosition);
+        }
+        else if(piece.getPieceType() == PieceType.QUEEN){
+            ChessGame.TeamColor color = piece.getTeamColor();
+            QueenMoveCalculator moves = new QueenMoveCalculator();
+            return moves.queenMoveCalculator(board, color, myPosition);
+        }
+        else if(piece.getPieceType() == PieceType.PAWN){
+            ChessGame.TeamColor color = piece.getTeamColor();
+            PawnMoveCalculator moves = new PawnMoveCalculator();
+            return moves.pawnMoveCalculator(board, color, myPosition, null);
+        }
+        else if(piece.getPieceType() == PieceType.KNIGHT){
+            ChessGame.TeamColor color = piece.getTeamColor();
+            KnightPieceCalculator moves = new KnightPieceCalculator();
+            return moves.knightMoveCalculator(board, color, myPosition);
+        }
+        else if(piece.getPieceType() == PieceType.KING){
+            ChessGame.TeamColor color = piece.getTeamColor();
+            KingMoveCalculator moves = new KingMoveCalculator();
+            return moves.kingMoveCalculator(board, color, myPosition);
         }
         return List.of();
     }
