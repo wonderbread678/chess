@@ -1,22 +1,18 @@
 package chess;
-import java.util.ArrayList;
+
 import java.util.Collection;
+import java.util.ArrayList;
 
 public class QueenMoveCalculator extends PieceMoveCalculator{
 
-    public Collection <ChessMove> queenMoveCalculator(ChessBoard board, ChessGame.TeamColor pieceColor, ChessPosition startPosition){
+    public Collection <ChessMove> queenMoveCalculations(ChessPosition startPosition, ChessPiece.PieceType promotion, ChessGame.TeamColor color, ChessBoard board){
         Collection <ChessMove> moveCollection = new ArrayList<ChessMove>();
-        Collection <ChessMove> upMoves = new ArrayList<ChessMove>();
-        Collection <ChessMove> downMoves = new ArrayList<ChessMove>();
-        Collection <ChessMove> leftMoves = new ArrayList<ChessMove>();
-        Collection <ChessMove> rightMoves = new ArrayList<ChessMove>();
-        Collection <ChessMove> diagonalMoves = new ArrayList<ChessMove>();
 
-        upMoves = moveUp(startPosition, moveCollection, pieceColor, board);
-        downMoves = moveDown(startPosition, moveCollection, pieceColor, board);
-        leftMoves = moveLeft(startPosition, moveCollection, pieceColor, board);
-        rightMoves = moveRight(startPosition, moveCollection, pieceColor, board);
-        diagonalMoves = moveDiagonal(startPosition, moveCollection, pieceColor, board);
+        moveCollection = moveDiagonal(startPosition, promotion, moveCollection, color, board);
+        moveCollection = moveUp(startPosition, promotion, moveCollection, color, board);
+        moveCollection = moveDown(startPosition, promotion, moveCollection, color, board);
+        moveCollection = moveLeft(startPosition, promotion, moveCollection, color, board);
+        moveCollection = moveRight(startPosition, promotion, moveCollection, color, board);
 
         return moveCollection;
     }

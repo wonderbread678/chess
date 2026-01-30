@@ -1,5 +1,7 @@
 package chess;
 
+import java.util.Objects;
+
 /**
  * Represents moving a chess piece on a chessboard
  * <p>
@@ -30,7 +32,6 @@ public class ChessMove {
      * @return ChessPosition of ending location
      */
     public ChessPosition getEndPosition() {
-
         return endPosition;
     }
 
@@ -41,46 +42,24 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
-
         return promotionPiece;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ChessMove chessMove)) {
+            return false;
+        }
+        return Objects.equals(startPosition, chessMove.startPosition) && Objects.equals(endPosition, chessMove.endPosition) && promotionPiece == chessMove.promotionPiece;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(startPosition, endPosition, promotionPiece);
     }
 
     @Override
     public String toString() {
         return String.format("%s%s", startPosition, endPosition);
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((startPosition == null) ? 0 : startPosition.hashCode());
-        result = prime * result + ((endPosition == null) ? 0 : endPosition.hashCode());
-        result = prime * result + ((promotionPiece == null) ? 0 : promotionPiece.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        ChessMove other = (ChessMove) obj;
-        if (startPosition == null) {
-            if (other.startPosition != null)
-                return false;
-        } else if (!startPosition.equals(other.startPosition))
-            return false;
-        if (endPosition == null) {
-            if (other.endPosition != null)
-                return false;
-        } else if (!endPosition.equals(other.endPosition))
-            return false;
-        if (promotionPiece != other.promotionPiece)
-            return false;
-        return true;
     }
 }

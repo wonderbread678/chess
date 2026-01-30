@@ -3,32 +3,34 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class PawnMoveCalculator extends PieceMoveCalculator {
+public class PawnMoveCalculator extends PieceMoveCalculator{
 
-    public Collection <ChessMove> pawnMoveCalculator(ChessBoard board, ChessGame.TeamColor pieceColor, ChessPosition startPosition, ChessPiece.PieceType promotion){
+    public Collection<ChessMove> pawnMoveCalculations(ChessPosition startPosition, ChessPiece.PieceType promotion, ChessGame.TeamColor color, ChessBoard board){
         Collection <ChessMove> moveCollection = new ArrayList<ChessMove>();
-        if(pieceColor == ChessGame.TeamColor.WHITE){
+
+        if(color == ChessGame.TeamColor.WHITE){
             if(startPosition.getRow() == 7){
-                moveCollection = moveWhitePawn(startPosition, ChessPiece.PieceType.KNIGHT, moveCollection, pieceColor, board);
-                moveCollection = moveWhitePawn(startPosition, ChessPiece.PieceType.BISHOP, moveCollection, pieceColor, board);
-                moveCollection = moveWhitePawn(startPosition, ChessPiece.PieceType.QUEEN, moveCollection, pieceColor, board);
-                moveCollection = moveWhitePawn(startPosition, ChessPiece.PieceType.ROOK, moveCollection, pieceColor, board);
+                moveCollection = moveWhitePawn(startPosition, ChessPiece.PieceType.ROOK, moveCollection, color, board);
+                moveCollection = moveWhitePawn(startPosition, ChessPiece.PieceType.BISHOP, moveCollection, color, board);
+                moveCollection = moveWhitePawn(startPosition, ChessPiece.PieceType.QUEEN, moveCollection, color, board);
+                moveCollection = moveWhitePawn(startPosition, ChessPiece.PieceType.KNIGHT, moveCollection, color, board);
             }
             else{
-                moveCollection = moveWhitePawn(startPosition, promotion, moveCollection, pieceColor, board);
+                moveCollection = moveWhitePawn(startPosition, null, moveCollection, color, board);
             }
         }
         else{
             if(startPosition.getRow() == 2){
-                moveCollection = moveBlackPawn(startPosition, ChessPiece.PieceType.KNIGHT, moveCollection, pieceColor, board);
-                moveCollection = moveBlackPawn(startPosition, ChessPiece.PieceType.BISHOP, moveCollection, pieceColor, board);
-                moveCollection = moveBlackPawn(startPosition, ChessPiece.PieceType.QUEEN, moveCollection, pieceColor, board);
-                moveCollection = moveBlackPawn(startPosition, ChessPiece.PieceType.ROOK, moveCollection, pieceColor, board);
+                moveCollection = moveBlackPawn(startPosition, ChessPiece.PieceType.ROOK, moveCollection, color, board);
+                moveCollection = moveBlackPawn(startPosition, ChessPiece.PieceType.BISHOP, moveCollection, color, board);
+                moveCollection = moveBlackPawn(startPosition, ChessPiece.PieceType.QUEEN, moveCollection, color, board);
+                moveCollection = moveBlackPawn(startPosition, ChessPiece.PieceType.KNIGHT, moveCollection, color, board);
             }
             else{
-                moveCollection = moveBlackPawn(startPosition, promotion, moveCollection, pieceColor, board);
+                moveCollection = moveBlackPawn(startPosition, null, moveCollection, color, board);
             }
         }
+
         return moveCollection;
     }
 }

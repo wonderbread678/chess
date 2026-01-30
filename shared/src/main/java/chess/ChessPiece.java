@@ -2,6 +2,7 @@ package chess;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -35,7 +36,6 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-
         return pieceColor;
     }
 
@@ -43,7 +43,6 @@ public class ChessPiece {
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-
         return type;
     }
 
@@ -55,63 +54,50 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        ChessPiece piece = board.getPiece(myPosition);
-        if (piece.getPieceType() == PieceType.BISHOP){
-            ChessGame.TeamColor color = piece.getTeamColor();
+        if(board.getPiece(myPosition).getPieceType() == PieceType.BISHOP){
+            ChessGame.TeamColor color = board.getPiece(myPosition).getTeamColor();
             BishopMoveCalculator moves = new BishopMoveCalculator();
-            return moves.bishopMoveCalculations(board, color, myPosition);
+            return moves.bishopMoveCalculations(myPosition, null, color, board);
         }
-        else if(piece.getPieceType() == PieceType.ROOK){
-            ChessGame.TeamColor color = piece.getTeamColor();
+        else if(board.getPiece(myPosition).getPieceType() == PieceType.ROOK){
+            ChessGame.TeamColor color = board.getPiece(myPosition).getTeamColor();
             RookMoveCalculator moves = new RookMoveCalculator();
-            return moves.rookMoveCalculator(board, color, myPosition);
+            return moves.rookMoveCalculations(myPosition, null, color, board);
         }
-        else if(piece.getPieceType() == PieceType.QUEEN){
-            ChessGame.TeamColor color = piece.getTeamColor();
+        else if(board.getPiece(myPosition).getPieceType() == PieceType.QUEEN){
+            ChessGame.TeamColor color = board.getPiece(myPosition).getTeamColor();
             QueenMoveCalculator moves = new QueenMoveCalculator();
-            return moves.queenMoveCalculator(board, color, myPosition);
+            return moves.queenMoveCalculations(myPosition, null, color, board);
         }
-        else if(piece.getPieceType() == PieceType.PAWN){
-            ChessGame.TeamColor color = piece.getTeamColor();
-            PawnMoveCalculator moves = new PawnMoveCalculator();
-            return moves.pawnMoveCalculator(board, color, myPosition, null);
-        }
-        else if(piece.getPieceType() == PieceType.KNIGHT){
-            ChessGame.TeamColor color = piece.getTeamColor();
-            KnightPieceCalculator moves = new KnightPieceCalculator();
-            return moves.knightMoveCalculator(board, color, myPosition);
-        }
-        else if(piece.getPieceType() == PieceType.KING){
-            ChessGame.TeamColor color = piece.getTeamColor();
+        else if(board.getPiece(myPosition).getPieceType() == PieceType.KING){
+            ChessGame.TeamColor color = board.getPiece(myPosition).getTeamColor();
             KingMoveCalculator moves = new KingMoveCalculator();
-            return moves.kingMoveCalculator(board, color, myPosition);
+            return moves.kingMoveCalculations(board, color, myPosition,null);
         }
+        else if(board.getPiece(myPosition).getPieceType() == PieceType.KNIGHT){
+            ChessGame.TeamColor color = board.getPiece(myPosition).getTeamColor();
+            KnightMoveCalculator moves = new KnightMoveCalculator();
+            return moves.knightMoveCalculations(myPosition, null, color, board);
+        }
+        else if(board.getPiece(myPosition).getPieceType() == PieceType.PAWN){
+            ChessGame.TeamColor color = board.getPiece(myPosition).getTeamColor();
+            PawnMoveCalculator moves = new PawnMoveCalculator();
+            return moves.pawnMoveCalculations(myPosition, null, color, board);
+        }
+
         return List.of();
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((pieceColor == null) ? 0 : pieceColor.hashCode());
-        result = prime * result + ((type == null) ? 0 : type.hashCode());
-        return result;
+    public boolean equals(Object o) {
+        if (!(o instanceof ChessPiece that)) {
+            return false;
+        }
+        return pieceColor == that.pieceColor && type == that.type;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        ChessPiece other = (ChessPiece) obj;
-        if (pieceColor != other.pieceColor)
-            return false;
-        if (type != other.type)
-            return false;
-        return true;
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
     }
-//    I Just need to push this
 }
