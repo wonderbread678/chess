@@ -17,17 +17,16 @@ public class ChessGame {
     /**
      * @return Which team's turn it is
      */
-    public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+    public TeamColor getTeamTurn(ChessGame.TeamColor teamTurn) {
+        return teamTurn;
     }
-
     /**
      * Set's which teams turn it is
      *
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+        ChessGame.TeamColor turn = team;
     }
 
     /**
@@ -96,7 +95,17 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        throw new RuntimeException("Not implemented");
+        ChessBoard new_board = new ChessBoard();
+        for(int i = 0; i < 7; ++i){
+            for(int j = 0; j < 7; ++j){
+                ChessPosition space = new ChessPosition(i, j);
+                if(board.getPiece(space) != null){
+                    ChessGame.TeamColor color = board.getPiece(space).getTeamColor();
+                    ChessPiece piece = new ChessPiece(color, board.getPiece(space).getPieceType());
+                    new_board.addPiece(space, piece);
+                }
+            }
+        }
     }
 
     /**
