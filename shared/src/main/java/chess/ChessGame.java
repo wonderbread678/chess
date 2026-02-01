@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayDeque;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -9,7 +10,7 @@ import java.util.Collection;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessGame implements Cloneable{
+public class ChessGame {
 
     ChessGame.TeamColor currentTurn = TeamColor.WHITE;
     Collection <ChessMove> moves = new ArrayDeque<ChessMove>();
@@ -25,6 +26,20 @@ public class ChessGame implements Cloneable{
     public TeamColor getTeamTurn() {
         return currentTurn;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ChessGame chessGame)) {
+            return false;
+        }
+        return currentTurn == chessGame.currentTurn && Objects.equals(moves, chessGame.moves) && Objects.equals(gameBoard, chessGame.gameBoard);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(currentTurn, moves, gameBoard);
+    }
+
     /**
      * Set's which teams turn it is
      *
@@ -36,17 +51,6 @@ public class ChessGame implements Cloneable{
         }
         else{
             currentTurn = TeamColor.BLACK;
-        }
-    }
-
-    @Override
-    public ChessGame clone() {
-        try {
-            ChessGame clone = (ChessGame) super.clone();
-            // TODO: copy mutable state here, so the clone can't change the internals of the original
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
         }
     }
 

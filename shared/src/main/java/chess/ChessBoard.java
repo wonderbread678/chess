@@ -9,7 +9,7 @@ import java.util.Objects;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessBoard {
+public class ChessBoard implements Cloneable{
 
     ChessPiece[][] squares = new ChessPiece[8][8];
     public ChessBoard() {
@@ -83,5 +83,24 @@ public class ChessBoard {
     @Override
     public int hashCode() {
         return Arrays.deepHashCode(squares);
+    }
+
+    @Override
+    public ChessBoard clone() {
+        try {
+            ChessBoard clone = (ChessBoard) super.clone();
+            ChessPiece[][] squares = new ChessPiece[8][8];
+            for(int i = 1; i < 8; ++i){
+                for(int j = 1; j < 8; ++j){
+                    if(squares[i - 1][j - 1] != null){
+
+                    }
+                }
+            }
+            // TODO: copy mutable state here, so the clone can't change the internals of the original
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }
