@@ -92,10 +92,10 @@ public class ChessBoard implements Cloneable{
             ChessPiece[][] copySquares = new ChessPiece[8][8];
             for(int i = 1; i < 8; ++i){
                 for(int j = 1; j < 8; ++j){
-                    if(squares[i - 1][j - 1] != null){
+                    if(copySquares[i - 1][j - 1] != null){
                         ChessPosition currentPosition = new ChessPosition(i, j);
                         ChessPiece piece = cloneBoard.getPiece(currentPosition);
-                        cloneBoard.addPiece(currentPosition, piece);
+                        copySquares[i - 1][j - 1]  = piece;
                     }
                 }
             }

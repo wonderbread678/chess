@@ -20,13 +20,6 @@ public class ChessGame {
 
     }
 
-    /**
-     * @return Which team's turn it is
-     */
-    public TeamColor getTeamTurn() {
-        return currentTurn;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof ChessGame chessGame)) {
@@ -38,6 +31,13 @@ public class ChessGame {
     @Override
     public int hashCode() {
         return Objects.hash(currentTurn, moves, gameBoard);
+    }
+
+    /**
+     * @return Which team's turn it is
+     */
+    public TeamColor getTeamTurn() {
+        return currentTurn;
     }
 
     /**
@@ -71,7 +71,12 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         if(gameBoard.getPiece(startPosition) != null){
-
+            ChessPiece currentPiece = gameBoard.getPiece(startPosition);
+            Collection <ChessMove> unfilteredMoves = currentPiece.pieceMoves(gameBoard, startPosition);
+            for(ChessMove move : unfilteredMoves){
+                ChessBoard cloneBoard = getBoard().clone();
+                ChessPosition endPosition = move.getEndPosition();
+            }
         }
         return moves;
     }
