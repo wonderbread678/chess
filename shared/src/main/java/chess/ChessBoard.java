@@ -88,17 +88,18 @@ public class ChessBoard implements Cloneable{
     @Override
     public ChessBoard clone() {
         try {
-            ChessBoard clone = (ChessBoard) super.clone();
-            ChessPiece[][] squares = new ChessPiece[8][8];
+            ChessBoard cloneBoard = (ChessBoard) super.clone();
+            ChessPiece[][] copySquares = new ChessPiece[8][8];
             for(int i = 1; i < 8; ++i){
                 for(int j = 1; j < 8; ++j){
                     if(squares[i - 1][j - 1] != null){
-
+                        ChessPosition currentPosition = new ChessPosition(i, j);
+                        ChessPiece piece = cloneBoard.getPiece(currentPosition);
+                        cloneBoard.addPiece(currentPosition, piece);
                     }
                 }
             }
-            // TODO: copy mutable state here, so the clone can't change the internals of the original
-            return clone;
+            return cloneBoard;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
