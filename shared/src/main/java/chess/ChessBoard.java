@@ -95,7 +95,7 @@ public class ChessBoard implements Cloneable{
                     if(copySquares[i - 1][j - 1] != null){
                         ChessPosition currentPosition = new ChessPosition(i, j);
                         ChessPiece piece = cloneBoard.getPiece(currentPosition);
-                        copySquares[i - 1][j - 1]  = piece;
+                        copySquares[i - 1][j - 1]  = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
                     }
                 }
             }
