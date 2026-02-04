@@ -20,6 +20,17 @@ public class PieceMoveCalculator {
         return moveCollection;
     }
 
+    public Collection <ChessMove> handleMove(ChessPosition startPosition, ChessPosition newPosition, ChessPiece.PieceType promotion, Collection <ChessMove> moveCollection, ChessGame.TeamColor color, ChessBoard board){
+        if(!ifPiece(newPosition, board)){
+            ChessMove move = new ChessMove(startPosition, newPosition, promotion);
+            moveCollection.add(move);
+        }
+        else{
+            handlePiece(startPosition, newPosition, promotion, moveCollection, color, board);
+        }
+        return moveCollection;
+    }
+
     public Collection <ChessMove> moveDiagonal(ChessPosition startPosition, ChessPiece.PieceType promotion, Collection <ChessMove> moveCollection, ChessGame.TeamColor color, ChessBoard board){
         ChessPosition myPosition = startPosition;
 //        Move up and right
@@ -145,17 +156,6 @@ public class PieceMoveCalculator {
                 handlePiece(startPosition, newPosition, promotion, moveCollection, color, board);
                 break;
             }
-        }
-        return moveCollection;
-    }
-
-    public Collection <ChessMove> handleMove(ChessPosition startPosition, ChessPosition newPosition, ChessPiece.PieceType promotion, Collection <ChessMove> moveCollection, ChessGame.TeamColor color, ChessBoard board){
-        if(!ifPiece(newPosition, board)){
-            ChessMove move = new ChessMove(startPosition, newPosition, promotion);
-            moveCollection.add(move);
-        }
-        else{
-            handlePiece(startPosition, newPosition, promotion, moveCollection, color, board);
         }
         return moveCollection;
     }
