@@ -89,17 +89,17 @@ public class ChessBoard implements Cloneable{
     public ChessBoard clone() {
         try {
             ChessBoard cloneBoard = (ChessBoard) super.clone();
-            ChessPiece[][] copySquares = new ChessPiece[8][8];
-            for(int i = 1; i < 8; ++i){
-                for(int j = 1; j < 8; ++j){
-                    if(copySquares[i - 1][j - 1] != null){
-                        ChessPosition currentPosition = new ChessPosition(i, j);
+            ChessBoard returnedBoard = new ChessBoard();
+            for(int i = 1; i <= 8; ++i){
+                for(int j = 1; j <= 8; ++j){
+                    ChessPosition currentPosition = new ChessPosition(i, j);
+                    if(cloneBoard.getPiece(currentPosition) != null){
                         ChessPiece piece = cloneBoard.getPiece(currentPosition);
-                        copySquares[i - 1][j - 1]  = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
+                        returnedBoard.addPiece(currentPosition, piece);
                     }
                 }
             }
-            return cloneBoard;
+            return returnedBoard;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
