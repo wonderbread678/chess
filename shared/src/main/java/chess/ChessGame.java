@@ -79,6 +79,20 @@ public class ChessGame {
                     gameBoard.addPiece(newPosition, piece);
                     //            Removing the old position
                     gameBoard.squares[currentPosition.getRow() - 1][currentPosition.getColumn() - 1] = null;
+                    if(piece.getPieceType() == ChessPiece.PieceType.PAWN){
+                        if(piece.getTeamColor() == TeamColor.WHITE && newPosition.getRow() == 8){
+                            ChessPiece.PieceType promotion = move.getPromotionPiece();
+                            ChessPiece promotionPiece = new ChessPiece(color, promotion);
+                            gameBoard.squares[newPosition.getRow() - 1][newPosition.getColumn() - 1] = null;
+                            gameBoard.addPiece(newPosition, promotionPiece);
+                        }
+                        else if(piece.getTeamColor() == TeamColor.BLACK && newPosition.getRow() == 1){
+                            ChessPiece.PieceType promotion = move.getPromotionPiece();
+                            ChessPiece promotionPiece = new ChessPiece(color, promotion);
+                            gameBoard.squares[newPosition.getRow() - 1][newPosition.getColumn() - 1] = null;
+                            gameBoard.addPiece(newPosition, promotionPiece);
+                        }
+                    }
                     if(isInCheck(currentTurn)){
                         gameBoard = defaultBoard;
                         throw new InvalidMoveException("King is in check");
@@ -115,7 +129,6 @@ public class ChessGame {
         ChessPiece currentPiece = gameBoard.getPiece(startPosition);
         ChessGame.TeamColor colorCheck = currentPiece.getTeamColor();
         Collection <ChessMove> unfilteredMoves = currentPiece.pieceMoves(gameBoard, startPosition);
-        ChessPiece.PieceType forDebugging = currentPiece.getPieceType();
         for(ChessMove move : unfilteredMoves){
             ChessBoard cloneBoard = getBoard().clone();
             ChessPosition endPosition = move.getEndPosition();
@@ -124,6 +137,7 @@ public class ChessGame {
             if(!isInCheck(colorCheck)){
                 moves.add(move);
             }
+            String test = "You've made it here";
             gameBoard = cloneBoard;
 
         }
@@ -201,15 +215,25 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        Collection <ChessMove> moves = new ArrayDeque<ChessMove>();
-        if(!isInCheck(teamColor) && moves.isEmpty()){
+        Collection <ChessMove> allMoves = getEveryMove();
+        if(!isInCheck(teamColor) && allMoves.isEmpty()){
             return true;
         }
         return false;
     }
 
-    public Collection <ChessMove> getEveryMove(ChessBoard board){
-        for(int )
+    public Collection <ChessMove> getEveryMove(){
+        Collection <ChessMove> allMoves = new ArrayDeque<>();
+        for(int i = 1; i <= 8; ++i){
+            for( int j = 1; j <= 8; ++j){
+                ChessPosition currentPosition = new ChessPosition(i, j);
+                if(gameBoard.getPiece(currentPosition) != null){
+                    Collection <ChessMove> moveHolder = validMoves(currentPosition);
+                    allMoves.addAll(moveHolder);
+                }
+            }
+        }
+        return allMoves;
     }
 
     /**
