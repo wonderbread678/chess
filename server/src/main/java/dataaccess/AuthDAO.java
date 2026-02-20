@@ -5,7 +5,7 @@ import model.*;
 
 public interface AuthDAO {
 
-    AuthData createAuth() throws DataAccessException;
+    AuthData createAuth(String username) throws DataAccessException;
 
     AuthData getAuth() throws DataAccessException;
 
