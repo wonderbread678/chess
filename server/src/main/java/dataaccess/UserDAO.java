@@ -5,7 +5,7 @@ import model.*;
 
 public interface UserDAO {
 
-    UserData createUser(String username, String password, String email) throws DataAccessException;
+    UserData createUser(UserData userData) throws DataAccessException;
 
     UserData getUser(String username) throws DataAccessException;
 

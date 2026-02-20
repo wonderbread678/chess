@@ -1,14 +1,17 @@
 package dataaccess;
 
 import model.*;
+import java.util.HashMap;
 
 public interface GameDAO {
 
-    GameData createGame() throws DataAccessException;
+    GameData createGame(GameData gameData) throws DataAccessException;
 
-    GameData listGames() throws DataAccessException;
+    HashMap<Integer, GameData> listGames() throws DataAccessException;
 
-    GameData getGame() throws DataAccessException;
+    GameData getGame(int gameID) throws DataAccessException;
 
     void updateGame() throws DataAccessException;
+
+    void deleteAllGames() throws DataAccessException;
 }
