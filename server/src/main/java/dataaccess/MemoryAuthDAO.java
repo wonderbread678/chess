@@ -8,11 +8,10 @@ import java.util.HashMap;
 public class MemoryAuthDAO implements AuthDAO {
     private final HashMap<String, AuthData> authDataList = new HashMap<>();
 
-    public AuthData createAuth(String username) throws DataAccessException {
-        String authToken = generateToken();
-        AuthData authData = new AuthData(username, authToken);
+    public AuthData createAuth(AuthData authData) throws DataAccessException {
+        AuthData auth = new AuthData(authData.username(), authData.authToken());
 
-        authDataList.put(username, authData);
+        authDataList.put(authData.username(), auth);
         return authData;
     }
 
@@ -26,10 +25,6 @@ public class MemoryAuthDAO implements AuthDAO {
 
     public void deleteAllAuth() throws DataAccessException{
         authDataList.clear();
-    }
-
-    public static String generateToken() {
-        return UUID.randomUUID().toString();
     }
 
 }

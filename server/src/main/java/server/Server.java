@@ -24,25 +24,32 @@ public class Server {
 
     }
 
-    private void register(Context context) {
+    private void register(Context ctx) throws DataAccessException{
+
     }
 
-    private void login(Context context) {
+    private void login(Context ctx) throws DataAccessException{
+        UserData user = new Gson().fromJson(ctx.body(), UserData.class);
     }
 
-    private void logout(Context context) {
+    private void logout(Context ctx) throws DataAccessException{
+
     }
 
-    private void listGames(Context context) {
+    private void listGames(Context ctx) throws DataAccessException{
+
     }
 
-    private void createGame(Context context) {
+    private void createGame(Context ctx) throws DataAccessException{
+
     }
 
-    private void joinGame(Context context) {
+    private void joinGame(Context ctx) throws DataAccessException{
+
     }
 
-    private void clearAll(Context context) {
+    private void clearAll(Context ctx) throws DataAccessException{
+
     }
 
 
