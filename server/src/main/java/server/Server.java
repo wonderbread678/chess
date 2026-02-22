@@ -1,16 +1,18 @@
 package server;
 
+import dataaccess.Memory.MemoryAuthDAO;
+import dataaccess.Memory.MemoryUserDAO;
 import io.javalin.*;
 import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.http.Context;
 import model.*;
-import org.eclipse.jetty.util.log.Log;
 import service.*;
 
 public class Server {
 
     private final Javalin javalin;
+    private final UserService userService = new UserService(new MemoryAuthDAO(), new MemoryUserDAO());
 
 
     public Server() {
@@ -28,18 +30,20 @@ public class Server {
     }
 
     private void register(Context ctx) throws DataAccessException{
-
+        UserData user = new Gson().fromJson(ctx.body(), UserData.class);
+        AuthData registerResult = userService.createUser(user.username(), user.password(), user.email());
+        ctx.result(new Gson().toJson(registerResult));
     }
 
     private void login(Context ctx) throws DataAccessException{
         UserData user = new Gson().fromJson(ctx.body(), UserData.class);
-        LoginService loginService = new LoginService(new MemoryAuthDAO(), new MemoryUserDAO());
-        AuthData loginResult = loginService.createAuth(user.username(), user.password());
+        AuthData loginResult = userService.createAuth(user.username(), user.password());
         ctx.result(new Gson().toJson(loginResult));
     }
 
     private void logout(Context ctx) throws DataAccessException{
-
+        String authToken = new Gson().fromJson(ctx.body(), String.class);
+        userService.logout(authToken);
     }
 
     private void listGames(Context ctx) throws DataAccessException{

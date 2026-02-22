@@ -1,9 +1,11 @@
-package dataaccess;
+package dataaccess.Memory;
+import dataaccess.DataAccessException;
+import dataaccess.GameDAO;
 import model.*;
 
 import java.util.HashMap;
 
-public class MemoryGameDAO implements GameDAO{
+public class MemoryGameDAO implements GameDAO {
     private final HashMap<Integer, GameData> allGames = new HashMap<>();
 
     public GameData createGame(GameData gameData) throws DataAccessException {
