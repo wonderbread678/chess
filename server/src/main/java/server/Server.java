@@ -5,13 +5,17 @@ import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.http.Context;
 import model.*;
+import org.eclipse.jetty.util.log.Log;
 import service.*;
 
 public class Server {
 
     private final Javalin javalin;
+    private final LoginService logService;
+
 
     public Server() {
+
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
             .post("/user", this::register)
                 .post("/session", this::login)
@@ -30,6 +34,7 @@ public class Server {
 
     private void login(Context ctx) throws DataAccessException{
         UserData user = new Gson().fromJson(ctx.body(), UserData.class);
+        logService.createAuth(user.username(), user.password());
     }
 
     private void logout(Context ctx) throws DataAccessException{

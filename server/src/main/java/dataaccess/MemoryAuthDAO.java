@@ -12,7 +12,7 @@ public class MemoryAuthDAO implements AuthDAO {
         AuthData auth = new AuthData(authData.username(), authData.authToken());
 
         authDataList.put(authData.username(), auth);
-        return authData;
+        return auth;
     }
 
     public AuthData getAuth(String username) throws DataAccessException {
