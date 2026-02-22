@@ -15,30 +15,24 @@ public class LoginService {
         this.userDAO = userData;
     }
 
-    public UserData getUser(String username) throws DataAccessException{
-        if(userDAO.getUser(username) == null){
-            throw new DataAccessException("[400] Bad Request: Username not found");
-        }
-        return userDAO.getUser(username);
-    }
-
     public AuthData createAuth(String username, String password) throws DataAccessException{
-        if(getUser(username) == null){
+        UserData user = getUser(username);
+        if(user == null){
             throw new DataAccessException("[400] Bad Request: Username not found");
         }
-        if(!isLoginInfoCorrect(username, password)){
+        if(!isLoginInfoCorrect(password, user)){
             throw new DataAccessException("[401] Unauthorized: Incorrect password");
         }
         AuthData newAuth = new AuthData(username, generateToken());
         return authDAO.createAuth(newAuth);
     }
 
-    public boolean isLoginInfoCorrect(String username, String password) throws DataAccessException{
-        UserData user = userDAO.getUser(username);
-        if(username.equals(user.username()) && password.equals(user.password())){
-            return true;
-        }
-        return false;
+    public UserData getUser(String username) throws DataAccessException{
+        return userDAO.getUser(username);
+    }
+
+    public boolean isLoginInfoCorrect(String password, UserData user) throws DataAccessException{
+        return password.equals(user.password());
     }
 
     public static String generateToken() {

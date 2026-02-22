@@ -11,7 +11,6 @@ import service.*;
 public class Server {
 
     private final Javalin javalin;
-    private final LoginService logService;
 
 
     public Server() {
@@ -34,7 +33,9 @@ public class Server {
 
     private void login(Context ctx) throws DataAccessException{
         UserData user = new Gson().fromJson(ctx.body(), UserData.class);
-        logService.createAuth(user.username(), user.password());
+        LoginService loginService = new LoginService(new MemoryAuthDAO(), new MemoryUserDAO());
+        AuthData loginResult = loginService.createAuth(user.username(), user.password());
+        ctx.result(new Gson().toJson(loginResult));
     }
 
     private void logout(Context ctx) throws DataAccessException{
