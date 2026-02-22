@@ -33,7 +33,7 @@ public class UserService {
         if(!isLoginInfoCorrect(password, user)){
             throw new DataAccessException("[401] Unauthorized: Incorrect password");
         }
-        AuthData newAuth = new AuthData(username, generateToken());
+        AuthData newAuth = new AuthData(generateToken(), username);
         return authDAO.createAuth(newAuth);
     }
 

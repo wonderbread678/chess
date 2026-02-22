@@ -25,25 +25,41 @@ public class Server {
                 .post("/game", this::createGame)
                 .put("/game", this::joinGame)
                 .delete("/db", this::clearAll);
+
         // Register your endpoints and exception handlers here.
 
     }
 
-    private void register(Context ctx) throws DataAccessException{
+    private void register(Context ctx) {
+        try{
         UserData user = new Gson().fromJson(ctx.body(), UserData.class);
         AuthData registerResult = userService.createUser(user.username(), user.password(), user.email());
         ctx.result(new Gson().toJson(registerResult));
+        }
+        catch (DataAccessException e){
+            throw new ResponseException("Failed to register user", e);
+        }
     }
 
-    private void login(Context ctx) throws DataAccessException{
-        UserData user = new Gson().fromJson(ctx.body(), UserData.class);
-        AuthData loginResult = userService.createAuth(user.username(), user.password());
-        ctx.result(new Gson().toJson(loginResult));
+    private void login(Context ctx){
+        try {
+            UserData user = new Gson().fromJson(ctx.body(), UserData.class);
+            AuthData loginResult = userService.createAuth(user.username(), user.password());
+            ctx.result(new Gson().toJson(loginResult));
+        }
+        catch(DataAccessException e){
+            throw new ResponseException("Failed to login user", e);
+        }
     }
 
     private void logout(Context ctx) throws DataAccessException{
-        String authToken = new Gson().fromJson(ctx.body(), String.class);
-        userService.logout(authToken);
+        try {
+            String authToken = new Gson().fromJson(ctx.body(), String.class);
+            userService.logout(authToken);
+        }
+        catch(DataAccessException e){
+            throw new ResponseException("Failed to logout user", e);
+        }
     }
 
     private void listGames(Context ctx) throws DataAccessException{
@@ -59,6 +75,10 @@ public class Server {
     }
 
     private void clearAll(Context ctx) throws DataAccessException{
+
+    }
+
+    private void exceptionHandler(Context ctx){
 
     }
 
