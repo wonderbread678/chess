@@ -1,4 +1,9 @@
 package server.Request;
 
-public record LogoutRequest() {
+import com.google.gson.Gson;
+
+public record LogoutRequest(String authToken) {
+    public String toString() {
+        return new Gson().toJson(this);
+    }
 }
