@@ -1,7 +1,6 @@
 package service;
 
 import dataaccess.Memory.MemoryAuthDAO;
-import dataaccess.Memory.MemoryUserDAO;
 import dataaccess.*;
 
 public class AuthService {

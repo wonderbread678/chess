@@ -28,8 +28,10 @@ public class MemoryGameDAO implements GameDAO {
         return allGames;
     }
 
-    public void updateGame() throws DataAccessException {
-
+    public void updateGamePlayers(GameData game, String whiteUsername, String blackUsername) throws DataAccessException {
+        GameData updatedGame = new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game());
+        allGames.remove(game.gameID());
+        allGames.put(game.gameID(), updatedGame);
     }
 
     public void deleteAllGames() throws DataAccessException {
