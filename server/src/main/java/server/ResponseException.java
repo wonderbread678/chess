@@ -1,22 +1,15 @@
 package server;
 
-public class ResponseException extends RuntimeException {
-    public ResponseException() {
-    }
+public class ResponseException extends Exception {
 
-    public ResponseException(String message) {
+    private final int code;
+
+    public ResponseException(int code, String message) {
         super(message);
+        this.code = code;
     }
 
-    public ResponseException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ResponseException(Throwable cause) {
-        super(cause);
-    }
-
-    public ResponseException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    public int getCode() {
+        return code;
     }
 }

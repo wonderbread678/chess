@@ -4,6 +4,7 @@ import dataaccess.*;
 import dataaccess.Memory.MemoryAuthDAO;
 import dataaccess.Memory.MemoryUserDAO;
 import model.*;
+import server.ResponseException;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -17,31 +18,41 @@ public class UserService {
         this.userDAO = userData;
     }
 
-    public AuthData createUser(String username, String password, String email) throws DataAccessException{
-        if(userDAO.getUser(username) !=  null){
-            throw new DataAccessException("Username already taken");
-        }
+    public AuthData createUser(String username, String password, String email) throws ResponseException {
+        try {
+            if (userDAO.getUser(username) != null) {
+                throw new ResponseException(403, "Error: Username already taken");
+            }
         userDAO.createUser(new UserData(username, password, email));
         return createAuth(username, password);
+        }
+        catch(DataAccessException ex){
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
 
-    public AuthData createAuth(String username, String password) throws DataAccessException{
-        UserData user = userDAO.getUser(username);
-        if(user == null){
-            throw new DataAccessException("[400] Bad Request: Username not found");
+    public AuthData createAuth(String username, String password) throws ResponseException{
+        try{
+            UserData user = userDAO.getUser(username);
+            if(user == null){
+                throw new ResponseException(400, "Error: Username not found");
+            }
+            if(!isLoginInfoCorrect(password, user)){
+                throw new ResponseException(401, "Error: Unauthorized");
+            }
+            AuthData newAuth = new AuthData(generateToken(), username);
+            return authDAO.createAuth(newAuth);
         }
-        if(!isLoginInfoCorrect(password, user)){
-            throw new DataAccessException("[401] Unauthorized: Incorrect password");
+        catch(DataAccessException ex){
+            throw new ResponseException(500, ex.getMessage());
         }
-        AuthData newAuth = new AuthData(generateToken(), username);
-        return authDAO.createAuth(newAuth);
     }
 
     public void logout(String authToken) throws DataAccessException{
         authDAO.deleteAuth(authToken);
     }
 
-    public boolean isLoginInfoCorrect(String password, UserData user) throws DataAccessException{
+    public boolean isLoginInfoCorrect(String password, UserData user) throws ResponseException{
         return password.equals(user.password());
     }
 

@@ -24,7 +24,8 @@ public class Server {
                 .get("/game", this::listGames)
                 .post("/game", this::createGame)
                 .put("/game", this::joinGame)
-                .delete("/db", this::clearAll);
+                .delete("/db", this::clearAll)
+                .exception(ResponseException.class, this::exceptionHandler);
 
         // Register your endpoints and exception handlers here.
 
@@ -47,7 +48,7 @@ public class Server {
             AuthData loginResult = userService.createAuth(user.username(), user.password());
             ctx.result(new Gson().toJson(loginResult));
         }
-        catch(DataAccessException e){
+        catch(ResponseException e){
             throw new ResponseException("Failed to login user", e);
         }
     }
@@ -78,8 +79,9 @@ public class Server {
 
     }
 
-    private void exceptionHandler(Context ctx){
-
+    private void exceptionHandler(ResponseException ex, Context ctx){
+        ctx.status(ex.getCode());
+        ctx.result(new Gson().toJson(ex.getMessage()));
     }
 
 
