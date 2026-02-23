@@ -3,7 +3,6 @@ import chess.ChessGame;
 import dataaccess.*;
 import dataaccess.Memory.MemoryAuthDAO;
 import dataaccess.Memory.MemoryGameDAO;
-import dataaccess.Memory.MemoryUserDAO;
 import model.*;
 
 import java.util.HashMap;
@@ -11,13 +10,11 @@ import java.util.HashMap;
 public class GameService {
 
     private final MemoryGameDAO gameDAO;
-    private final MemoryUserDAO userDAO;
     private final MemoryAuthDAO authDAO;
     private final AuthService authService = new AuthService(new MemoryAuthDAO());
 
-    public GameService(MemoryGameDAO gameDAO, MemoryUserDAO userDAO, MemoryAuthDAO authDAO){
+    public GameService(MemoryGameDAO gameDAO, MemoryAuthDAO authDAO){
         this.gameDAO = gameDAO;
-        this.userDAO = userDAO;
         this.authDAO = authDAO;
     }
 
@@ -36,10 +33,10 @@ public class GameService {
         AuthData auth = authDAO.getAuth(authToken);
         if(isColorAvailable(color, game)){
             if(color == ChessGame.TeamColor.WHITE){
-
+                gameDAO.updateGamePlayers(game, auth.username(), null);
             }
             else if(color == ChessGame.TeamColor.BLACK){
-
+                gameDAO.updateGamePlayers(game, null, auth.username());
             }
         }
     }
