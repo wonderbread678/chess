@@ -1,4 +1,4 @@
 package server.Request;
 
-public class RegisterRequest {
+public record RegisterRequest() {
 }

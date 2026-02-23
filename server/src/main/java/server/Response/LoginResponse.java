@@ -1,4 +1,4 @@
 package server.Response;
 
-public class LoginResponse {
+public record LoginResponse() {
 }

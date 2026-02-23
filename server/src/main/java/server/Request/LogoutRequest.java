@@ -1,4 +1,4 @@
 package server.Request;
 
-public class LogoutRequest {
+public record LogoutRequest() {
 }

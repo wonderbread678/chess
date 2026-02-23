@@ -1,4 +1,4 @@
 package server.Request;
 
-public class CreateGameRequest {
+public record CreateGameRequest() {
 }

@@ -1,4 +1,4 @@
 package server.Request;
 
-public class ListGamesRequest {
+public record ListGamesRequest() {
 }
