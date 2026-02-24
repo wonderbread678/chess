@@ -48,8 +48,13 @@ public class UserService {
         }
     }
 
-    public void logout(String authToken) throws DataAccessException{
-        authDAO.deleteAuth(authToken);
+    public void logout(String authToken) throws ResponseException{
+        try{
+            authDAO.deleteAuth(authToken);
+        }
+        catch(DataAccessException ex){
+            throw new ResponseException(500, ex.getMessage)
+        }
     }
 
     public boolean isLoginInfoCorrect(String password, UserData user) throws ResponseException{

@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.Memory.MemoryAuthDAO;
 import dataaccess.*;
+import server.ResponseException;
 
 public class AuthService {
 
@@ -11,7 +12,12 @@ public class AuthService {
         this.authDAO = authDAO;
     }
 
-    public boolean isAuth(String authToken) throws DataAccessException{
-        return authDAO.getAuth(authToken) != null;
+    public boolean isAuth(String authToken) throws ResponseException {
+        try{
+            return authDAO.getAuth(authToken) != null;
+        }
+        catch(DataAccessException ex){
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
 }

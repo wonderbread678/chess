@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.http.Context;
 import model.*;
+import org.eclipse.jetty.server.Response;
 import service.*;
 
 public class Server {
@@ -37,8 +38,8 @@ public class Server {
         AuthData registerResult = userService.createUser(user.username(), user.password(), user.email());
         ctx.result(new Gson().toJson(registerResult));
         }
-        catch (DataAccessException e){
-            throw new ResponseException("Failed to register user", e);
+        catch (ResponseException e){
+            exceptionHandler(e, ctx);
         }
     }
 
@@ -49,17 +50,17 @@ public class Server {
             ctx.result(new Gson().toJson(loginResult));
         }
         catch(ResponseException e){
-            throw new ResponseException("Failed to login user", e);
+            exceptionHandler(e, ctx);
         }
     }
 
-    private void logout(Context ctx) throws DataAccessException{
+    private void logout(Context ctx) throws ResponseException{
         try {
             String authToken = new Gson().fromJson(ctx.body(), String.class);
             userService.logout(authToken);
         }
-        catch(DataAccessException e){
-            throw new ResponseException("Failed to logout user", e);
+        catch(ResponseException e){
+            exceptionHandler(e, ctx);
         }
     }
 

@@ -4,6 +4,7 @@ import dataaccess.*;
 import dataaccess.Memory.MemoryAuthDAO;
 import dataaccess.Memory.MemoryGameDAO;
 import model.*;
+import server.ResponseException;
 
 import java.util.HashMap;
 
@@ -18,34 +19,52 @@ public class GameService {
         this.authDAO = authDAO;
     }
 
-    public HashMap<Integer, GameData> getListGames(String authToken) throws DataAccessException{
-        return gameDAO.listGames();
-    }
-
-    public GameData createGame(String authToken, String gameName) throws DataAccessException{
-        int id = makeGameID();
-        GameData newGame = new GameData(id, null, null, gameName, new ChessGame());
-        return gameDAO.createGame(newGame);
-    }
-
-    public void joinGame(String authToken, ChessGame.TeamColor color, int gameID) throws DataAccessException{
-        GameData game = gameDAO.getGame(gameID);
-        AuthData auth = authDAO.getAuth(authToken);
-        if(isColorAvailable(color, game)){
-            if(color == ChessGame.TeamColor.WHITE){
-                gameDAO.updateGamePlayers(game, auth.username(), null);
-            }
-            else if(color == ChessGame.TeamColor.BLACK){
-                gameDAO.updateGamePlayers(game, null, auth.username());
-            }
+    public HashMap<Integer, GameData> getListGames(String authToken) throws ResponseException {
+        try{
+            return gameDAO.listGames();
+        }
+        catch(DataAccessException ex){
+            throw new ResponseException(500, ex.getMessage());
         }
     }
 
-    public int makeGameID() throws DataAccessException{
-        return gameDAO.listGames().size() + 1;
+    public GameData createGame(String authToken, String gameName) throws ResponseException{
+        try{
+            int id = makeGameID();
+            GameData newGame = new GameData(id, null, null, gameName, new ChessGame());
+            return gameDAO.createGame(newGame);
+        }
+        catch(DataAccessException ex){
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
 
-    public boolean isColorAvailable(ChessGame.TeamColor color, GameData game) throws DataAccessException{
+    public void joinGame(String authToken, ChessGame.TeamColor color, int gameID) throws ResponseException{
+        try {
+            GameData game = gameDAO.getGame(gameID);
+            AuthData auth = authDAO.getAuth(authToken);
+            if (isColorAvailable(color, game)) {
+                if (color == ChessGame.TeamColor.WHITE) {
+                    gameDAO.updateGamePlayers(game, auth.username(), null);
+                } else if (color == ChessGame.TeamColor.BLACK) {
+                    gameDAO.updateGamePlayers(game, null, auth.username());
+                }
+            }
+        }
+        catch(DataAccessException ex){
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
+    public int makeGameID() throws ResponseException{
+        try{
+            return gameDAO.listGames().size() + 1;
+        } catch (DataAccessException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
+    public boolean isColorAvailable(ChessGame.TeamColor color, GameData game){
         if(color == ChessGame.TeamColor.WHITE){
             return game.whiteUsername() == null;
         }
