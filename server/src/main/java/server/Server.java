@@ -7,7 +7,6 @@ import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.http.Context;
 import model.*;
-import org.eclipse.jetty.server.Response;
 import service.*;
 
 public class Server {
@@ -35,54 +34,69 @@ public class Server {
     private void register(Context ctx) {
         try{
         UserData user = new Gson().fromJson(ctx.body(), UserData.class);
+        if(user.username() == null){
+            throw new ResponseException(400, "Error: bad request");
+        }
+        if(user.password() == null){
+            throw new ResponseException(400, "Error: bad request");
+        }
+        if(user.email() == null){
+            throw new ResponseException(400, "Error: bad request");
+        }
         AuthData registerResult = userService.createUser(user.username(), user.password(), user.email());
         ctx.result(new Gson().toJson(registerResult));
         }
-        catch (ResponseException e){
-            exceptionHandler(e, ctx);
+        catch (ResponseException ex){
+            exceptionHandler(ex, ctx);
         }
     }
 
     private void login(Context ctx){
         try {
             UserData user = new Gson().fromJson(ctx.body(), UserData.class);
+            if(user.username() == null){
+                throw new ResponseException(400, "Error: bad request");
+            }
+            if(user.password() == null){
+                throw new ResponseException(400, "Error: bad request");
+            }
             AuthData loginResult = userService.createAuth(user.username(), user.password());
             ctx.result(new Gson().toJson(loginResult));
         }
-        catch(ResponseException e){
-            exceptionHandler(e, ctx);
+        catch(ResponseException ex){
+            exceptionHandler(ex, ctx);
         }
     }
 
     private void logout(Context ctx) throws ResponseException{
         try {
-            String authToken = new Gson().fromJson(ctx.body(), String.class);
+            String authToken = new Gson().fromJson(ctx.header("authorization"), String.class);
             userService.logout(authToken);
         }
-        catch(ResponseException e){
-            exceptionHandler(e, ctx);
+        catch(ResponseException ex){
+            exceptionHandler(ex, ctx);
         }
     }
 
-    private void listGames(Context ctx) throws DataAccessException{
+    private void listGames(Context ctx) throws ResponseException{
 
     }
 
-    private void createGame(Context ctx) throws DataAccessException{
+    private void createGame(Context ctx) throws ResponseException{
 
     }
 
-    private void joinGame(Context ctx) throws DataAccessException{
+    private void joinGame(Context ctx) throws ResponseException{
 
     }
 
-    private void clearAll(Context ctx) throws DataAccessException{
+    private void clearAll(Context ctx) throws ResponseException{
 
     }
 
     private void exceptionHandler(ResponseException ex, Context ctx){
         ctx.status(ex.getCode());
-        ctx.result(new Gson().toJson(ex.getMessage()));
+        ctx.result(ex.toJson());
     }
 
 

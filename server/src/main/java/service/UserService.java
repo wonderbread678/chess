@@ -35,7 +35,7 @@ public class UserService {
         try{
             UserData user = userDAO.getUser(username);
             if(user == null){
-                throw new ResponseException(400, "Error: Username not found");
+                throw new ResponseException(401, "Error: Unauthorized");
             }
             if(!isLoginInfoCorrect(password, user)){
                 throw new ResponseException(401, "Error: Unauthorized");
@@ -50,19 +50,31 @@ public class UserService {
 
     public void logout(String authToken) throws ResponseException{
         try{
+            if(authDAO.getAuth(authToken) == null){
+                throw new ResponseException(401, "Error: User already logged out");
+            }
             authDAO.deleteAuth(authToken);
         }
         catch(DataAccessException ex){
-            throw new ResponseException(500, ex.getMessage)
+            throw new ResponseException(500, ex.getMessage());
         }
     }
 
-    public boolean isLoginInfoCorrect(String password, UserData user) throws ResponseException{
+    public boolean isLoginInfoCorrect(String password, UserData user){
         return password.equals(user.password());
     }
 
     public static String generateToken() {
         return UUID.randomUUID().toString();
+    }
+
+    public void deleteAllUsers() throws ResponseException{
+        try{
+            userDAO.deleteAllUsers();
+        }
+        catch(DataAccessException ex){
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
 
     @Override
