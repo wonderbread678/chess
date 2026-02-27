@@ -79,19 +79,39 @@ public class Server {
     }
 
     private void listGames(Context ctx) throws ResponseException{
+        try{
 
+        }
+        catch(ResponseException ex){
+            exceptionHandler(ex, ctx);
+        }
     }
 
     private void createGame(Context ctx) throws ResponseException{
+        try{
 
+        }
+        catch(ResponseException ex){
+            exceptionHandler(ex, ctx);
+        }
     }
 
     private void joinGame(Context ctx) throws ResponseException{
+        try{
 
+        }
+        catch(ResponseException ex){
+            exceptionHandler(ex, ctx);
+        }
     }
 
     private void clearAll(Context ctx) throws ResponseException{
+        try{
 
+        }
+        catch(ResponseException ex){
+            exceptionHandler(ex, ctx);
+        }
     }
 
     private void exceptionHandler(ResponseException ex, Context ctx){

@@ -21,6 +21,9 @@ public class GameService {
 
     public HashMap<Integer, GameData> getListGames(String authToken) throws ResponseException {
         try{
+            if(!authService.isAuth(authToken)){
+                throw new ResponseException(401, "Error: Unauthorized");
+            }
             return gameDAO.listGames();
         }
         catch(DataAccessException ex){
@@ -30,6 +33,9 @@ public class GameService {
 
     public GameData createGame(String authToken, String gameName) throws ResponseException{
         try{
+            if(!authService.isAuth(authToken)){
+                throw new ResponseException(401, "Error: Unauthorized");
+            }
             int id = makeGameID();
             GameData newGame = new GameData(id, null, null, gameName, new ChessGame());
             return gameDAO.createGame(newGame);
@@ -41,6 +47,9 @@ public class GameService {
 
     public void joinGame(String authToken, ChessGame.TeamColor color, int gameID) throws ResponseException{
         try {
+            if(!authService.isAuth(authToken)){
+                throw new ResponseException(401, "Error: Unauthorized");
+            }
             GameData game = gameDAO.getGame(gameID);
             AuthData auth = authDAO.getAuth(authToken);
             if (isColorAvailable(color, game)) {
@@ -49,6 +58,9 @@ public class GameService {
                 } else if (color == ChessGame.TeamColor.BLACK) {
                     gameDAO.updateGamePlayers(game, null, auth.username());
                 }
+            }
+            else{
+                throw new ResponseException(403, "Error: Color already taken");
             }
         }
         catch(DataAccessException ex){
