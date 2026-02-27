@@ -20,4 +20,13 @@ public class AuthService {
             throw new ResponseException(500, ex.getMessage());
         }
     }
+
+    public void deleteAllAuth() throws ResponseException{
+        try{
+            authDAO.deleteAllAuth();
+        }
+        catch(DataAccessException ex){
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
 }

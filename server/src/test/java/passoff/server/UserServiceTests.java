@@ -1,5 +1,4 @@
 package passoff.server;
-import com.google.gson.JsonObject;
 import dataaccess.DataAccessException;
 import dataaccess.Memory.MemoryAuthDAO;
 import dataaccess.Memory.MemoryUserDAO;

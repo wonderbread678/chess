@@ -74,6 +74,15 @@ public class GameService {
         return false;
     }
 
+    public void deleteAllGames() throws ResponseException{
+        try{
+            gameDAO.deleteAllGames();
+        }
+        catch(DataAccessException ex){
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
 
 
 }
