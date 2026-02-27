@@ -4,41 +4,45 @@ import dataaccess.*;
 import dataaccess.Memory.MemoryAuthDAO;
 import dataaccess.Memory.MemoryGameDAO;
 import model.*;
+import server.Response.CreateGameResponse;
+import server.Response.ListGamesResponse;
 import server.ResponseException;
+import server.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class GameService {
 
     private final MemoryGameDAO gameDAO;
     private final MemoryAuthDAO authDAO;
-    private final AuthService authService = new AuthService(new MemoryAuthDAO());
 
     public GameService(MemoryGameDAO gameDAO, MemoryAuthDAO authDAO){
         this.gameDAO = gameDAO;
         this.authDAO = authDAO;
-    }
+        authService = new AuthService(authDAO);
 
-    public HashMap<Integer, GameData> getListGames(String authToken) throws ResponseException {
-        try{
+    }
+    private final AuthService authService;
+
+
+    public String getListGames(String authToken) throws ResponseException {
             if(!authService.isAuth(authToken)){
                 throw new ResponseException(401, "Error: Unauthorized");
             }
-            return gameDAO.listGames();
-        }
-        catch(DataAccessException ex){
-            throw new ResponseException(500, ex.getMessage());
-        }
+            ListGamesResponse reformatter = new ListGamesResponse();
+            return reformatter.toJson(gameDAO);
     }
 
-    public GameData createGame(String authToken, String gameName) throws ResponseException{
+    public CreateGameResponse createGame(String authToken, String gameName) throws ResponseException{
         try{
             if(!authService.isAuth(authToken)){
                 throw new ResponseException(401, "Error: Unauthorized");
             }
             int id = makeGameID();
             GameData newGame = new GameData(id, null, null, gameName, new ChessGame());
-            return gameDAO.createGame(newGame);
+            GameData createdGame = gameDAO.createGame(newGame);
+            return new CreateGameResponse(createdGame.gameID());
         }
         catch(DataAccessException ex){
             throw new ResponseException(500, ex.getMessage());

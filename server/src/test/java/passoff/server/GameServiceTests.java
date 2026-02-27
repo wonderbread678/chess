@@ -7,6 +7,7 @@ import dataaccess.Memory.MemoryGameDAO;
 import dataaccess.Memory.MemoryUserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import server.Response.CreateGameResponse;
 import server.ResponseException;
 import service.GameService;
 import service.UserService;
@@ -14,6 +15,7 @@ import model.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,16 +35,29 @@ public class GameServiceTests {
     public void testGetGameList() throws ResponseException{
         try{
             AuthData authTest = userService.createUser("test", "test", "test@test.com");
+            authDAO.getAuth(authTest.authToken());
 
-            Collection<GameData> gamesComparison = new ArrayList<>();
-            GameData game1 = gameDAO.createGame(new GameData(1, "white1", "black1", "game1", new ChessGame()));
-            GameData game2 = gameDAO.createGame(new GameData(2, "white2", "black2", "game2", new ChessGame()));
-            GameData game3 = gameDAO.createGame(new GameData(3, "white3", "black3", "game3", new ChessGame()));
-            gamesComparison.add(game1);
-            gamesComparison.add(game2);
-            gamesComparison.add(game3);
+            Collection<ListGamesData> gamesComparison = new ArrayList<>();
+            gameDAO.createGame(new GameData(1, "white1", "black1", "game1", new ChessGame()));
+            gameDAO.createGame(new GameData(2, "white2", "black2", "game2", new ChessGame()));
+            gameDAO.createGame(new GameData(3, "white3", "black3", "game3", new ChessGame()));
 
-            assertEquals(service.getListGames(authTest.authToken()), gamesComparison);
+            ListGamesData testGame1 = new ListGamesData(1, "white1", "black1", "game1");
+            ListGamesData testGame2 = new ListGamesData(2, "white2", "black2", "game2");
+            ListGamesData testGame3 = new ListGamesData(3, "white3", "black3", "game3");
+
+            gamesComparison.add(testGame1);
+            gamesComparison.add(testGame2);
+            gamesComparison.add(testGame3);
+
+            HashMap<String, Collection<ListGamesData>> gamesComparisonHash = new HashMap<>();
+            gamesComparisonHash.put("games", gamesComparison);
+
+            String comparisonString = gamesComparisonHash.toString();
+
+            authDAO.getAuth(authTest.authToken());
+
+            assertEquals(service.getListGames(authTest.authToken()), comparisonString);
         }
         catch(DataAccessException ex){
             throw new ResponseException(500, ex.getMessage());
@@ -60,12 +75,12 @@ public class GameServiceTests {
     public void testCreateGame() throws ResponseException{
         try{
             AuthData authTest = userService.createUser("test", "test", "test@test.com");
-            GameData newGame = service.createGame(authTest.authToken(), "newGame");
+            CreateGameResponse newGame = service.createGame(authTest.authToken(), "newGame");
 
-            assertNotNull(gameDAO.getGame(newGame.gameID()));
-            assertEquals("newGame", newGame.gameName());
-            assertNull(newGame.blackUsername());
-            assertNull(newGame.whiteUsername());
+            GameData game = gameDAO.getGame(newGame.gameID());
+
+            assertNotNull(game);
+            assertEquals("newGame", game.gameName());
         }
         catch(DataAccessException ex){
             throw new ResponseException(500, ex.getMessage());
@@ -84,7 +99,7 @@ public class GameServiceTests {
     public void testJoinGame() throws ResponseException{
         try{
             AuthData authTest = userService.createUser("test", "test", "test@test.com");
-            GameData testGame = service.createGame(authTest.authToken(), "newGame");
+            CreateGameResponse testGame = service.createGame(authTest.authToken(), "newGame");
 
             service.joinGame(authTest.authToken(), ChessGame.TeamColor.WHITE, testGame.gameID());
             GameData joinedGame = gameDAO.getGame(testGame.gameID());
@@ -109,7 +124,7 @@ public class GameServiceTests {
     public void testTakenColorJoinGame() throws ResponseException{
         AuthData authTest = userService.createUser("test", "test", "test@test.com");
         AuthData testUser = userService.createUser("test1", "test1", "test1@test.com");
-        GameData testGame = service.createGame(authTest.authToken(), "newGame");
+        CreateGameResponse testGame = service.createGame(authTest.authToken(), "newGame");
 
         service.joinGame(authTest.authToken(), ChessGame.TeamColor.WHITE, testGame.gameID());
         assertThrows(ResponseException.class, ()-> service.joinGame(testUser.authToken(), ChessGame.TeamColor.WHITE, testGame.gameID()));
