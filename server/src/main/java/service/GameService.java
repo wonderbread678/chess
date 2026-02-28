@@ -67,9 +67,10 @@ public class GameService {
             }
             if (isColorAvailable(color, game)) {
                 if (color == ChessGame.TeamColor.WHITE) {
-                    gameDAO.updateGamePlayers(game, auth.username(), null);
-                } else if (color == ChessGame.TeamColor.BLACK) {
-                    gameDAO.updateGamePlayers(game, null, auth.username());
+                    gameDAO.updateGamePlayers(game, auth.username(), game.blackUsername());
+                }
+                if (color == ChessGame.TeamColor.BLACK) {
+                    gameDAO.updateGamePlayers(game, game.whiteUsername(), auth.username());
                 }
             }
             else if(!isColorAvailable(color, game)){

@@ -5,7 +5,10 @@ import java.util.Collection;
 
 public class PawnMoveCalculator extends PieceMoveCalculator{
 
-    public Collection<ChessMove> pawnMoveCalculations(ChessPosition startPosition, ChessPiece.PieceType promotion, ChessGame.TeamColor color, ChessBoard board){
+    public Collection<ChessMove> pawnMoveCalculations(ChessPosition startPosition,
+                                                      ChessPiece.PieceType promotion,
+                                                      ChessGame.TeamColor color,
+                                                      ChessBoard board){
         Collection <ChessMove> moveCollection = new ArrayList<ChessMove>();
 
         if(color == ChessGame.TeamColor.WHITE){

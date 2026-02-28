@@ -12,7 +12,12 @@ public class PieceMoveCalculator {
         }
     }
 
-    public Collection <ChessMove> handlePiece(ChessPosition startPosition, ChessPosition newPosition, ChessPiece.PieceType promotion, Collection <ChessMove> moveCollection, ChessGame.TeamColor color, ChessBoard board){
+    public Collection <ChessMove> handlePiece(ChessPosition startPosition,
+                                              ChessPosition newPosition,
+                                              ChessPiece.PieceType promotion,
+                                              Collection <ChessMove> moveCollection,
+                                              ChessGame.TeamColor color,
+                                              ChessBoard board){
         if(board.getPiece(newPosition).getTeamColor() != color){
             ChessMove move = new ChessMove(startPosition, newPosition, promotion);
             moveCollection.add(move);
@@ -20,7 +25,12 @@ public class PieceMoveCalculator {
         return moveCollection;
     }
 
-    public Collection <ChessMove> handleMove(ChessPosition startPosition, ChessPosition newPosition, ChessPiece.PieceType promotion, Collection <ChessMove> moveCollection, ChessGame.TeamColor color, ChessBoard board){
+    public Collection <ChessMove> handleMove(ChessPosition startPosition,
+                                             ChessPosition newPosition,
+                                             ChessPiece.PieceType promotion,
+                                             Collection <ChessMove> moveCollection,
+                                             ChessGame.TeamColor color,
+                                             ChessBoard board){
         if(!ifPiece(newPosition, board)){
             ChessMove move = new ChessMove(startPosition, newPosition, promotion);
             moveCollection.add(move);
@@ -31,7 +41,11 @@ public class PieceMoveCalculator {
         return moveCollection;
     }
 
-    public Collection <ChessMove> moveDiagonal(ChessPosition startPosition, ChessPiece.PieceType promotion, Collection <ChessMove> moveCollection, ChessGame.TeamColor color, ChessBoard board){
+    public Collection <ChessMove> moveDiagonal(ChessPosition startPosition,
+                                               ChessPiece.PieceType promotion,
+                                               Collection <ChessMove> moveCollection,
+                                               ChessGame.TeamColor color,
+                                               ChessBoard board){
         ChessPosition myPosition = startPosition;
 //        Move up and right
         while(myPosition.getRow() + 1 <= 8 && myPosition.getColumn() + 1 <= 8){
@@ -92,7 +106,11 @@ public class PieceMoveCalculator {
         return moveCollection;
     }
 
-    public Collection <ChessMove> moveUp(ChessPosition startPosition, ChessPiece.PieceType promotion, Collection <ChessMove> moveCollection, ChessGame.TeamColor color, ChessBoard board){
+    public Collection <ChessMove> moveUp(ChessPosition startPosition,
+                                         ChessPiece.PieceType promotion,
+                                         Collection <ChessMove> moveCollection,
+                                         ChessGame.TeamColor color,
+                                         ChessBoard board){
         ChessPosition myPosition = startPosition;
         while(myPosition.getRow() + 1 <= 8){
             ChessPosition newPosition = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn());
@@ -109,7 +127,11 @@ public class PieceMoveCalculator {
         return moveCollection;
     }
 
-    public Collection <ChessMove> moveDown(ChessPosition startPosition, ChessPiece.PieceType promotion, Collection <ChessMove> moveCollection, ChessGame.TeamColor color, ChessBoard board){
+    public Collection <ChessMove> moveDown(ChessPosition startPosition,
+                                           ChessPiece.PieceType promotion,
+                                           Collection <ChessMove> moveCollection,
+                                           ChessGame.TeamColor color,
+                                           ChessBoard board){
         ChessPosition myPosition = startPosition;
         while(myPosition.getRow() - 1 >= 1){
             ChessPosition newPosition = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn());
@@ -126,7 +148,11 @@ public class PieceMoveCalculator {
         return moveCollection;
     }
 
-    public Collection <ChessMove> moveLeft(ChessPosition startPosition, ChessPiece.PieceType promotion, Collection <ChessMove> moveCollection, ChessGame.TeamColor color, ChessBoard board){
+    public Collection <ChessMove> moveLeft(ChessPosition startPosition,
+                                           ChessPiece.PieceType promotion,
+                                           Collection <ChessMove> moveCollection,
+                                           ChessGame.TeamColor color,
+                                           ChessBoard board){
         ChessPosition myPosition = startPosition;
         while(myPosition.getColumn() - 1 >= 1){
             ChessPosition newPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn() - 1);
@@ -143,7 +169,11 @@ public class PieceMoveCalculator {
         return moveCollection;
     }
 
-    public Collection <ChessMove> moveRight(ChessPosition startPosition, ChessPiece.PieceType promotion, Collection <ChessMove> moveCollection, ChessGame.TeamColor color, ChessBoard board){
+    public Collection <ChessMove> moveRight(ChessPosition startPosition,
+                                            ChessPiece.PieceType promotion,
+                                            Collection <ChessMove> moveCollection,
+                                            ChessGame.TeamColor color,
+                                            ChessBoard board){
         ChessPosition myPosition = startPosition;
         while(myPosition.getColumn() + 1 <= 8){
             ChessPosition newPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn() + 1);
@@ -160,7 +190,11 @@ public class PieceMoveCalculator {
         return moveCollection;
     }
 
-    public Collection <ChessMove> moveKing(ChessPosition startPosition, ChessPiece.PieceType promotion, Collection <ChessMove> moveCollection, ChessGame.TeamColor color, ChessBoard board){
+    public Collection <ChessMove> moveKing(ChessPosition startPosition,
+                                           ChessPiece.PieceType promotion,
+                                           Collection <ChessMove> moveCollection,
+                                           ChessGame.TeamColor color,
+                                           ChessBoard board){
         if(startPosition.getRow() + 1 <= 8){
             ChessPosition newPosition = new ChessPosition(startPosition.getRow() + 1, startPosition.getColumn());
             handleMove(startPosition, newPosition, promotion, moveCollection, color, board);
@@ -196,7 +230,11 @@ public class PieceMoveCalculator {
         return moveCollection;
     }
 
-    public Collection <ChessMove> moveKnight(ChessPosition startPosition, ChessPiece.PieceType promotion, Collection <ChessMove> moveCollection, ChessGame.TeamColor color, ChessBoard board){
+    public Collection <ChessMove> moveKnight(ChessPosition startPosition,
+                                             ChessPiece.PieceType promotion,
+                                             Collection <ChessMove> moveCollection,
+                                             ChessGame.TeamColor color,
+                                             ChessBoard board){
         if(startPosition.getRow() + 2 <= 8 && startPosition.getColumn() + 1 <= 8){
             ChessPosition newPosition = new ChessPosition(startPosition.getRow() + 2, startPosition.getColumn() + 1);
             handleMove(startPosition, newPosition, promotion, moveCollection, color, board);
@@ -232,7 +270,11 @@ public class PieceMoveCalculator {
         return moveCollection;
     }
 
-    public Collection <ChessMove> moveWhitePawn(ChessPosition startPosition, ChessPiece.PieceType promotion, Collection <ChessMove> moveCollection, ChessGame.TeamColor color, ChessBoard board){
+    public Collection <ChessMove> moveWhitePawn(ChessPosition startPosition,
+                                                ChessPiece.PieceType promotion,
+                                                Collection <ChessMove> moveCollection,
+                                                ChessGame.TeamColor color,
+                                                ChessBoard board){
         if(startPosition.getRow() + 1 <= 8){
             ChessPosition normalPosition = new ChessPosition(startPosition.getRow() + 1, startPosition.getColumn());
             if(!ifPiece(normalPosition, board)){
@@ -263,7 +305,11 @@ public class PieceMoveCalculator {
         return moveCollection;
     }
 
-    public Collection <ChessMove> moveBlackPawn(ChessPosition startPosition, ChessPiece.PieceType promotion, Collection <ChessMove> moveCollection, ChessGame.TeamColor color, ChessBoard board){
+    public Collection <ChessMove> moveBlackPawn(ChessPosition startPosition,
+                                                ChessPiece.PieceType promotion,
+                                                Collection <ChessMove> moveCollection,
+                                                ChessGame.TeamColor color,
+                                                ChessBoard board){
         if(startPosition.getRow() - 1 >= 1){
             ChessPosition normalPosition = new ChessPosition(startPosition.getRow() - 1, startPosition.getColumn());
             if(!ifPiece(normalPosition, board)){
