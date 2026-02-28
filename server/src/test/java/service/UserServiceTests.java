@@ -1,11 +1,10 @@
-package passoff.service;
+package service;
 import dataaccess.DataAccessException;
 import dataaccess.Memory.MemoryAuthDAO;
 import dataaccess.Memory.MemoryUserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.ResponseException;
-import service.UserService;
 import model.*;
 
 import static org.junit.jupiter.api.Assertions.*;

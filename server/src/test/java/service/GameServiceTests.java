@@ -1,9 +1,7 @@
-package passoff.service;
+package service;
 import chess.ChessGame;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import dataaccess.DataAccessException;
-import dataaccess.*;
 import dataaccess.Memory.MemoryAuthDAO;
 import dataaccess.Memory.MemoryGameDAO;
 import dataaccess.Memory.MemoryUserDAO;
@@ -11,14 +9,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.Response.CreateGameResponse;
 import server.ResponseException;
-import service.AuthService;
-import service.GameService;
-import service.UserService;
 import model.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
