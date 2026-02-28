@@ -17,11 +17,15 @@ public class ListGamesResponse {
         try{
             ArrayList<ListGamesData> newGamesList = new ArrayList<>();
             HashMap<Integer, GameData> gamesList = gameDAO.listGames();
+            HashMap<String, ArrayList<ListGamesData>> reformatedGamesList = new HashMap<>();
+            if(gamesList.isEmpty()){
+                reformatedGamesList.put("games", newGamesList);
+                return reformatedGamesList;
+            }
             gamesList.forEach((key, game) -> {
                 ListGamesData gameData = new ListGamesData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName());
                 newGamesList.add(gameData);
             });
-            HashMap<String, ArrayList<ListGamesData>> reformatedGamesList = new HashMap<>();
             reformatedGamesList.put("games", newGamesList);
             return reformatedGamesList;
         }

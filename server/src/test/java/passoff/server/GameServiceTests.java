@@ -1,5 +1,7 @@
 package passoff.server;
 import chess.ChessGame;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import dataaccess.DataAccessException;
 import dataaccess.*;
 import dataaccess.Memory.MemoryAuthDAO;
@@ -9,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.Response.CreateGameResponse;
 import server.ResponseException;
+import service.AuthService;
 import service.GameService;
 import service.UserService;
 import model.*;
@@ -16,6 +19,7 @@ import model.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,6 +33,8 @@ public class GameServiceTests {
     @BeforeEach
     public void setup() throws ResponseException{
         service.deleteAllGames();
+        userService.deleteAllUsers();
+
     }
 
     @Test
@@ -50,14 +56,9 @@ public class GameServiceTests {
             gamesComparison.add(testGame2);
             gamesComparison.add(testGame3);
 
-            HashMap<String, Collection<ListGamesData>> gamesComparisonHash = new HashMap<>();
-            gamesComparisonHash.put("games", gamesComparison);
-
-            String comparisonString = gamesComparisonHash.toString();
-
             authDAO.getAuth(authTest.authToken());
 
-            assertEquals(service.getListGames(authTest.authToken()), comparisonString);
+            assertEquals(new Gson().toJson(Map.of("games", gamesComparison)), service.getListGames(authTest.authToken()));
         }
         catch(DataAccessException ex){
             throw new ResponseException(500, ex.getMessage());

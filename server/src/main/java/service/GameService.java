@@ -39,6 +39,9 @@ public class GameService {
             if(!authService.isAuth(authToken)){
                 throw new ResponseException(401, "Error: Unauthorized");
             }
+            if(gameName == null){
+                throw new ResponseException(403, "Error: Bad request (no game name provided");
+            }
             int id = makeGameID();
             GameData newGame = new GameData(id, null, null, gameName, new ChessGame());
             GameData createdGame = gameDAO.createGame(newGame);
@@ -55,7 +58,13 @@ public class GameService {
                 throw new ResponseException(401, "Error: Unauthorized");
             }
             GameData game = gameDAO.getGame(gameID);
+            if(game == null){
+                throw new ResponseException(400, "Error: Bad ID");
+            }
             AuthData auth = authDAO.getAuth(authToken);
+            if(color != ChessGame.TeamColor.BLACK && color != ChessGame.TeamColor.WHITE){
+                throw new ResponseException(400, "Error: Bad request (Invalid Color)");
+            }
             if (isColorAvailable(color, game)) {
                 if (color == ChessGame.TeamColor.WHITE) {
                     gameDAO.updateGamePlayers(game, auth.username(), null);
@@ -63,7 +72,7 @@ public class GameService {
                     gameDAO.updateGamePlayers(game, null, auth.username());
                 }
             }
-            else{
+            else if(!isColorAvailable(color, game)){
                 throw new ResponseException(403, "Error: Color already taken");
             }
         }
