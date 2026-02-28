@@ -1,4 +1,4 @@
-package passoff.server;
+package passoff.service;
 import dataaccess.DataAccessException;
 import dataaccess.Memory.MemoryAuthDAO;
 import dataaccess.Memory.MemoryUserDAO;
