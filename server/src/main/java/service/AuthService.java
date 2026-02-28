@@ -1,6 +1,6 @@
 package service;
 
-import dataaccess.Memory.MemoryAuthDAO;
+import dataaccess.memory.MemoryAuthDAO;
 import dataaccess.*;
 import server.ResponseException;
 

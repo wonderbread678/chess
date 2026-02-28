@@ -2,12 +2,12 @@ package service;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import dataaccess.Memory.MemoryAuthDAO;
-import dataaccess.Memory.MemoryGameDAO;
-import dataaccess.Memory.MemoryUserDAO;
+import dataaccess.memory.MemoryAuthDAO;
+import dataaccess.memory.MemoryGameDAO;
+import dataaccess.memory.MemoryUserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import server.Response.CreateGameResponse;
+import server.response.CreateGameResponse;
 import server.ResponseException;
 import model.*;
 

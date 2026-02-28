@@ -1,15 +1,14 @@
 package server;
 
-import dataaccess.Memory.MemoryAuthDAO;
-import dataaccess.Memory.MemoryGameDAO;
-import dataaccess.Memory.MemoryUserDAO;
+import dataaccess.memory.MemoryAuthDAO;
+import dataaccess.memory.MemoryGameDAO;
+import dataaccess.memory.MemoryUserDAO;
 import io.javalin.*;
 import com.google.gson.Gson;
-import dataaccess.*;
 import io.javalin.http.Context;
 import model.*;
-import server.Request.CreateGameRequest;
-import server.Request.JoinGameRequest;
+import server.request.CreateGameRequest;
+import server.request.JoinGameRequest;
 import service.*;
 
 public class Server {
@@ -87,7 +86,7 @@ public class Server {
 
     private void joinGame(Context ctx) throws ResponseException{
             String authToken = ctx.header("authorization");
-            server.Request.JoinGameRequest joinGameRequest = new Gson().fromJson(ctx.body(), JoinGameRequest.class);
+            server.request.JoinGameRequest joinGameRequest = new Gson().fromJson(ctx.body(), JoinGameRequest.class);
             gameService.joinGame(authToken, joinGameRequest.playerColor(), joinGameRequest.gameID());
             ctx.result("{}");
     }

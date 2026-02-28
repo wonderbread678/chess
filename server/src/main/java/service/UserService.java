@@ -1,8 +1,8 @@
 package service;
 
 import dataaccess.*;
-import dataaccess.Memory.MemoryAuthDAO;
-import dataaccess.Memory.MemoryUserDAO;
+import dataaccess.memory.MemoryAuthDAO;
+import dataaccess.memory.MemoryUserDAO;
 import model.*;
 import server.ResponseException;
 

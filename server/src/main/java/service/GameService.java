@@ -1,16 +1,12 @@
 package service;
 import chess.ChessGame;
 import dataaccess.*;
-import dataaccess.Memory.MemoryAuthDAO;
-import dataaccess.Memory.MemoryGameDAO;
+import dataaccess.memory.MemoryAuthDAO;
+import dataaccess.memory.MemoryGameDAO;
 import model.*;
-import server.Response.CreateGameResponse;
-import server.Response.ListGamesResponse;
+import server.response.CreateGameResponse;
+import server.response.ListGamesResponse;
 import server.ResponseException;
-import server.*;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class GameService {
 

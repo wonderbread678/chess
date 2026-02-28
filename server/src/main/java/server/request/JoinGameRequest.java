@@ -1,4 +1,4 @@
-package server.Request;
+package server.request;
 
 import chess.ChessGame;
 import com.google.gson.Gson;

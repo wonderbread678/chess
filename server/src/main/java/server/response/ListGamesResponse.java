@@ -1,15 +1,14 @@
-package server.Response;
+package server.response;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import dataaccess.Memory.MemoryGameDAO;
+import dataaccess.memory.MemoryGameDAO;
 import model.GameData;
 import model.ListGamesData;
 import server.ResponseException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public class ListGamesResponse {
 

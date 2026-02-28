@@ -1,8 +1,8 @@
-package server.Request;
+package server.request;
 
 import com.google.gson.Gson;
 
-public record LoginRequest(String username, String password) {
+public record ClearRequest() {
     public String toString() {
         return new Gson().toJson(this);
     }
