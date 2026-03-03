@@ -82,7 +82,7 @@ public class UserServiceTests {
     @Test
     public void testLogoutInvalidToken() throws ResponseException{
         AuthData user = SERVICE.createUser("newUser", "password", "bballs@booger.com");
-        assertThrows(ResponseException.class, () -> SERVICE.logout("badToken"));
+        assertThrows(ResponseException.class, () -> SERVICE.logout(user + "badToken"));
     }
 
     @Test
