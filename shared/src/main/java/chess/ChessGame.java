@@ -156,14 +156,21 @@ public class ChessGame {
         for(int i = 1; i <= 8; ++i){
             for(int j = 1; j <= 8; ++j){
                 ChessPosition currentPosition = new ChessPosition(j, i);
-                if(gameBoard.getPiece(currentPosition) != null && gameBoard.getPiece(currentPosition).getTeamColor() != teamColor){
-                    Collection <ChessMove> pieceMoves = gameBoard.getPiece(currentPosition).pieceMoves(gameBoard, currentPosition);
-                    for(ChessMove move : pieceMoves){
-                        ChessPosition possibility = move.getEndPosition();
-                        if(possibility.equals(kingPosition)){
-                            return true;
-                        }
-                    }
+                if (checker(teamColor, currentPosition, kingPosition)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean checker(TeamColor teamColor, ChessPosition currentPosition, ChessPosition kingPosition) {
+        if(gameBoard.getPiece(currentPosition) != null && gameBoard.getPiece(currentPosition).getTeamColor() != teamColor){
+            Collection <ChessMove> pieceMoves = gameBoard.getPiece(currentPosition).pieceMoves(gameBoard, currentPosition);
+            for(ChessMove move : pieceMoves){
+                ChessPosition possibility = move.getEndPosition();
+                if(possibility.equals(kingPosition)){
+                    return true;
                 }
             }
         }
