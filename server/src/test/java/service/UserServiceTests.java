@@ -63,17 +63,26 @@ public class UserServiceTests {
 
     @Test
     public void testLoginBadPassword() throws ResponseException{
-
+        SERVICE.createUser("newUser", "password", "bballs@booger.com");
+        assertThrows(ResponseException.class, ()-> SERVICE.createAuth("newUser", "badPassword"));
     }
 
     @Test
     public void testValidLogout() throws ResponseException{
-
+        try{
+            AuthData user = SERVICE.createUser("newUser", "password", "bballs@booger.com");
+            SERVICE.logout(user.authToken());
+            assertNull(AUTH_DAO.getAuth(user.authToken()));
+        }
+        catch(DataAccessException ex){
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
 
     @Test
     public void testLogoutInvalidToken() throws ResponseException{
-
+        AuthData user = SERVICE.createUser("newUser", "password", "bballs@booger.com");
+        assertThrows(ResponseException.class, () -> SERVICE.logout("badToken"));
     }
 
     @Test
