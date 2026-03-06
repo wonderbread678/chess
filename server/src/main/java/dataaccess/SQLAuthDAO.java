@@ -8,7 +8,7 @@ import java.sql.*;
 public class SQLAuthDAO implements AuthDAO {
 
     public SQLAuthDAO() throws DataAccessException{
-        configureDatabase();
+        configureAuthDatabase();
     }
 
     public AuthData createAuth(AuthData authData) throws DataAccessException {
@@ -27,21 +27,21 @@ public class SQLAuthDAO implements AuthDAO {
 
     }
 
-    private final String[] createStatements = {
+    private final String[] createAuthStatements = {
             """
-            CREATE TABLE IF NOT EXISTS authDAO (
-            'authToken' varchar(256) NOT NULL,
-            'username' varchar(256) NOT NULL
-            PRIMARY KEY('authToken'),
+            CREATE TABLE IF NOT EXISTS AuthDataTable (
+            `authToken` varchar(256) NOT NULL,
+            `username` varchar(256) NOT NULL
+            PRIMARY KEY(`authToken`),
             INDEX(username)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };
 
-    private void configureDatabase() throws DataAccessException {
+    private void configureAuthDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
+            for (String statement : createAuthStatements) {
                 try (var preparedStatement = conn.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
                 }
