@@ -1,5 +1,7 @@
-package dataaccess;
+package dataaccess.sql;
 
+import dataaccess.DataAccessException;
+import dataaccess.GameDAO;
 import model.GameData;
 
 import java.sql.Connection;
@@ -8,7 +10,7 @@ import java.util.HashMap;
 
 public class SQLGameDAO implements GameDAO {
 
-    public SQLGameDAO() throws DataAccessException{
+    public SQLGameDAO() throws DataAccessException {
         configureGameDatabase();
     }
 
@@ -34,7 +36,7 @@ public class SQLGameDAO implements GameDAO {
 
     private final String[] createGameStatements = {
             """
-            CREATE TABLE IF NOT EXISTS GameDataTable (
+            CREATE TABLE IF NOT EXISTS gameDataTable (
             `gameID` int NOT NULL,
             `whiteUsername` varchar(256) DEFAULT NULL,
             `blackUsername` varchar(256) DEFAULT NULL,

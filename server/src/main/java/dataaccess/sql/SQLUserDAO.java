@@ -1,5 +1,7 @@
-package dataaccess;
+package dataaccess.sql;
 
+import dataaccess.DataAccessException;
+import dataaccess.UserDAO;
 import model.UserData;
 
 import java.sql.Connection;
@@ -7,7 +9,7 @@ import java.sql.SQLException;
 
 public class SQLUserDAO implements UserDAO {
 
-    public SQLUserDAO() throws DataAccessException{
+    public SQLUserDAO() throws DataAccessException {
         configureUserDatabase();
     }
 
@@ -25,7 +27,7 @@ public class SQLUserDAO implements UserDAO {
 
     private final String[] createUserStatements = {
             """
-            CREATE TABLE IF NOT EXISTS UserdataTable (
+            CREATE TABLE IF NOT EXISTS userdataTable (
             `username` varchar(256) NOT NULL,
             `password` varchar(256) NOT NULL,
             `email` varchar(256) NOT NULL,
