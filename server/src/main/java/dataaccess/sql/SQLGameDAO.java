@@ -62,9 +62,17 @@ public class SQLGameDAO implements GameDAO {
     }
 
     public GameData getGame(int gameID) throws DataAccessException {
-        String sql = "";
+        String sql = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM gameDataTable WHERE gameID = ?";
+
         try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
-            return null;
+            stmt.setInt(1, gameID);
+            ResultSet rs = stmt.executeQuery();
+
+            return new GameData(rs.getInt(1),
+                    rs.getString(2),
+                    rs.getString(3),
+                    rs.getString(4),
+                    new Gson().fromJson(rs.getString(5), ChessGame.class));
         }
         catch(SQLException ex){
             throw new DataAccessException(ex.getMessage());
@@ -72,9 +80,14 @@ public class SQLGameDAO implements GameDAO {
     }
 
     public void updateGamePlayers(GameData game, String whiteUsername, String blackUsername) throws DataAccessException {
-        String sql = "";
-        try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
+        String sql = "UPDATE gameTableData" + "SET whiteUsername = ?, blackUsername = ?" + "WHERE gameID = ?";
 
+        try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
+            stmt.setString(1, whiteUsername);
+            stmt.setString(2, blackUsername);
+            stmt.executeUpdate();
+
+            System.out.println("Updated game " + game.gameID());
         }
         catch(SQLException ex){
             throw new DataAccessException(ex.getMessage());
@@ -82,9 +95,11 @@ public class SQLGameDAO implements GameDAO {
     }
 
     public void deleteAllGames() throws DataAccessException {
-        String sql = "";
-        try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
+        String sql = "DELETE FROM gameDataTable";
 
+        try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
+            int count = stmt.executeUpdate();
+            System.out.printf("Deleted %d games", count);
         }
         catch(SQLException ex){
             throw new DataAccessException(ex.getMessage());
