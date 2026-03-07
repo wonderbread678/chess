@@ -5,6 +5,7 @@ import dataaccess.UserDAO;
 import model.UserData;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class SQLUserDAO implements UserDAO {
@@ -14,15 +15,38 @@ public class SQLUserDAO implements UserDAO {
     }
 
     public UserData createUser(UserData userData) throws DataAccessException {
-        return null;
+        String sql = "INSERT INTO authTableData (username, password, email) VALUES (?, ?, ?)";
+
+        try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
+            stmt.setString(1, userData.username());
+            stmt.setString(2, userData.password());
+            stmt.setString(3, userData.email());
+        }
+        catch(SQLException ex){
+            throw new DataAccessException(ex.getMessage());
+        }
     }
 
     public UserData getUser(String username) throws DataAccessException {
-        return null;
+        String sql = "SELECT username, password, email FROM userDataTable WHERE username = ?";
+
+        try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
+
+        }
+        catch(SQLException ex){
+            throw new DataAccessException(ex.getMessage());
+        }
     }
 
     public void deleteAllUsers() throws DataAccessException {
-
+        String sql = "DELETE FROM userDataTable";
+        try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
+            int count = stmt.executeUpdate();
+            System.out.printf("Deleted %d users", count);
+        }
+        catch(SQLException ex){
+            throw new DataAccessException(ex.getMessage());
+        }
     }
 
     private final String[] createUserStatements = {
