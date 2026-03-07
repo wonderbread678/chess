@@ -14,9 +14,10 @@ import java.sql.Connection;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SQLAuthTests {
-    static final SQLAuthDAO AUTH_DAO = new SQLAuthDAO();
-    static final AuthService SERVICE = new AuthService(AUTH_DAO);
-    static final UserService USER_SERVICE = new UserService(AUTH_DAO, new SQLUserDAO());
+//    static final SQLAuthDAO AUTH_DAO;
+//    static final AuthService SERVICE;
+//    static final UserService USER_SERVICE;
+//    static final Connection connection;
 
     @BeforeAll
     static void connectionSetUp() throws DataAccessException {
@@ -25,11 +26,21 @@ public class SQLAuthTests {
 
     @BeforeEach
     public void setup() throws ResponseException{
-        SERVICE.deleteAllAuth();
+
     }
 
     @Test
     public void testIsAuth() throws ResponseException{
-        AuthData testUser = USER_SERVICE.createUser("test", "test", "test");
+
+    }
+
+    @Test
+    public void testUsernameWithNoAuth() throws ResponseException{
+
+    }
+
+    @Test
+    public void testDeleteAllAuth() throws ResponseException{
+
     }
 }
