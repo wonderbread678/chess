@@ -78,15 +78,19 @@ public class SQLGameDAO implements GameDAO {
         }
     }
 
-    public void updateGamePlayers(GameData game, String whiteUsername, String blackUsername) throws DataAccessException {
-        String sql = "UPDATE gameTableData" + "SET whiteUsername = ?, blackUsername = ?" + "WHERE gameID = ?";
+    public void updateGamePlayers(int gameID, String whiteUsername, String blackUsername) throws DataAccessException {
+        String sql = "UPDATE gameDataTable" + " SET whiteUsername = ?, blackUsername = ?" + " WHERE gameID = ?";
 
         try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
             stmt.setString(1, whiteUsername);
             stmt.setString(2, blackUsername);
-            stmt.executeUpdate();
+            stmt.setInt(3, gameID);
+            int count = stmt.executeUpdate();
+            if(count == 0){
+                throw new DataAccessException("Error: No rows to update");
+            }
 
-            System.out.println("Updated game " + game.gameID() + "\n");
+            System.out.println("Updated game " + gameID + "\n");
         }
         catch(SQLException ex){
             throw new DataAccessException(ex.getMessage());

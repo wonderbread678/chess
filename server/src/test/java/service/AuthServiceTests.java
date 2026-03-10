@@ -2,6 +2,10 @@ package service;
 import dataaccess.DataAccessException;
 import dataaccess.memory.MemoryAuthDAO;
 import dataaccess.memory.MemoryUserDAO;
+import dataaccess.sql.DatabaseManager;
+import dataaccess.sql.SQLAuthDAO;
+import dataaccess.sql.SQLUserDAO;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.ResponseException;
@@ -10,9 +14,31 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class AuthServiceTests {
 
-    static final MemoryAuthDAO AUTH_DAO = new MemoryAuthDAO();
+    static final SQLAuthDAO AUTH_DAO;
+
+    static {
+        try {
+            AUTH_DAO = new SQLAuthDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     static final AuthService SERVICE = new AuthService(AUTH_DAO);
-    static final UserService USER_SERVICE = new UserService(AUTH_DAO, new MemoryUserDAO());
+    static final UserService USER_SERVICE;
+
+    static {
+        try {
+            USER_SERVICE = new UserService(AUTH_DAO, new SQLUserDAO());
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @BeforeAll
+    static void connectionSetUp() throws DataAccessException {
+        DatabaseManager.createDatabase();
+    }
 
     @BeforeEach
     public void setup() throws ResponseException{

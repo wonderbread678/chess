@@ -1,7 +1,6 @@
 package dataaccess;
 import chess.ChessGame;
 import dataaccess.sql.*;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -155,9 +154,9 @@ public class SQLGameTests {
         GAME_DAO.createGame(testGameBlack);
         GAME_DAO.createGame(testGameBoth);
 
-        GAME_DAO.updateGamePlayers(testGameWhite, "whiteUser", null);
-        GAME_DAO.updateGamePlayers(testGameBlack, null, "blackUser");
-        GAME_DAO.updateGamePlayers(testGameBoth, "whiteUser", "blackUser");
+        GAME_DAO.updateGamePlayers(testGameWhite.gameID(), "whiteUser", null);
+        GAME_DAO.updateGamePlayers(testGameBlack.gameID(), null, "blackUser");
+        GAME_DAO.updateGamePlayers(testGameBoth.gameID(), "whiteUser", "blackUser");
 
         GameData updatedGameWhite = GAME_DAO.getGame(1);
         GameData updatedGameBlack = GAME_DAO.getGame(2);
@@ -180,8 +179,10 @@ public class SQLGameTests {
     @Test
     public void testUpdatePlayerNoGame() throws DataAccessException{
         GameData fakeGame = new GameData(1, null, null, "fake", new ChessGame());
+        GAME_DAO.createGame(fakeGame);
         GAME_DAO.deleteAllGames();
-        assertThrows(DataAccessException.class, () -> GAME_DAO.updateGamePlayers(fakeGame, "test1", "test2"));
+
+        assertThrows(DataAccessException.class, () -> GAME_DAO.updateGamePlayers(1, "test1", "test2"));
     }
 
     @Test

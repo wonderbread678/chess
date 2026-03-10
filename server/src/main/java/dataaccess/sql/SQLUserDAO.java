@@ -3,6 +3,7 @@ package dataaccess.sql;
 import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,11 +39,12 @@ public class SQLUserDAO implements UserDAO {
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
             rs.next();
-
-            return new UserData(
+            UserData forDebug = new UserData(
                     rs.getString(1),
                     rs.getString(2),
                     rs.getString(3));
+
+            return forDebug;
         }
         catch(SQLException ex){
             throw new DataAccessException(ex.getMessage());
@@ -58,6 +60,20 @@ public class SQLUserDAO implements UserDAO {
         catch(SQLException ex){
             throw new DataAccessException(ex.getMessage());
         }
+    }
+
+    void storeUserPassword(String username, String clearTextPassword) {
+        String hashedPassword = BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
+
+        // write the hashed password in database along with the user's other information
+        writeHashedPasswordToDatabase(username, hashedPassword);
+    }
+
+    boolean verifyUser(String username, String providedClearTextPassword) {
+        // read the previously hashed password from the database
+        var hashedPassword = readHashedPasswordFromDatabase(username);
+
+        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
     }
 
     private final String[] createUserStatements = {

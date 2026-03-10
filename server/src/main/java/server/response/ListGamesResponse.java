@@ -3,6 +3,7 @@ package server.response;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.memory.MemoryGameDAO;
+import dataaccess.sql.SQLGameDAO;
 import model.GameData;
 import model.ListGamesData;
 import server.ResponseException;
@@ -12,7 +13,7 @@ import java.util.HashMap;
 
 public class ListGamesResponse {
 
-    public HashMap<String, ArrayList<ListGamesData>> reformatGameList(MemoryGameDAO gameDAO) throws ResponseException {
+    public HashMap<String, ArrayList<ListGamesData>> reformatGameList(SQLGameDAO gameDAO) throws ResponseException {
         try{
             ArrayList<ListGamesData> newGamesList = new ArrayList<>();
             HashMap<Integer, GameData> gamesList = gameDAO.listGames();
@@ -33,7 +34,7 @@ public class ListGamesResponse {
         }
     }
 
-    public String toJson(MemoryGameDAO gameDAO) throws ResponseException{
+    public String toJson(SQLGameDAO gameDAO) throws ResponseException{
         return new Gson().toJson(reformatGameList(gameDAO));
     }
 }

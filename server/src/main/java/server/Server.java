@@ -1,8 +1,12 @@
 package server;
 
+import dataaccess.DataAccessException;
 import dataaccess.memory.MemoryAuthDAO;
 import dataaccess.memory.MemoryGameDAO;
 import dataaccess.memory.MemoryUserDAO;
+import dataaccess.sql.SQLAuthDAO;
+import dataaccess.sql.SQLGameDAO;
+import dataaccess.sql.SQLUserDAO;
 import io.javalin.*;
 import com.google.gson.Gson;
 import io.javalin.http.Context;
@@ -14,9 +18,9 @@ import service.*;
 public class Server {
 
     private final Javalin javalin;
-    private final MemoryAuthDAO authDAO = new MemoryAuthDAO();
-    private final MemoryGameDAO gameDAO = new MemoryGameDAO();
-    private final MemoryUserDAO userDAO = new MemoryUserDAO();
+    private SQLAuthDAO authDAO;
+    private SQLGameDAO gameDAO;
+    private SQLUserDAO userDAO;
     private final UserService userService = new UserService(authDAO, userDAO);
     private final GameService gameService = new GameService(gameDAO, authDAO);
     private final AuthService authService = new AuthService(authDAO);
@@ -36,6 +40,12 @@ public class Server {
 
         // Register your endpoints and exception handlers here.
 
+    }
+
+    public void setup() throws DataAccessException {
+        authDAO = new SQLAuthDAO();
+        userDAO = new SQLUserDAO();
+        gameDAO = new SQLGameDAO();
     }
 
     private void register(Context ctx) throws ResponseException{

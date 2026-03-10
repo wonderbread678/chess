@@ -3,6 +3,8 @@ import chess.ChessGame;
 import dataaccess.*;
 import dataaccess.memory.MemoryAuthDAO;
 import dataaccess.memory.MemoryGameDAO;
+import dataaccess.sql.SQLAuthDAO;
+import dataaccess.sql.SQLGameDAO;
 import model.*;
 import server.response.CreateGameResponse;
 import server.response.ListGamesResponse;
@@ -10,10 +12,10 @@ import server.ResponseException;
 
 public class GameService {
 
-    private final MemoryGameDAO gameDAO;
-    private final MemoryAuthDAO authDAO;
+    private final SQLGameDAO gameDAO;
+    private final SQLAuthDAO authDAO;
 
-    public GameService(MemoryGameDAO gameDAO, MemoryAuthDAO authDAO){
+    public GameService(SQLGameDAO gameDAO, SQLAuthDAO authDAO){
         this.gameDAO = gameDAO;
         this.authDAO = authDAO;
         authService = new AuthService(authDAO);
@@ -63,10 +65,10 @@ public class GameService {
             }
             if (isColorAvailable(color, game)) {
                 if (color == ChessGame.TeamColor.WHITE) {
-                    gameDAO.updateGamePlayers(game, auth.username(), game.blackUsername());
+                    gameDAO.updateGamePlayers(game.gameID(), auth.username(), game.blackUsername());
                 }
                 if (color == ChessGame.TeamColor.BLACK) {
-                    gameDAO.updateGamePlayers(game, game.whiteUsername(), auth.username());
+                    gameDAO.updateGamePlayers(game.gameID(), game.whiteUsername(), auth.username());
                 }
             }
             else if(!isColorAvailable(color, game)){

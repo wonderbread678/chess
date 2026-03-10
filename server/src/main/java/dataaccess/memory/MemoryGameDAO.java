@@ -17,6 +17,11 @@ public class MemoryGameDAO implements GameDAO {
         return allGames.get(gameID);
     }
 
+    @Override
+    public void updateGamePlayers(int gameID, String whiteUsername, String blackUsername) throws DataAccessException {
+
+    }
+
     public HashMap<Integer, GameData> listGames() throws DataAccessException {
         return allGames;
     }

@@ -5,6 +5,9 @@ import dataaccess.DataAccessException;
 import dataaccess.memory.MemoryAuthDAO;
 import dataaccess.memory.MemoryGameDAO;
 import dataaccess.memory.MemoryUserDAO;
+import dataaccess.sql.SQLAuthDAO;
+import dataaccess.sql.SQLGameDAO;
+import dataaccess.sql.SQLUserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.response.CreateGameResponse;
@@ -18,9 +21,36 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GameServiceTests {
-    static final MemoryAuthDAO AUTH_DAO = new MemoryAuthDAO();
-    static final MemoryGameDAO GAME_DAO = new MemoryGameDAO();
-    static final MemoryUserDAO USER_DAO = new MemoryUserDAO();
+    static final SQLAuthDAO AUTH_DAO;
+
+    static {
+        try {
+            AUTH_DAO = new SQLAuthDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static final SQLGameDAO GAME_DAO;
+
+    static {
+        try {
+            GAME_DAO = new SQLGameDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static final SQLUserDAO USER_DAO;
+
+    static {
+        try {
+            USER_DAO = new SQLUserDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     static final GameService SERVICE = new GameService(GAME_DAO, AUTH_DAO);
     static final UserService USER_SERVICE = new UserService(AUTH_DAO, USER_DAO);
 

@@ -1,14 +1,14 @@
 package service;
 
-import dataaccess.memory.MemoryAuthDAO;
 import dataaccess.*;
+import dataaccess.sql.SQLAuthDAO;
 import server.ResponseException;
 
 public class AuthService {
 
-    private final MemoryAuthDAO authDAO;
+    private final SQLAuthDAO authDAO;
 
-    public AuthService(MemoryAuthDAO authDAO){
+    public AuthService(SQLAuthDAO authDAO){
         this.authDAO = authDAO;
     }
 
