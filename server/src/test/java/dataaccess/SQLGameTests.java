@@ -6,6 +6,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import model.*;
+
+import java.util.HashMap;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SQLGameTests {
@@ -52,12 +55,42 @@ public class SQLGameTests {
 
     @Test
     public void testListGames() throws DataAccessException{
+        GameData comparisonWhite = new GameData(1,
+                "whiteUser",
+                null,
+                "testGameWhite",
+                new ChessGame());
 
+        GameData comparisonBlack = new GameData(2,
+                null,
+                "blackUser",
+                "testGameBlack",
+                new ChessGame());
+
+        GameData comparisonBoth = new GameData(3,
+                "whiteUser",
+                "blackUser",
+                "testGameBoth",
+                new ChessGame());
+
+        HashMap<Integer, GameData> comparison = new HashMap<>();
+        comparison.put(1, comparisonWhite);
+        comparison.put(2, comparisonBlack);
+        comparison.put(3, comparisonBoth);
+
+        GAME_DAO.createGame(comparisonWhite);
+        GAME_DAO.createGame(comparisonBlack);
+        GAME_DAO.createGame(comparisonBoth);
+
+        HashMap<Integer, GameData> result = GAME_DAO.listGames();
+
+        assertEquals(comparison, result);
     }
 
     @Test
     public void testListGamesNoList() throws DataAccessException{
-
+        HashMap<Integer, GameData> comparison = new HashMap<>();
+        assertEquals(comparison, GAME_DAO.listGames());
     }
 
     @Test
