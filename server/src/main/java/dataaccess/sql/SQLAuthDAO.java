@@ -47,6 +47,9 @@ public class SQLAuthDAO implements AuthDAO {
         try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
             stmt.setString(1, username);
             int count = stmt.executeUpdate();
+            if(count == 0){
+                throw new DataAccessException("Invalid username: Nothing to delete");
+            }
             System.out.printf("Deleted %d auth values\n", count);
         }
         catch(SQLException ex){

@@ -45,26 +45,47 @@ public class SQLAuthTests {
 
         AuthData result = AUTH_DAO.getAuth("test");
 
+        assertNotNull(result);
         assertEquals(comparison, result);
     }
 
     @Test
     public void testGetAuthInvalidUsername() throws DataAccessException{
-
+        assertThrows(DataAccessException.class, () -> AUTH_DAO.getAuth("test"));
     }
 
     @Test
     public void testDeleteAuth() throws DataAccessException{
+        AuthData testData = new AuthData("1", "test");
+        AUTH_DAO.createAuth(testData);
 
+        AUTH_DAO.deleteAuth("test");
+        assertThrows(DataAccessException.class, ()-> AUTH_DAO.getAuth("test"));
     }
 
     @Test
     public void testDeleteAuthTwice() throws DataAccessException{
+        AuthData testData = new AuthData("1", "test");
+        AUTH_DAO.createAuth(testData);
 
+        AUTH_DAO.deleteAuth("test");
+        assertThrows(DataAccessException.class, ()-> AUTH_DAO.deleteAuth("test"));
     }
 
     @Test
     public void testDeleteAllAuth() throws DataAccessException{
+        AuthData testData1 = new AuthData("1", "test1");
+        AuthData testData2 = new AuthData("2", "test2");
+        AuthData testData3 = new AuthData("3", "test3");
 
+        AUTH_DAO.createAuth(testData1);
+        AUTH_DAO.createAuth(testData2);
+        AUTH_DAO.createAuth(testData3);
+
+        AUTH_DAO.deleteAllAuth();
+
+        assertThrows(DataAccessException.class, ()-> AUTH_DAO.getAuth("test1"));
+        assertThrows(DataAccessException.class, ()-> AUTH_DAO.getAuth("test2"));
+        assertThrows(DataAccessException.class, ()-> AUTH_DAO.getAuth("test3"));
     }
 }

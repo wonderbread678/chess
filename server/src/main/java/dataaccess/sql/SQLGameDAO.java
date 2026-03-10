@@ -86,7 +86,7 @@ public class SQLGameDAO implements GameDAO {
             stmt.setString(2, blackUsername);
             stmt.executeUpdate();
 
-            System.out.println("Updated game " + game.gameID());
+            System.out.println("Updated game " + game.gameID() + "\n");
         }
         catch(SQLException ex){
             throw new DataAccessException(ex.getMessage());
@@ -98,7 +98,7 @@ public class SQLGameDAO implements GameDAO {
 
         try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
             int count = stmt.executeUpdate();
-            System.out.printf("Deleted %d games", count);
+            System.out.printf("Deleted %d games\n", count);
         }
         catch(SQLException ex){
             throw new DataAccessException(ex.getMessage());
@@ -114,8 +114,8 @@ public class SQLGameDAO implements GameDAO {
             `gameName` varchar(256) NOT NULL,
             `game` TEXT NOT NULL,
             PRIMARY KEY(`gameID`),
-            INDEX(username)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            INDEX(gameName)
+            )
             """
     };
 
