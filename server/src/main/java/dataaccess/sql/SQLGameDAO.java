@@ -2,11 +2,9 @@ package dataaccess.sql;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.GameData;
-import model.ListGamesData;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -67,6 +65,7 @@ public class SQLGameDAO implements GameDAO {
         try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
             stmt.setInt(1, gameID);
             ResultSet rs = stmt.executeQuery();
+            rs.next();
 
             return new GameData(rs.getInt(1),
                     rs.getString(2),

@@ -13,6 +13,7 @@ public class SQLAuthDAO implements AuthDAO {
 
     public AuthData createAuth(AuthData authData) throws DataAccessException {
         String sql = "INSERT INTO authDataTable (authToken, username) VALUES (?, ?)";
+
         try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
             stmt.setString(1, authData.authToken());
             stmt.setString(2, authData.username());
@@ -31,6 +32,7 @@ public class SQLAuthDAO implements AuthDAO {
         try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
+            rs.next();
 
             return new AuthData(rs.getString("authToken"), rs.getString("username"));
         }
@@ -67,11 +69,11 @@ public class SQLAuthDAO implements AuthDAO {
     private final String[] createAuthStatements = {
             """
             CREATE TABLE IF NOT EXISTS authDataTable (
-            `authToken` varchar(256) NOT NULL,
-            `username` varchar(256) NOT NULL
-            PRIMARY KEY(`authToken`),
-            INDEX(username)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+                `authToken` varchar(256) NOT NULL,
+                `username` varchar(256) NOT NULL,
+                PRIMARY KEY(`authToken`),
+                INDEX(username)
+            )
             """
     };
 

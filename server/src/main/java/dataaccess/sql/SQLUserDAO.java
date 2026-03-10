@@ -16,7 +16,7 @@ public class SQLUserDAO implements UserDAO {
     }
 
     public UserData createUser(UserData userData) throws DataAccessException {
-        String sql = "INSERT INTO authTableData (username, password, email) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO userDataTable (username, password, email) VALUES (?, ?, ?)";
 
         try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
             stmt.setString(1, userData.username());
@@ -37,6 +37,7 @@ public class SQLUserDAO implements UserDAO {
         try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
+            rs.next();
 
             return new UserData(
                     rs.getString(1),
@@ -61,13 +62,13 @@ public class SQLUserDAO implements UserDAO {
 
     private final String[] createUserStatements = {
             """
-            CREATE TABLE IF NOT EXISTS userdataTable (
+            CREATE TABLE IF NOT EXISTS userDataTable (
             `username` varchar(256) NOT NULL,
             `password` varchar(256) NOT NULL,
             `email` varchar(256) NOT NULL,
             PRIMARY KEY(`username`),
             INDEX(password)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            )
             """
     };
 

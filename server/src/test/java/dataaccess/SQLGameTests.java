@@ -1,17 +1,10 @@
 package dataaccess;
-import dataaccess.DataAccessException;
 import dataaccess.sql.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.ResponseException;
 import model.*;
-import service.AuthService;
-import service.UserService;
-import service.GameService;
-
-import java.sql.Connection;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SQLGameTests {
