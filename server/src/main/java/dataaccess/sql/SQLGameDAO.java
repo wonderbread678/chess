@@ -32,7 +32,7 @@ public class SQLGameDAO implements GameDAO {
             return gameData;
         }
         catch(SQLException ex){
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 
@@ -55,7 +55,7 @@ public class SQLGameDAO implements GameDAO {
             return gamesList;
         }
         catch(SQLException ex){
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 
@@ -65,16 +65,19 @@ public class SQLGameDAO implements GameDAO {
         try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
             stmt.setInt(1, gameID);
             ResultSet rs = stmt.executeQuery();
-            rs.next();
-
-            return new GameData(rs.getInt(1),
-                    rs.getString(2),
-                    rs.getString(3),
-                    rs.getString(4),
-                    new Gson().fromJson(rs.getString(5), ChessGame.class));
+            if(rs.next()){
+                return new GameData(rs.getInt(1),
+                        rs.getString(2),
+                        rs.getString(3),
+                        rs.getString(4),
+                        new Gson().fromJson(rs.getString(5), ChessGame.class));
+            }
+            else{
+                return null;
+            }
         }
         catch(SQLException ex){
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 
@@ -93,7 +96,7 @@ public class SQLGameDAO implements GameDAO {
             System.out.println("Updated game " + gameID + "\n");
         }
         catch(SQLException ex){
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 
@@ -105,7 +108,7 @@ public class SQLGameDAO implements GameDAO {
             System.out.printf("Deleted %d games\n", count);
         }
         catch(SQLException ex){
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 
@@ -132,7 +135,7 @@ public class SQLGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 }

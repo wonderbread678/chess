@@ -47,7 +47,7 @@ public class AuthServiceTests {
 
     @Test
     public void testIsAuth() throws ResponseException{
-        AuthData testUser = USER_SERVICE.createUser("test", "test", "test");
+        AuthData testUser = USER_SERVICE.createUser("test1", "test1", "test1");
 
         assertTrue(SERVICE.isAuth(testUser.authToken()));
     }

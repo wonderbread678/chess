@@ -18,15 +18,28 @@ import service.*;
 public class Server {
 
     private final Javalin javalin;
-    private SQLAuthDAO authDAO;
-    private SQLGameDAO gameDAO;
-    private SQLUserDAO userDAO;
-    private final UserService userService = new UserService(authDAO, userDAO);
-    private final GameService gameService = new GameService(gameDAO, authDAO);
-    private final AuthService authService = new AuthService(authDAO);
+    private final SQLAuthDAO authDAO;
+    private final SQLGameDAO gameDAO;
+    private final SQLUserDAO userDAO;
+    private final UserService userService;
+    private final GameService gameService;
+    private final AuthService authService;
 
 
     public Server() {
+        try {
+            authDAO = new SQLAuthDAO();
+            userDAO = new SQLUserDAO();
+            gameDAO = new SQLGameDAO();
+        }
+        catch (DataAccessException ex){
+            throw new RuntimeException(ex);
+        }
+
+        userService = new UserService(authDAO, userDAO);
+        gameService = new GameService(gameDAO, authDAO);
+        authService = new AuthService(authDAO);
+
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
             .post("/user", this::register)
@@ -42,11 +55,8 @@ public class Server {
 
     }
 
-    public void setup() throws DataAccessException {
-        authDAO = new SQLAuthDAO();
-        userDAO = new SQLUserDAO();
-        gameDAO = new SQLGameDAO();
-    }
+
+
 
     private void register(Context ctx) throws ResponseException{
         UserData user = new Gson().fromJson(ctx.body(), UserData.class);

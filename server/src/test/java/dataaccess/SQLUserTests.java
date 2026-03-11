@@ -61,7 +61,7 @@ public class SQLUserTests {
 
     @Test
     public void testGetUserDoesNotExist() throws DataAccessException{
-        assertThrows(DataAccessException.class, () -> USER_DAO.getUser("IDon'tExist12"));
+        assertNull(USER_DAO.getUser("IDon'tExist12"));
     }
 
     @Test
@@ -76,8 +76,8 @@ public class SQLUserTests {
 
         USER_DAO.deleteAllUsers();
 
-        assertThrows(DataAccessException.class, () -> USER_DAO.getUser(testUser1.username()));
-        assertThrows(DataAccessException.class, () -> USER_DAO.getUser(testUser2.username()));
-        assertThrows(DataAccessException.class, () -> USER_DAO.getUser(testUser3.username()));
+        assertNull(USER_DAO.getUser(testUser1.username()));
+        assertNull(USER_DAO.getUser(testUser2.username()));
+        assertNull(USER_DAO.getUser(testUser3.username()));
     }
 }

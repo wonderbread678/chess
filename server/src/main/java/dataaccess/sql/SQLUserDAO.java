@@ -28,7 +28,7 @@ public class SQLUserDAO implements UserDAO {
             return userData;
         }
         catch(SQLException ex){
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 
@@ -38,16 +38,18 @@ public class SQLUserDAO implements UserDAO {
         try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
-            rs.next();
-            UserData forDebug = new UserData(
-                    rs.getString(1),
-                    rs.getString(2),
-                    rs.getString(3));
-
-            return forDebug;
+            if(rs.next()){
+                return new UserData(
+                        rs.getString(1),
+                        rs.getString(2),
+                        rs.getString(3));
+            }
+            else{
+                return null;
+            }
         }
         catch(SQLException ex){
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 
@@ -58,23 +60,11 @@ public class SQLUserDAO implements UserDAO {
             System.out.printf("Deleted %d users\n", count);
         }
         catch(SQLException ex){
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 
-    void storeUserPassword(String username, String clearTextPassword) {
-        String hashedPassword = BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
 
-        // write the hashed password in database along with the user's other information
-        writeHashedPasswordToDatabase(username, hashedPassword);
-    }
-
-    boolean verifyUser(String username, String providedClearTextPassword) {
-        // read the previously hashed password from the database
-        var hashedPassword = readHashedPasswordFromDatabase(username);
-
-        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
-    }
 
     private final String[] createUserStatements = {
             """
@@ -97,7 +87,7 @@ public class SQLUserDAO implements UserDAO {
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 }

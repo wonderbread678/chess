@@ -22,38 +22,41 @@ public class SQLAuthDAO implements AuthDAO {
             return authData;
         }
         catch(SQLException ex){
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 
-    public AuthData getAuth(String username) throws DataAccessException {
-        String sql = "SELECT authToken, username from authDataTable WHERE username = ?";
+    public AuthData getAuth(String authToken) throws DataAccessException {
+        String sql = "SELECT authToken, username from authDataTable WHERE authToken = ?";
 
         try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
-            stmt.setString(1, username);
+            stmt.setString(1, authToken);
             ResultSet rs = stmt.executeQuery();
-            rs.next();
-
-            return new AuthData(rs.getString("authToken"), rs.getString("username"));
+            if(rs.next()){
+                return new AuthData(rs.getString("authToken"), rs.getString("username"));
+            }
+            else{
+                return null;
+            }
         }
         catch(SQLException ex){
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 
-    public void deleteAuth(String username) throws DataAccessException {
-        String sql = "DELETE FROM authDataTable WHERE username = ?";
+    public void deleteAuth(String authToken) throws DataAccessException {
+        String sql = "DELETE FROM authDataTable WHERE authToken = ?";
 
         try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
-            stmt.setString(1, username);
+            stmt.setString(1, authToken);
             int count = stmt.executeUpdate();
             if(count == 0){
-                throw new DataAccessException("Invalid username: Nothing to delete");
+                throw new DataAccessException("Error: Nothing to delete");
             }
             System.out.printf("Deleted %d auth values\n", count);
         }
         catch(SQLException ex){
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 
@@ -65,7 +68,7 @@ public class SQLAuthDAO implements AuthDAO {
             System.out.printf("Deleted %d auth values\n", count);
         }
         catch(SQLException ex){
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 
@@ -89,7 +92,7 @@ public class SQLAuthDAO implements AuthDAO {
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 }

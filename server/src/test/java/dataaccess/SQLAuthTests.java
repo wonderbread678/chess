@@ -43,7 +43,7 @@ public class SQLAuthTests {
         AuthData testData = new AuthData("1", "test");
         AuthData comparison = AUTH_DAO.createAuth(testData);
 
-        AuthData result = AUTH_DAO.getAuth("test");
+        AuthData result = AUTH_DAO.getAuth("1");
 
         assertNotNull(result);
         assertEquals(comparison, result);
@@ -51,7 +51,7 @@ public class SQLAuthTests {
 
     @Test
     public void testGetAuthInvalidUsername() throws DataAccessException{
-        assertThrows(DataAccessException.class, () -> AUTH_DAO.getAuth("test"));
+        assertNull(AUTH_DAO.getAuth("1"));
     }
 
     @Test
@@ -59,8 +59,8 @@ public class SQLAuthTests {
         AuthData testData = new AuthData("1", "test");
         AUTH_DAO.createAuth(testData);
 
-        AUTH_DAO.deleteAuth("test");
-        assertThrows(DataAccessException.class, ()-> AUTH_DAO.getAuth("test"));
+        AUTH_DAO.deleteAuth("1");
+        assertNull(AUTH_DAO.getAuth("test"));
     }
 
     @Test
@@ -68,7 +68,7 @@ public class SQLAuthTests {
         AuthData testData = new AuthData("1", "test");
         AUTH_DAO.createAuth(testData);
 
-        AUTH_DAO.deleteAuth("test");
+        AUTH_DAO.deleteAuth("1");
         assertThrows(DataAccessException.class, ()-> AUTH_DAO.deleteAuth("test"));
     }
 
@@ -84,8 +84,8 @@ public class SQLAuthTests {
 
         AUTH_DAO.deleteAllAuth();
 
-        assertThrows(DataAccessException.class, ()-> AUTH_DAO.getAuth("test1"));
-        assertThrows(DataAccessException.class, ()-> AUTH_DAO.getAuth("test2"));
-        assertThrows(DataAccessException.class, ()-> AUTH_DAO.getAuth("test3"));
+        assertNull(AUTH_DAO.getAuth("1"));
+        assertNull(AUTH_DAO.getAuth("2"));
+        assertNull(AUTH_DAO.getAuth("3"));
     }
 }

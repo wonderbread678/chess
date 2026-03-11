@@ -109,7 +109,7 @@ public class SQLGameTests {
 
     @Test
     public void testGetGameDoesNotExist() throws DataAccessException{
-        assertThrows(DataAccessException.class, () -> GAME_DAO.getGame(1));
+        assertNull(GAME_DAO.getGame(1));
     }
 
     @Test
@@ -209,9 +209,9 @@ public class SQLGameTests {
 
         GAME_DAO.deleteAllGames();
 
-        assertThrows(DataAccessException.class, () -> GAME_DAO.getGame(1));
-        assertThrows(DataAccessException.class, () -> GAME_DAO.getGame(2));
-        assertThrows(DataAccessException.class, () -> GAME_DAO.getGame(3));
+        assertNull(GAME_DAO.getGame(1));
+        assertNull(GAME_DAO.getGame(2));
+        assertNull(GAME_DAO.getGame(3));
 
     }
 }
