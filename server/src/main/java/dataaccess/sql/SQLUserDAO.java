@@ -56,8 +56,25 @@ public class SQLUserDAO implements UserDAO {
     public void deleteAllUsers() throws DataAccessException {
         String sql = "DELETE FROM userDataTable";
         try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
-            int count = stmt.executeUpdate();
-            System.out.printf("Deleted %d users\n", count);
+            stmt.executeUpdate();
+        }
+        catch(SQLException ex){
+            throw new DataAccessException("Error: " + ex.getMessage());
+        }
+    }
+
+    public String getHashedPassword(String username) throws DataAccessException{
+        String sql = "SELECT password FROM userDataTable WHERE username = ?";
+
+        try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if(rs.next()){
+                return rs.getString(1);
+            }
+            else{
+                return null;
+            }
         }
         catch(SQLException ex){
             throw new DataAccessException("Error: " + ex.getMessage());

@@ -92,8 +92,6 @@ public class SQLGameDAO implements GameDAO {
             if(count == 0){
                 throw new DataAccessException("Error: No rows to update");
             }
-
-            System.out.println("Updated game " + gameID + "\n");
         }
         catch(SQLException ex){
             throw new DataAccessException("Error: " + ex.getMessage());
@@ -105,7 +103,6 @@ public class SQLGameDAO implements GameDAO {
 
         try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
             int count = stmt.executeUpdate();
-            System.out.printf("Deleted %d games\n", count);
         }
         catch(SQLException ex){
             throw new DataAccessException("Error: " + ex.getMessage());

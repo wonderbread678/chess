@@ -6,6 +6,7 @@ import dataaccess.memory.MemoryUserDAO;
 import dataaccess.sql.SQLAuthDAO;
 import dataaccess.sql.SQLUserDAO;
 import model.*;
+import org.mindrot.jbcrypt.BCrypt;
 import server.ResponseException;
 
 import java.util.Objects;
@@ -25,7 +26,8 @@ public class UserService {
             if (userDAO.getUser(username) != null) {
                 throw new ResponseException(403, "Error: Username already taken");
             }
-        userDAO.createUser(new UserData(username, password, email));
+        String hash_password = storeUserPassword(username, password);
+        userDAO.createUser(new UserData(username, hash_password, email));
         return createAuth(username, password);
         }
         catch(DataAccessException ex){
@@ -39,7 +41,7 @@ public class UserService {
             if(user == null){
                 throw new ResponseException(401, "Error: Unauthorized");
             }
-            if(!isLoginInfoCorrect(password, user)){
+            if(!verifyUser(username, password)){
                 throw new ResponseException(401, "Error: Unauthorized");
             }
             AuthData newAuth = new AuthData(generateToken(), username);
@@ -62,27 +64,23 @@ public class UserService {
         }
     }
 
-    public boolean isLoginInfoCorrect(String password, UserData user){
-        return password.equals(user.password());
-    }
-
     public static String generateToken() {
         return UUID.randomUUID().toString();
     }
 
-    //    void storeUserPassword(String username, String clearTextPassword) {
-//        String hashedPassword = BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
-//
-//        // write the hashed password in database along with the user's other information
-//        writeHashedPasswordToDatabase(username, hashedPassword);
-//    }
-//
-//    boolean verifyUser(String username, String providedClearTextPassword) {
-//        // read the previously hashed password from the database
-//        var hashedPassword = readHashedPasswordFromDatabase(username);
-//
-//        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
-//    }
+    String storeUserPassword(String username, String clearTextPassword) {
+        return BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
+    }
+
+    boolean verifyUser(String username, String providedClearTextPassword) throws ResponseException{
+        try{
+            var hashedPassword = userDAO.getHashedPassword(username);
+            return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
+        }
+        catch(DataAccessException ex){
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
 
     public void deleteAllUsers() throws ResponseException{
         try{

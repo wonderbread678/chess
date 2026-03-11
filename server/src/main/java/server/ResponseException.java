@@ -18,6 +18,6 @@ public class ResponseException extends Exception {
     }
 
     public String toJson(){
-        return new Gson().toJson(Map.of("message", getMessage()));
+        return new Gson().toJson(Map.of("message", "Error: " + getMessage()));
     }
 }

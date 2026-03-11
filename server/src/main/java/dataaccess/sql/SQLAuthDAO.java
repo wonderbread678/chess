@@ -18,7 +18,6 @@ public class SQLAuthDAO implements AuthDAO {
             stmt.setString(1, authData.authToken());
             stmt.setString(2, authData.username());
             stmt.executeUpdate();
-            System.out.println("Inserted authData: " + authData + "\n");
             return authData;
         }
         catch(SQLException ex){
@@ -53,7 +52,6 @@ public class SQLAuthDAO implements AuthDAO {
             if(count == 0){
                 throw new DataAccessException("Error: Nothing to delete");
             }
-            System.out.printf("Deleted %d auth values\n", count);
         }
         catch(SQLException ex){
             throw new DataAccessException("Error: " + ex.getMessage());
@@ -64,13 +62,13 @@ public class SQLAuthDAO implements AuthDAO {
         String sql = "delete from authDataTable";
 
         try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
-            int count = stmt.executeUpdate();
-            System.out.printf("Deleted %d auth values\n", count);
+            stmt.executeUpdate();
         }
         catch(SQLException ex){
             throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
+
 
     private final String[] createAuthStatements = {
             """

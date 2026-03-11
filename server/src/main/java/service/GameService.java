@@ -106,7 +106,4 @@ public class GameService {
             throw new ResponseException(500, ex.getMessage());
         }
     }
-
-
-
 }
