@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class SQLGameTests {
     
-    private SQLGameDAO game_DAO;
+    private SQLGameDAO gameDAO;
 
     @BeforeAll
     static void connectionSetUp() throws DataAccessException {
@@ -21,8 +21,8 @@ public class SQLGameTests {
 
     @BeforeEach
     public void setup() throws DataAccessException{
-        game_DAO = new SQLGameDAO();
-        game_DAO.deleteAllGames();
+        gameDAO = new SQLGameDAO();
+        gameDAO.deleteAllGames();
     }
 
     @Test
@@ -33,7 +33,7 @@ public class SQLGameTests {
                 "testGame",
                 new ChessGame());
 
-        GameData result = game_DAO.createGame(comparison);
+        GameData result = gameDAO.createGame(comparison);
 
         assertNotNull(result);
         assertNull(result.whiteUsername());
@@ -49,7 +49,7 @@ public class SQLGameTests {
                 null,
                 new ChessGame());
 
-        assertThrows(DataAccessException.class, () -> game_DAO.createGame(badGame));
+        assertThrows(DataAccessException.class, () -> gameDAO.createGame(badGame));
     }
 
     @Test
@@ -77,11 +77,11 @@ public class SQLGameTests {
         comparison.put(2, comparisonBlack);
         comparison.put(3, comparisonBoth);
 
-        game_DAO.createGame(comparisonWhite);
-        game_DAO.createGame(comparisonBlack);
-        game_DAO.createGame(comparisonBoth);
+        gameDAO.createGame(comparisonWhite);
+        gameDAO.createGame(comparisonBlack);
+        gameDAO.createGame(comparisonBoth);
 
-        HashMap<Integer, GameData> result = game_DAO.listGames();
+        HashMap<Integer, GameData> result = gameDAO.listGames();
 
         assertEquals(comparison, result);
     }
@@ -89,7 +89,7 @@ public class SQLGameTests {
     @Test
     public void testListGamesNoList() throws DataAccessException{
         HashMap<Integer, GameData> comparison = new HashMap<>();
-        assertEquals(comparison, game_DAO.listGames());
+        assertEquals(comparison, gameDAO.listGames());
     }
 
     @Test
@@ -100,8 +100,8 @@ public class SQLGameTests {
                 "testGame",
                 new ChessGame());
 
-        game_DAO.createGame(comparison);
-        GameData result = game_DAO.getGame(1);
+        gameDAO.createGame(comparison);
+        GameData result = gameDAO.getGame(1);
 
         assertNotNull(result);
         assertEquals(comparison, result);
@@ -109,7 +109,7 @@ public class SQLGameTests {
 
     @Test
     public void testGetGameDoesNotExist() throws DataAccessException{
-        assertNull(game_DAO.getGame(1));
+        assertNull(gameDAO.getGame(1));
     }
 
     @Test
@@ -150,17 +150,17 @@ public class SQLGameTests {
                 "testGameBoth",
                 new ChessGame());
 
-        game_DAO.createGame(testGameWhite);
-        game_DAO.createGame(testGameBlack);
-        game_DAO.createGame(testGameBoth);
+        gameDAO.createGame(testGameWhite);
+        gameDAO.createGame(testGameBlack);
+        gameDAO.createGame(testGameBoth);
 
-        game_DAO.updateGamePlayers(testGameWhite.gameID(), "user1", null);
-        game_DAO.updateGamePlayers(testGameBlack.gameID(), null, "user2");
-        game_DAO.updateGamePlayers(testGameBoth.gameID(), "user1", "user2");
+        gameDAO.updateGamePlayers(testGameWhite.gameID(), "user1", null);
+        gameDAO.updateGamePlayers(testGameBlack.gameID(), null, "user2");
+        gameDAO.updateGamePlayers(testGameBoth.gameID(), "user1", "user2");
 
-        GameData updatedGameWhite = game_DAO.getGame(1);
-        GameData updatedGameBlack = game_DAO.getGame(2);
-        GameData updatedGameBoth = game_DAO.getGame(3);
+        GameData updatedGameWhite = gameDAO.getGame(1);
+        GameData updatedGameBlack = gameDAO.getGame(2);
+        GameData updatedGameBoth = gameDAO.getGame(3);
 
         assertNotNull(updatedGameWhite.whiteUsername());
         assertNull(updatedGameWhite.blackUsername());
@@ -179,10 +179,10 @@ public class SQLGameTests {
     @Test
     public void testUpdatePlayerNoGame() throws DataAccessException{
         GameData fakeGame = new GameData(1, null, null, "fake", new ChessGame());
-        game_DAO.createGame(fakeGame);
-        game_DAO.deleteAllGames();
+        gameDAO.createGame(fakeGame);
+        gameDAO.deleteAllGames();
 
-        assertThrows(DataAccessException.class, () -> game_DAO.updateGamePlayers(1, "test1", "test2"));
+        assertThrows(DataAccessException.class, () -> gameDAO.updateGamePlayers(1, "test1", "test2"));
     }
 
     @Test
@@ -203,15 +203,15 @@ public class SQLGameTests {
                 "testGame3",
                 new ChessGame());
 
-        game_DAO.createGame(game1);
-        game_DAO.createGame(game2);
-        game_DAO.createGame(game3);
+        gameDAO.createGame(game1);
+        gameDAO.createGame(game2);
+        gameDAO.createGame(game3);
 
-        game_DAO.deleteAllGames();
+        gameDAO.deleteAllGames();
 
-        assertNull(game_DAO.getGame(1));
-        assertNull(game_DAO.getGame(2));
-        assertNull(game_DAO.getGame(3));
+        assertNull(gameDAO.getGame(1));
+        assertNull(gameDAO.getGame(2));
+        assertNull(gameDAO.getGame(3));
 
     }
 }

@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class SQLUserTests {
     
-    private SQLUserDAO user_DAO;
+    private SQLUserDAO userDAO;
 
     @BeforeAll
     static void connectionSetUp() throws DataAccessException {
@@ -23,14 +23,14 @@ public class SQLUserTests {
 
     @BeforeEach
     public void setup() throws DataAccessException{
-        user_DAO = new SQLUserDAO();
-        user_DAO.deleteAllUsers();
+        userDAO = new SQLUserDAO();
+        userDAO.deleteAllUsers();
     }
 
     @Test
     public void testCreateUser() throws DataAccessException{
         UserData testUser = new UserData("test", "test", "test@test.com");
-        UserData testData = user_DAO.createUser(testUser);
+        UserData testData = userDAO.createUser(testUser);
 
         assertNotNull(testData.username());
         assertNotNull(testData.password());
@@ -42,15 +42,15 @@ public class SQLUserTests {
     public void testCreateUserNullFields() throws DataAccessException{
         UserData testBadUser = new UserData("test", null, "test@test.com");
 
-        assertThrows(DataAccessException.class, () -> user_DAO.createUser(testBadUser));
+        assertThrows(DataAccessException.class, () -> userDAO.createUser(testBadUser));
     }
 
     @Test
     public void testGetUser() throws DataAccessException{
         UserData testUser = new UserData("test", "test", "test@test.com");
-        UserData comparison = user_DAO.createUser(testUser);
+        UserData comparison = userDAO.createUser(testUser);
 
-        UserData testGetData = user_DAO.getUser(testUser.username());
+        UserData testGetData = userDAO.getUser(testUser.username());
 
         assertNotNull(testGetData);
         assertNotNull(testGetData.username());
@@ -61,7 +61,7 @@ public class SQLUserTests {
 
     @Test
     public void testGetUserDoesNotExist() throws DataAccessException{
-        assertNull(user_DAO.getUser("IDon'tExist12"));
+        assertNull(userDAO.getUser("IDon'tExist12"));
     }
 
     @Test
@@ -70,14 +70,14 @@ public class SQLUserTests {
         UserData testUser2 = new UserData("test2", "test2", "test2@test.com");
         UserData testUser3 = new UserData("test3", "test3", "test3@test.com");
 
-        user_DAO.createUser(testUser1);
-        user_DAO.createUser(testUser2);
-        user_DAO.createUser(testUser3);
+        userDAO.createUser(testUser1);
+        userDAO.createUser(testUser2);
+        userDAO.createUser(testUser3);
 
-        user_DAO.deleteAllUsers();
+        userDAO.deleteAllUsers();
 
-        assertNull(user_DAO.getUser(testUser1.username()));
-        assertNull(user_DAO.getUser(testUser2.username()));
-        assertNull(user_DAO.getUser(testUser3.username()));
+        assertNull(userDAO.getUser(testUser1.username()));
+        assertNull(userDAO.getUser(testUser2.username()));
+        assertNull(userDAO.getUser(testUser3.username()));
     }
 }
