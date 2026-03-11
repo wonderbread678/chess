@@ -26,8 +26,8 @@ public class UserService {
             if (userDAO.getUser(username) != null) {
                 throw new ResponseException(403, "Error: Username already taken");
             }
-        String hash_password = storeUserPassword(username, password);
-        userDAO.createUser(new UserData(username, hash_password, email));
+        String hashPassword = storeUserPassword(username, password);
+        userDAO.createUser(new UserData(username, hashPassword, email));
         return createAuth(username, password);
         }
         catch(DataAccessException ex){

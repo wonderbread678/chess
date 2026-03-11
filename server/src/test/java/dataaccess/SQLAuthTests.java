@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class SQLAuthTests {
 
-    private SQLAuthDAO AUTH_DAO;
+    private SQLAuthDAO auth_DAO;
 
     @BeforeAll
     static void connectionSetUp() throws DataAccessException {
@@ -18,14 +18,14 @@ public class SQLAuthTests {
 
     @BeforeEach
     public void setup() throws DataAccessException{
-        AUTH_DAO = new SQLAuthDAO();
-        AUTH_DAO.deleteAllAuth();
+        auth_DAO = new SQLAuthDAO();
+        auth_DAO.deleteAllAuth();
     }
 
     @Test
     public void testCreateAuth() throws DataAccessException{
         AuthData testData = new AuthData("1", "test");
-        AuthData result = AUTH_DAO.createAuth(testData);
+        AuthData result = auth_DAO.createAuth(testData);
 
         assertNotNull(result);
         assertEquals(testData, result);
@@ -35,15 +35,15 @@ public class SQLAuthTests {
     public void testCreateAuthInvalid() throws DataAccessException{
         AuthData testData = new AuthData("1", null);
 
-        assertThrows(DataAccessException.class, () -> AUTH_DAO.createAuth(testData));
+        assertThrows(DataAccessException.class, () -> auth_DAO.createAuth(testData));
     }
 
     @Test
     public void testGetAuth() throws DataAccessException{
         AuthData testData = new AuthData("1", "test");
-        AuthData comparison = AUTH_DAO.createAuth(testData);
+        AuthData comparison = auth_DAO.createAuth(testData);
 
-        AuthData result = AUTH_DAO.getAuth("1");
+        AuthData result = auth_DAO.getAuth("1");
 
         assertNotNull(result);
         assertEquals(comparison, result);
@@ -51,25 +51,25 @@ public class SQLAuthTests {
 
     @Test
     public void testGetAuthInvalidUsername() throws DataAccessException{
-        assertNull(AUTH_DAO.getAuth("1"));
+        assertNull(auth_DAO.getAuth("1"));
     }
 
     @Test
     public void testDeleteAuth() throws DataAccessException{
         AuthData testData = new AuthData("1", "test");
-        AUTH_DAO.createAuth(testData);
+        auth_DAO.createAuth(testData);
 
-        AUTH_DAO.deleteAuth("1");
-        assertNull(AUTH_DAO.getAuth("test"));
+        auth_DAO.deleteAuth("1");
+        assertNull(auth_DAO.getAuth("test"));
     }
 
     @Test
     public void testDeleteAuthTwice() throws DataAccessException{
         AuthData testData = new AuthData("1", "test");
-        AUTH_DAO.createAuth(testData);
+        auth_DAO.createAuth(testData);
 
-        AUTH_DAO.deleteAuth("1");
-        assertThrows(DataAccessException.class, ()-> AUTH_DAO.deleteAuth("test"));
+        auth_DAO.deleteAuth("1");
+        assertThrows(DataAccessException.class, ()-> auth_DAO.deleteAuth("test"));
     }
 
     @Test
@@ -78,14 +78,14 @@ public class SQLAuthTests {
         AuthData testData2 = new AuthData("2", "test2");
         AuthData testData3 = new AuthData("3", "test3");
 
-        AUTH_DAO.createAuth(testData1);
-        AUTH_DAO.createAuth(testData2);
-        AUTH_DAO.createAuth(testData3);
+        auth_DAO.createAuth(testData1);
+        auth_DAO.createAuth(testData2);
+        auth_DAO.createAuth(testData3);
 
-        AUTH_DAO.deleteAllAuth();
+        auth_DAO.deleteAllAuth();
 
-        assertNull(AUTH_DAO.getAuth("1"));
-        assertNull(AUTH_DAO.getAuth("2"));
-        assertNull(AUTH_DAO.getAuth("3"));
+        assertNull(auth_DAO.getAuth("1"));
+        assertNull(auth_DAO.getAuth("2"));
+        assertNull(auth_DAO.getAuth("3"));
     }
 }

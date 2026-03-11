@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class SQLGameTests {
     
-    private SQLGameDAO GAME_DAO;
+    private SQLGameDAO game_DAO;
 
     @BeforeAll
     static void connectionSetUp() throws DataAccessException {
@@ -21,8 +21,8 @@ public class SQLGameTests {
 
     @BeforeEach
     public void setup() throws DataAccessException{
-        GAME_DAO = new SQLGameDAO();
-        GAME_DAO.deleteAllGames();
+        game_DAO = new SQLGameDAO();
+        game_DAO.deleteAllGames();
     }
 
     @Test
@@ -33,7 +33,7 @@ public class SQLGameTests {
                 "testGame",
                 new ChessGame());
 
-        GameData result = GAME_DAO.createGame(comparison);
+        GameData result = game_DAO.createGame(comparison);
 
         assertNotNull(result);
         assertNull(result.whiteUsername());
@@ -49,7 +49,7 @@ public class SQLGameTests {
                 null,
                 new ChessGame());
 
-        assertThrows(DataAccessException.class, () -> GAME_DAO.createGame(badGame));
+        assertThrows(DataAccessException.class, () -> game_DAO.createGame(badGame));
     }
 
     @Test
@@ -77,11 +77,11 @@ public class SQLGameTests {
         comparison.put(2, comparisonBlack);
         comparison.put(3, comparisonBoth);
 
-        GAME_DAO.createGame(comparisonWhite);
-        GAME_DAO.createGame(comparisonBlack);
-        GAME_DAO.createGame(comparisonBoth);
+        game_DAO.createGame(comparisonWhite);
+        game_DAO.createGame(comparisonBlack);
+        game_DAO.createGame(comparisonBoth);
 
-        HashMap<Integer, GameData> result = GAME_DAO.listGames();
+        HashMap<Integer, GameData> result = game_DAO.listGames();
 
         assertEquals(comparison, result);
     }
@@ -89,7 +89,7 @@ public class SQLGameTests {
     @Test
     public void testListGamesNoList() throws DataAccessException{
         HashMap<Integer, GameData> comparison = new HashMap<>();
-        assertEquals(comparison, GAME_DAO.listGames());
+        assertEquals(comparison, game_DAO.listGames());
     }
 
     @Test
@@ -100,8 +100,8 @@ public class SQLGameTests {
                 "testGame",
                 new ChessGame());
 
-        GAME_DAO.createGame(comparison);
-        GameData result = GAME_DAO.getGame(1);
+        game_DAO.createGame(comparison);
+        GameData result = game_DAO.getGame(1);
 
         assertNotNull(result);
         assertEquals(comparison, result);
@@ -109,26 +109,26 @@ public class SQLGameTests {
 
     @Test
     public void testGetGameDoesNotExist() throws DataAccessException{
-        assertNull(GAME_DAO.getGame(1));
+        assertNull(game_DAO.getGame(1));
     }
 
     @Test
     public void testUpdatePlayer() throws DataAccessException{
-        GameData comparisonWhite = new GameData(1,
-                "whiteUser",
+        GameData comparison1 = new GameData(1,
+                "user1",
                 null,
                 "testGameWhite",
                 new ChessGame());
 
-        GameData comparisonBlack = new GameData(2,
+        GameData comparison2 = new GameData(2,
                 null,
-                "blackUser",
+                "user2",
                 "testGameBlack",
                 new ChessGame());
 
-        GameData comparisonBoth = new GameData(3,
-                "whiteUser",
-                "blackUser",
+        GameData comparison3 = new GameData(3,
+                "user1",
+                "user2",
                 "testGameBoth",
                 new ChessGame());
 
@@ -150,39 +150,39 @@ public class SQLGameTests {
                 "testGameBoth",
                 new ChessGame());
 
-        GAME_DAO.createGame(testGameWhite);
-        GAME_DAO.createGame(testGameBlack);
-        GAME_DAO.createGame(testGameBoth);
+        game_DAO.createGame(testGameWhite);
+        game_DAO.createGame(testGameBlack);
+        game_DAO.createGame(testGameBoth);
 
-        GAME_DAO.updateGamePlayers(testGameWhite.gameID(), "whiteUser", null);
-        GAME_DAO.updateGamePlayers(testGameBlack.gameID(), null, "blackUser");
-        GAME_DAO.updateGamePlayers(testGameBoth.gameID(), "whiteUser", "blackUser");
+        game_DAO.updateGamePlayers(testGameWhite.gameID(), "user1", null);
+        game_DAO.updateGamePlayers(testGameBlack.gameID(), null, "user2");
+        game_DAO.updateGamePlayers(testGameBoth.gameID(), "user1", "user2");
 
-        GameData updatedGameWhite = GAME_DAO.getGame(1);
-        GameData updatedGameBlack = GAME_DAO.getGame(2);
-        GameData updatedGameBoth = GAME_DAO.getGame(3);
+        GameData updatedGameWhite = game_DAO.getGame(1);
+        GameData updatedGameBlack = game_DAO.getGame(2);
+        GameData updatedGameBoth = game_DAO.getGame(3);
 
         assertNotNull(updatedGameWhite.whiteUsername());
         assertNull(updatedGameWhite.blackUsername());
-        assertEquals(comparisonWhite, updatedGameWhite);
+        assertEquals(comparison1, updatedGameWhite);
 
         assertNull(updatedGameBlack.whiteUsername());
         assertNotNull(updatedGameBlack.blackUsername());
-        assertEquals(comparisonBlack, updatedGameBlack);
+        assertEquals(comparison2, updatedGameBlack);
 
         assertNotNull(updatedGameBoth.whiteUsername());
         assertNotNull(updatedGameBoth.blackUsername());
-        assertEquals(comparisonBoth, updatedGameBoth);
+        assertEquals(comparison3, updatedGameBoth);
 
     }
 
     @Test
     public void testUpdatePlayerNoGame() throws DataAccessException{
         GameData fakeGame = new GameData(1, null, null, "fake", new ChessGame());
-        GAME_DAO.createGame(fakeGame);
-        GAME_DAO.deleteAllGames();
+        game_DAO.createGame(fakeGame);
+        game_DAO.deleteAllGames();
 
-        assertThrows(DataAccessException.class, () -> GAME_DAO.updateGamePlayers(1, "test1", "test2"));
+        assertThrows(DataAccessException.class, () -> game_DAO.updateGamePlayers(1, "test1", "test2"));
     }
 
     @Test
@@ -203,15 +203,15 @@ public class SQLGameTests {
                 "testGame3",
                 new ChessGame());
 
-        GAME_DAO.createGame(game1);
-        GAME_DAO.createGame(game2);
-        GAME_DAO.createGame(game3);
+        game_DAO.createGame(game1);
+        game_DAO.createGame(game2);
+        game_DAO.createGame(game3);
 
-        GAME_DAO.deleteAllGames();
+        game_DAO.deleteAllGames();
 
-        assertNull(GAME_DAO.getGame(1));
-        assertNull(GAME_DAO.getGame(2));
-        assertNull(GAME_DAO.getGame(3));
+        assertNull(game_DAO.getGame(1));
+        assertNull(game_DAO.getGame(2));
+        assertNull(game_DAO.getGame(3));
 
     }
 }

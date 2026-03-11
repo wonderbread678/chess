@@ -15,7 +15,7 @@ import java.util.HashMap;
 public class SQLGameDAO implements GameDAO {
 
     public SQLGameDAO() throws DataAccessException {
-        configureGameDatabase();
+        configureGameDatabase(createGameStatements);
     }
 
     public GameData createGame(GameData gameData) throws DataAccessException {
@@ -123,10 +123,10 @@ public class SQLGameDAO implements GameDAO {
             """
     };
 
-    private void configureGameDatabase() throws DataAccessException {
+    private void configureGameDatabase(String[] statements) throws DataAccessException {
         DatabaseManager.createDatabase();
         try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createGameStatements) {
+            for (String statement : statements) {
                 try (var preparedStatement = conn.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
                 }
