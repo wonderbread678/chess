@@ -22,7 +22,8 @@ public class ServerFacade {
         this.serverUrl = url;
     }
 
-    public AuthData register(UserData newUser) throws ResponseException{
+    public AuthData register(String username, String password, String email) throws ResponseException{
+        UserData newUser = new UserData(username, password, email);
         var request = buildRequest("POST", "/user", newUser);
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
