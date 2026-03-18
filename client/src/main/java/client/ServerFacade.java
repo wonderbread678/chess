@@ -47,10 +47,9 @@ public class ServerFacade {
         new Client_Communicate().deleteMethod(serverUrl, "/session", authTokens.get(username));
     }
 
-    public String listGames(String username) throws ResponseException{
-        ListGamesRequest listGamesRequest = new ListGamesRequest(authTokens.get(username));
-        var response = new Client_Communicate().getMethod(serverUrl, "/game", new Gson().toJson(listGamesRequest));
-        return handleResponse(response, String.class);
+    public ListGamesResponse listGames(String username) throws ResponseException{
+        var response = new Client_Communicate().getMethod(serverUrl, "/game", authTokens.get(username));
+        return handleResponse(response, ListGamesResponse.class);
     }
 
     public CreateGameResponse createGame(String gameName, String username) throws ResponseException{

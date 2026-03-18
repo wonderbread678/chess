@@ -1,8 +1,14 @@
 package client;
 
+import com.google.gson.Gson;
+import model.ListGamesData;
 import org.junit.jupiter.api.*;
 import server.ResponseException;
 import server.Server;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,32 +59,74 @@ public class ServerFacadeTests {
 
     @Test
     void testLoginInvalidInput() throws ResponseException{
+        facade.register("player1", "password", "p1@email.com");
 
+        assertThrows(ResponseException.class, ()->facade.login(null, "password"));
+        assertThrows(ResponseException.class, ()->facade.login("player1", null));
+        assertThrows(ResponseException.class, ()->facade.login(null, null));
+        assertThrows(ResponseException.class, ()->facade.login("badUser", "password"));
+        assertThrows(ResponseException.class, ()->facade.login("player1", "badpassword"));
     }
 
     @Test
     void testLogoutSuccess() throws ResponseException{
+        facade.register("player1", "password", "p1@email.com");
+        var authData = facade.login("player1", "password");
+
+        facade.logout("player1");
 
     }
 
     @Test
     void testLogoutTwiceFailure() throws ResponseException{
+        var authData = facade.register("player1", "password", "p1@email.com");
 
+        facade.logout("player1");
+        assertThrows(ResponseException.class, ()-> facade.logout("player1"));
     }
 
     @Test
     void testCreateGameSuccess() throws ResponseException{
+        facade.register("player1", "password", "p1@email.com");
 
+        var createGame = facade.createGame("game1", "player1");
+        assertNotNull(createGame);
+        assertEquals(1, createGame.gameID());
     }
 
     @Test
     void testCreateGameInvalidInput() throws ResponseException{
+        facade.register("player1", "password", "p1@email.com");
 
+        assertThrows(ResponseException.class, () -> facade.createGame(null, "player1"));
+        assertThrows(ResponseException.class, () -> facade.createGame("game1", "player2"));
+
+        facade.register("player2", "password2", "p2@email.com");
+        facade.logout("player2");
+        assertThrows(ResponseException.class, () -> facade.createGame("game2", "player2"));
     }
 
     @Test
     void testListGameSuccess() throws ResponseException{
+        Collection<ListGamesData> gamesComparison = new ArrayList<>();
 
+        ListGamesData testGame1 = new ListGamesData(1, null, null, "game1");
+        ListGamesData testGame2 = new ListGamesData(2, null, null, "game2");
+        ListGamesData testGame3 = new ListGamesData(3, null, null, "game3");
+
+        gamesComparison.add(testGame1);
+        gamesComparison.add(testGame2);
+        gamesComparison.add(testGame3);
+
+        facade.register("player1", "password", "p1@email.com");
+
+        facade.createGame("game1", "player1");
+        facade.createGame("game2", "player1");
+        facade.createGame("game3", "player1");
+
+        var listGames = facade.listGames("player1");
+        assertNotNull(listGames);
+        assertEquals(gamesComparison, listGames.games());
     }
 
     @Test
@@ -95,6 +143,4 @@ public class ServerFacadeTests {
     void testJoinGameDoesNotExist() throws ResponseException{
 
     }
-
-
 }

@@ -14,7 +14,8 @@ public class Client_Communicate {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(serverUrl + path))
-                    .timeout(java.time.Duration.ofMillis(5000))
+//                    .timeout(java.time.Duration.ofMillis(5000))
+                    .header("authorization", authToken)
                     .GET()
                     .build();
 
