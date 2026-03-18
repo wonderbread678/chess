@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 
 public class Chessboard {
     private static final int BOARD_SIZE_IN_SQUARES = 8;
-    private static final int SQUARE_SIZE_IN_PADDED_CHARS = 8;
+    private static final int SQUARE_SIZE_IN_PADDED_CHARS = 3;
 
     private static final String EMPTY = EscapeSequences.EMPTY;
     private static final String WHITE_KING = EscapeSequences.WHITE_KING;
@@ -27,7 +27,21 @@ public class Chessboard {
 
         out.print(EscapeSequences.ERASE_SCREEN);
 
+        drawHeaders(out);
+
+        drawChessBoard(out);
+
+        out.print(EscapeSequences.SET_BG_COLOR_BLACK);
+        out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
+
     }
+
+    private static void drawHeaders(PrintStream out) {
+    }
+
+    private static void drawChessBoard(PrintStream out) {
+    }
+
     private static void makeHeaders(PrintStream out){
 
     }
