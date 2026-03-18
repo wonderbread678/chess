@@ -10,9 +10,6 @@ import server.response.CreateGameResponse;
 
 import java.net.*;
 import java.net.http.*;
-import java.net.http.HttpRequest.BodyPublisher;
-import java.net.http.HttpRequest.BodyPublishers;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.util.HashMap;
 
 public class ServerFacade {
@@ -72,7 +69,13 @@ public class ServerFacade {
     }
 
     private void exceptionHandler(ResponseException ex){
-
+        String clientErrorMessage = switch(ex.getCode()){
+            case 400 -> "Invalid input";
+            case 401 -> "Unauthorized";
+            case 403 -> "Already taken";
+            default -> "Server Error";
+        };
+        System.out.println(clientErrorMessage);
     }
 
 
