@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ServerFacadeTests {
 
+
     private static Server server;
     static ServerFacade facade;
 
@@ -16,7 +17,7 @@ public class ServerFacadeTests {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
-        String serverUrl = String.format("http://localhost:%d/", port);
+        String serverUrl = String.format("http://localhost:%d", port);
         facade = new ServerFacade(serverUrl);
     }
 
@@ -26,8 +27,8 @@ public class ServerFacadeTests {
     }
 
     @BeforeEach
-    public void setup(){
-
+    public void setup() throws ResponseException{
+        facade.clear();
     }
 
     @Test
@@ -38,12 +39,16 @@ public class ServerFacadeTests {
 
     @Test
     void testRegisterFailure() throws ResponseException{
-
+        assertThrows(ResponseException.class, ()->facade.register(null, "password", "p1@email.com"));
     }
 
     @Test
     void testLoginSuccess() throws ResponseException{
+        facade.register("player1", "password", "p1@email.com");
 
+        var authData = facade.login("player1", "password");
+        assertTrue(authData.authToken().length() > 10);
+        assertEquals("player1", authData.username());
     }
 
     @Test
