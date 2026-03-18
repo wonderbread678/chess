@@ -22,16 +22,25 @@ public class Client_Communicate {
         return client.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    public HttpResponse<String> postMethod(String serverUrl, String path, String body, String authToken) throws Exception{
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(serverUrl + path))
-                .timeout(java.time.Duration.ofMillis(5000))
-                .header("authorization", authToken)
-                .POST(HttpRequest.BodyPublishers.ofString(body))
-                .build();
+    public HttpResponse<String> postMethod(String serverUrl, String path, String body, String authToken) throws ResponseException{
+        try{
+            HttpRequest.Builder request = HttpRequest.newBuilder()
+                    .uri(URI.create(serverUrl + path))
+                    .timeout(java.time.Duration.ofMillis(5000))
+                    .POST(HttpRequest.BodyPublishers.ofString(body));
+            if(authToken != null){
+                request.header("authorization", authToken);
+            }
+            HttpRequest built_request = request.build();
 
-        return client.send(request, HttpResponse.BodyHandlers.ofString());
+            return client.send(built_request, HttpResponse.BodyHandlers.ofString());
+        }
+        catch(Exception ex){
+            throw new ResponseException(500, ex.getMessage());
+        }
+
     }
+
 
     public void putMethod(String serverUrl, String path, String body, String authToken) throws Exception{
         Serializer converter = new Serializer();
