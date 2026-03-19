@@ -72,15 +72,6 @@ public class ServerFacade {
         new Client_Communicate().deleteMethod(serverUrl, "/db", null);
     }
 
-    private void exceptionHandler(ResponseException ex){
-        String clientErrorMessage = switch(ex.getCode()){
-            case 400 -> "Invalid input";
-            case 401 -> "Unauthorized";
-            case 403 -> "Already taken";
-            default -> "Server Error";
-        };
-        System.out.println(clientErrorMessage);
-    }
 
     public String getAuthToken(){
         return authToken;
