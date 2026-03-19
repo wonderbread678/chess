@@ -56,6 +56,7 @@ public class Client_Communicate {
                     .build();
 
             client.send(request, HttpResponse.BodyHandlers.ofString());
+
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
         }
