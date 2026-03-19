@@ -14,7 +14,7 @@ public class Client_Communicate {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(serverUrl + path))
-//                    .timeout(java.time.Duration.ofMillis(5000))
+                    .timeout(java.time.Duration.ofMillis(5000))
                     .header("authorization", authToken)
                     .GET()
                     .build();
@@ -47,12 +47,10 @@ public class Client_Communicate {
 
     public void putMethod(String serverUrl, String path, String body, String authToken) throws ResponseException {
         try {
-            Serializer converter = new Serializer();
-
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(serverUrl + path))
                     .timeout(java.time.Duration.ofMillis(5000))
-                    .PUT(HttpRequest.BodyPublishers.ofString(converter.serialize(body)))
+                    .PUT(HttpRequest.BodyPublishers.ofString(body))
                     .header("Content-Type", "application/json")
                     .header("authorization", authToken)
                     .build();
@@ -61,8 +59,6 @@ public class Client_Communicate {
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
         }
-
-
     }
 
     public void deleteMethod(String serverUrl, String path, String authToken) throws ResponseException {

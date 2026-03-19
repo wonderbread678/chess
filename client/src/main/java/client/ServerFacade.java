@@ -10,13 +10,12 @@ import server.response.CreateGameResponse;
 
 import java.net.*;
 import java.net.http.*;
-import java.util.HashMap;
 
 public class ServerFacade {
 
     private final HttpClient client = HttpClient.newHttpClient();
     private final String serverUrl;
-    private final HashMap<String, String> authTokens = new HashMap<>();
+    private String authToken = null;
 
     public ServerFacade(String url) {
         this.serverUrl = url;
@@ -27,7 +26,7 @@ public class ServerFacade {
         var response = new Client_Communicate().postMethod(serverUrl, "/user", new Gson().toJson(registerRequest), null);
 
         AuthData converted_response = handleResponse(response, AuthData.class);
-        authTokens.put(username, converted_response.authToken());
+        authToken = converted_response.authToken();
 
         return converted_response;
     }
@@ -37,30 +36,36 @@ public class ServerFacade {
         var response = new Client_Communicate().postMethod(serverUrl, "/session", new Gson().toJson(loginRequest), null);
 
         AuthData converted_response = handleResponse(response, AuthData.class);
-        authTokens.put(username, converted_response.authToken());
+        authToken = converted_response.authToken();
 
         return converted_response;
     }
 
-    public void logout(String username) throws ResponseException{
-        LogoutRequest logoutRequest = new LogoutRequest(authTokens.get(username));
-        new Client_Communicate().deleteMethod(serverUrl, "/session", authTokens.get(username));
+    public void logout() throws ResponseException{
+        if(authToken == null){
+            throw new ResponseException(401, "Error: Unauthorized");
+        }
+        new Client_Communicate().deleteMethod(serverUrl, "/session", authToken);
+        authToken = null;
     }
 
-    public ListGamesResponse listGames(String username) throws ResponseException{
-        var response = new Client_Communicate().getMethod(serverUrl, "/game", authTokens.get(username));
+    public ListGamesResponse listGames() throws ResponseException{
+        var response = new Client_Communicate().getMethod(serverUrl, "/game", authToken);
         return handleResponse(response, ListGamesResponse.class);
     }
 
-    public CreateGameResponse createGame(String gameName, String username) throws ResponseException{
-        CreateGameRequest createGameRequest = new CreateGameRequest(authTokens.get(username), gameName);
-        var response = new Client_Communicate().postMethod(serverUrl, "/game", new Gson().toJson(createGameRequest), authTokens.get(username));
+    public CreateGameResponse createGame(String gameName) throws ResponseException{
+        if(authToken == null){
+            throw new ResponseException(401, "Error: Unauthorized");
+        }
+        CreateGameRequest createGameRequest = new CreateGameRequest(authToken, gameName);
+        var response = new Client_Communicate().postMethod(serverUrl, "/game", new Gson().toJson(createGameRequest),authToken);
         return handleResponse(response, CreateGameResponse.class);
     }
 
-    public void joinGame(String username, ChessGame.TeamColor color, int gameNumber) throws ResponseException{
-        JoinGameRequest joinGameRequest = new JoinGameRequest(color, gameNumber);
-        new Client_Communicate().putMethod(serverUrl, "/game", new Gson().toJson(joinGameRequest), authTokens.get(username));
+    public void joinGame(ChessGame.TeamColor playerColor, int gameID) throws ResponseException{
+        JoinGameRequest joinGameRequest = new JoinGameRequest(playerColor, gameID);
+        new Client_Communicate().putMethod(serverUrl, "/game", new Gson().toJson(joinGameRequest), authToken);
     }
 
     public void clear() throws ResponseException{
@@ -75,6 +80,10 @@ public class ServerFacade {
             default -> "Server Error";
         };
         System.out.println(clientErrorMessage);
+    }
+
+    public String getAuthToken(){
+        return authToken;
     }
 
 

@@ -55,9 +55,6 @@ public class Server {
 
     }
 
-
-
-
     private void register(Context ctx) throws ResponseException{
         UserData user = new Gson().fromJson(ctx.body(), UserData.class);
         if(user.username() == null){
@@ -106,7 +103,7 @@ public class Server {
 
     private void joinGame(Context ctx) throws ResponseException{
             String authToken = ctx.header("authorization");
-            server.request.JoinGameRequest joinGameRequest = new Gson().fromJson(ctx.body(), JoinGameRequest.class);
+            JoinGameRequest joinGameRequest = new Gson().fromJson(ctx.body(), JoinGameRequest.class);
             gameService.joinGame(authToken, joinGameRequest.playerColor(), joinGameRequest.gameID());
             ctx.result("{}");
     }

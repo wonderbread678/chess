@@ -1,7 +1,9 @@
 package client;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import model.ListGamesData;
+import model.ListGamesResponse;
 import org.junit.jupiter.api.*;
 import server.ResponseException;
 import server.Server;
@@ -73,23 +75,23 @@ public class ServerFacadeTests {
         facade.register("player1", "password", "p1@email.com");
         var authData = facade.login("player1", "password");
 
-        facade.logout("player1");
-
+        facade.logout();
+        assertNull(facade.getAuthToken());
     }
 
     @Test
     void testLogoutTwiceFailure() throws ResponseException{
-        var authData = facade.register("player1", "password", "p1@email.com");
+        facade.register("player1", "password", "p1@email.com");
 
-        facade.logout("player1");
-        assertThrows(ResponseException.class, ()-> facade.logout("player1"));
+        facade.logout();
+        assertThrows(ResponseException.class, ()-> facade.logout());
     }
 
     @Test
     void testCreateGameSuccess() throws ResponseException{
         facade.register("player1", "password", "p1@email.com");
 
-        var createGame = facade.createGame("game1", "player1");
+        var createGame = facade.createGame("game1");
         assertNotNull(createGame);
         assertEquals(1, createGame.gameID());
     }
@@ -97,13 +99,7 @@ public class ServerFacadeTests {
     @Test
     void testCreateGameInvalidInput() throws ResponseException{
         facade.register("player1", "password", "p1@email.com");
-
-        assertThrows(ResponseException.class, () -> facade.createGame(null, "player1"));
-        assertThrows(ResponseException.class, () -> facade.createGame("game1", "player2"));
-
-        facade.register("player2", "password2", "p2@email.com");
-        facade.logout("player2");
-        assertThrows(ResponseException.class, () -> facade.createGame("game2", "player2"));
+        assertThrows(ResponseException.class, () -> facade.createGame(null));
     }
 
     @Test
@@ -120,27 +116,37 @@ public class ServerFacadeTests {
 
         facade.register("player1", "password", "p1@email.com");
 
-        facade.createGame("game1", "player1");
-        facade.createGame("game2", "player1");
-        facade.createGame("game3", "player1");
+        facade.createGame("game1");
+        facade.createGame("game2");
+        facade.createGame("game3");
 
-        var listGames = facade.listGames("player1");
+        var listGames = facade.listGames();
         assertNotNull(listGames);
         assertEquals(gamesComparison, listGames.games());
     }
 
     @Test
     void testListGameUnauthorized() throws ResponseException{
-
+        assertThrows(ResponseException.class, () -> facade.listGames());
     }
 
     @Test
     void testJoinGameSuccess() throws ResponseException{
+        facade.register("player1", "password", "p1@email.com");
+        facade.createGame("game1");
+        facade.joinGame(ChessGame.TeamColor.WHITE, 1);
+        var listGames = facade.listGames();
 
+        ListGamesData gameComparison = new ListGamesData(1, "player1", null, "game1");
+        Collection<ListGamesData> gamesComparison = new ArrayList<>();
+        gamesComparison.add(gameComparison);
+
+        assertEquals(gamesComparison, listGames.games());
     }
 
     @Test
     void testJoinGameDoesNotExist() throws ResponseException{
-
+        facade.register("player1", "password", "p1@email.com");
+        assertThrows(ResponseException.class, () -> facade.joinGame(ChessGame.TeamColor.WHITE, 1));
     }
 }
