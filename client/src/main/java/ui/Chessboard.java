@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 import static ui.EscapeSequences.*;
 
 public class Chessboard {
-    private static final int BOARD_SIZE_IN_SQUARES = 4;
+    private static final int BOARD_SIZE_IN_SQUARES = 8;
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 2;
     private static final int LINE_WIDTH_IN_PADDED_CHARS = 1;
 
@@ -46,7 +46,7 @@ public class Chessboard {
             drawHeader(out, headers[boardCol]);
 
             if(boardCol < BOARD_SIZE_IN_SQUARES - 1){
-                out.println(EscapeSequences.EMPTY.repeat(LINE_WIDTH_IN_PADDED_CHARS));
+                out.print(EscapeSequences.EMPTY.repeat(LINE_WIDTH_IN_PADDED_CHARS));
             }
         }
         System.out.println();
@@ -57,9 +57,9 @@ public class Chessboard {
         int prefixLength = SQUARE_SIZE_IN_PADDED_CHARS / 2;
         int suffixLength = 1;
 
-        out.print(EMPTY.repeat(prefixLength));
+        out.print("  ");
         printHeaderText(out, headerText);
-        out.print(EMPTY.repeat(suffixLength));
+        out.print(" ");
     }
 
     private static void printHeaderText(PrintStream out, String headerText){
@@ -76,8 +76,12 @@ public class Chessboard {
             if(row % 2 == 0){
                 drawRowsOfSquares1(out);
                 out.println();
+                drawRowsOfSquares1(out);
+                out.println();
             }
             else{
+                drawRowsOfSquares2(out);
+                out.println();
                 drawRowsOfSquares2(out);
                 out.println();
             }
@@ -85,32 +89,28 @@ public class Chessboard {
     }
 
     private static void drawRowsOfSquares1(PrintStream out){
-        for (int squareRow = 0; squareRow < SQUARE_SIZE_IN_PADDED_CHARS; ++squareRow){
-            for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol){
-                if(boardCol % 2 == 0){
-                    setWhite(out);
-                }
-                else{
-                    setDarkGreen(out);
-                }
-                out.print(EMPTY.repeat(SQUARE_SIZE_IN_PADDED_CHARS));
-                setLightGrey(out);
+        for (int boardCol = 0; boardCol < 8; ++boardCol){
+            if(boardCol % 2 == 0){
+                setWhite(out);
             }
+            else{
+                setDarkGreen(out);
+            }
+            out.print(EMPTY.repeat(SQUARE_SIZE_IN_PADDED_CHARS));
+            setLightGrey(out);
         }
     }
 
     private static void drawRowsOfSquares2(PrintStream out){
-        for (int squareRow = 0; squareRow < SQUARE_SIZE_IN_PADDED_CHARS; ++squareRow){
-            for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol){
-                if(boardCol % 2 == 0){
-                    setDarkGreen(out);
-                }
-                else{
-                    setWhite(out);
-                }
-                out.print(EMPTY.repeat(SQUARE_SIZE_IN_PADDED_CHARS));
-                setLightGrey(out);
+        for (int boardCol = 0; boardCol < 8; ++boardCol){
+            if(boardCol % 2 == 0){
+                setDarkGreen(out);
             }
+            else{
+                setWhite(out);
+            }
+            out.print(EMPTY.repeat(SQUARE_SIZE_IN_PADDED_CHARS));
+            setLightGrey(out);
         }
     }
 
