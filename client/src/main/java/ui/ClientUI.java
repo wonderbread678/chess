@@ -27,7 +27,7 @@ public class ClientUI {
 
     public void run(){
         System.out.println("Welcome to Ethan's Chess Server. Sign in to start!");
-        System.out.print("help");
+        System.out.print("- help");
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -115,11 +115,16 @@ public class ClientUI {
     private String observeGame(String... params) throws ResponseException{
         try{
             if(params.length == 1){
+                int gameNum = Integer.parseInt(params[0]);
+                String name = listNumToName.get(gameNum);
+                if(name == null){
+                    throw new ResponseException(400, "Error: Invalid game");
+                }
                 state = State.GAME;
                 String[] args = { "white" };
                 Chessboard.main(args);
                 return String.format("Observing game #%s: %s", params[0], listNumToName.get(Integer.parseInt(params[0])));
-            }
+        }
             throw new ResponseException(400, "Error: Bad input");
         }
         catch(ResponseException ex){
@@ -132,24 +137,28 @@ public class ClientUI {
             isSignedIn();
             if(params.length == 2){
                 int gameNum = Integer.parseInt(params[1]);
-                int gameID = gameIDToListNum.get(gameNum);
+                try{
+                    int gameID = gameIDToListNum.get(gameNum);
+                    ChessGame.TeamColor playerColor = null;
+                    if (params[0].equals("black")){
+                        playerColor = ChessGame.TeamColor.BLACK;
+                    }
+                    else if(params[0].equals("white")){
+                        playerColor = ChessGame.TeamColor.WHITE;
+                    }
+                    else{
+                        throw new ResponseException(400, "Error: Invalid color");
+                    }
 
-                ChessGame.TeamColor playerColor = null;
-                if (params[0].equals("black")){
-                    playerColor = ChessGame.TeamColor.BLACK;
+                    server.joinGame(playerColor, gameID);
+                    state = State.GAME;
+                    String[] args = { params[0] };
+                    Chessboard.main(args);
+                    return "Joining game";
                 }
-                else if(params[0].equals("white")){
-                    playerColor = ChessGame.TeamColor.WHITE;
+                catch(NullPointerException ex){
+                    throw new ResponseException(400, "Error: bad input");
                 }
-                else{
-                    throw new ResponseException(400, "Error: Invalid color");
-                }
-
-                server.joinGame(playerColor, gameID);
-                state = State.GAME;
-                String[] args = { params[0] };
-                Chessboard.main(args);
-                return "Joining game";
             }
             throw new ResponseException(400, "Error: Bad input");
         }
