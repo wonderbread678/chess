@@ -7,7 +7,6 @@ import java.util.Scanner;
 
 import chess.ChessGame;
 import client.*;
-import com.google.gson.Gson;
 import model.AuthData;
 import model.ListGamesData;
 import model.ListGamesResponse;
@@ -20,6 +19,7 @@ public class ClientUI {
     private final ServerFacade server;
     private State state = State.SIGNED_OUT;
     private final HashMap<Integer, Integer> gameIDToListNum= new HashMap<>();
+    private final HashMap<Integer, String> listNumToName= new HashMap<>();
 
     public ClientUI(String serverURL){
         server = new ServerFacade(serverURL);
@@ -46,7 +46,14 @@ public class ClientUI {
     }
 
     private void printPrompt() {
-        System.out.print("\n" + ">>> " + EscapeSequences.SET_TEXT_COLOR_MAGENTA);
+        String strState = "SIGNED_OUT";
+        if(state == State.SIGNED_IN){
+            strState = "SIGNED_IN";
+        }
+        else if(state == State.GAME){
+            strState = "IN_GAME";
+        }
+        System.out.printf("\n" + "[%s] >>> " + EscapeSequences.SET_TEXT_COLOR_MAGENTA, strState);
     }
 
     private String exceptionHandler(ResponseException ex){
@@ -77,7 +84,7 @@ public class ClientUI {
                     case "create" -> createGame(params);
                     case "list" -> listGames();
                     case "join" -> joinGame(params);
-                    case "observe" -> observeGame();
+                    case "observe" -> observeGame(params);
                     default -> help();
                 };
             }
@@ -109,8 +116,9 @@ public class ClientUI {
         try{
             if(params.length == 1){
                 state = State.GAME;
-                Chessboard.main(null);
-                return String.format("Observing game %s", params[0]);
+                String[] args = { "white" };
+                Chessboard.main(args);
+                return String.format("Observing game #%s: %s", params[0], listNumToName.get(Integer.parseInt(params[0])));
             }
             throw new ResponseException(400, "Error: Bad input");
         }
@@ -139,7 +147,8 @@ public class ClientUI {
 
                 server.joinGame(playerColor, gameID);
                 state = State.GAME;
-                Chessboard.main(null);
+                String[] args = { params[0] };
+                Chessboard.main(args);
                 return "Joining game";
             }
             throw new ResponseException(400, "Error: Bad input");
@@ -166,7 +175,7 @@ public class ClientUI {
             isSignedIn();
             if(params.length == 1){
                 server.createGame(params[0]);
-                return String.format("Game: %s created successfully", params[0]);
+                return String.format("Game \"%s\" created successfully", params[0]);
             }
             throw new ResponseException(400, "Error: Invalid input");
         }
@@ -223,18 +232,18 @@ public class ClientUI {
     private String help() {
         if(state == State.SIGNED_OUT){
             return """
-                    - login
-                    - register
+                    - login (<username> <password>)
+                    - register (<username> <password> <email>)
                     - quit
                     """;
         }
         else if(state == State.SIGNED_IN){
             return """
                     - logout
-                    - create
-                    - join
+                    - create (<game name>)
+                    - join (<player color> <game number>)
                     - list
-                    - observe
+                    - observe (<game number>)
                     """;
         }
         else {
@@ -246,6 +255,9 @@ public class ClientUI {
     }
 
     private String clientListBuilder(Collection<ListGamesData> games) {
+        if(games.isEmpty()){
+            return "No current games";
+        }
         StringBuilder buildList = new StringBuilder();
         int i = 1;
         for(ListGamesData game : games){
@@ -253,7 +265,7 @@ public class ClientUI {
                     .append(". ")
                     .append(game.gameName())
                     .append(EscapeSequences.SET_TEXT_BOLD + " | ")
-                    .append("White username: ");
+                    .append("White player: ");
             if(game.whiteUsername() == null){
                 buildList.append("None ");
             }
@@ -262,7 +274,7 @@ public class ClientUI {
             }
 
             buildList.append(EscapeSequences.SET_TEXT_BOLD + "| ")
-                    .append("Black username: ");
+                    .append("Black player: ");
             if(game.blackUsername() == null){
                 buildList.append("None ");
             }
@@ -273,6 +285,7 @@ public class ClientUI {
             buildList.append("\n");
 
             gameIDToListNum.put(i, game.gameID());
+            listNumToName.put(i, game.gameName());
             i += 1;
         }
         return buildList.toString();

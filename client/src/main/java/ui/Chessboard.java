@@ -37,7 +37,13 @@ public class Chessboard {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
 
-        ChessGame.TeamColor playerColor = ChessGame.TeamColor.WHITE;
+        ChessGame.TeamColor playerColor;
+        if(args[0].equals("white")){
+            playerColor = ChessGame.TeamColor.WHITE;
+        }
+        else{
+            playerColor = ChessGame.TeamColor.BLACK;
+        }
 
         out.print(EscapeSequences.ERASE_SCREEN);
 
