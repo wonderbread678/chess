@@ -36,6 +36,7 @@ public class ClientUI {
             String line = scanner.nextLine();
             try{
                 result = eval(line);
+                System.out.print(EscapeSequences.SET_TEXT_COLOR_MAGENTA + result);
             } catch(Throwable ex){
                 var msg = ex.toString();
                 System.out.print(msg);
@@ -45,7 +46,7 @@ public class ClientUI {
     }
 
     private void printPrompt() {
-        System.out.print("\n" + " " + ">>> " + EscapeSequences.SET_TEXT_COLOR_BLUE);
+        System.out.print("\n" + ">>> " + EscapeSequences.SET_TEXT_COLOR_MAGENTA);
     }
 
     private String exceptionHandler(ResponseException ex){
@@ -73,9 +74,9 @@ public class ClientUI {
             else if(state == State.SIGNED_IN){
                 return switch(cmd){
                     case "logout" -> logout();
-                    case "create game" -> createGame(params);
-                    case "list games" -> listGames();
-                    case "join game" -> joinGame(params);
+                    case "create" -> createGame(params);
+                    case "list" -> listGames();
+                    case "join" -> joinGame(params);
                     case "observe" -> observeGame();
                     default -> help();
                 };
@@ -107,6 +108,8 @@ public class ClientUI {
     private String observeGame(String... params) throws ResponseException{
         try{
             if(params.length == 1){
+                state = State.GAME;
+                Chessboard.main(null);
                 return String.format("Observing game %s", params[0]);
             }
             throw new ResponseException(400, "Error: Bad input");
@@ -123,10 +126,20 @@ public class ClientUI {
                 int gameNum = Integer.parseInt(params[1]);
                 int gameID = gameIDToListNum.get(gameNum);
 
-                ChessGame.TeamColor playerColor = new Gson().fromJson(params[0], ChessGame.TeamColor.class);
+                ChessGame.TeamColor playerColor = null;
+                if (params[0].equals("black")){
+                    playerColor = ChessGame.TeamColor.BLACK;
+                }
+                else if(params[0].equals("white")){
+                    playerColor = ChessGame.TeamColor.WHITE;
+                }
+                else{
+                    throw new ResponseException(400, "Error: Invalid color");
+                }
 
                 server.joinGame(playerColor, gameID);
                 state = State.GAME;
+                Chessboard.main(null);
                 return "Joining game";
             }
             throw new ResponseException(400, "Error: Bad input");
@@ -218,9 +231,9 @@ public class ClientUI {
         else if(state == State.SIGNED_IN){
             return """
                     - logout
-                    - create game
-                    - join game
-                    - list games
+                    - create
+                    - join
+                    - list
                     - observe
                     """;
         }
@@ -239,6 +252,7 @@ public class ClientUI {
             buildList.append(i)
                     .append(". ")
                     .append(game.gameName())
+                    .append(EscapeSequences.SET_TEXT_BOLD + " | ")
                     .append("White username: ");
             if(game.whiteUsername() == null){
                 buildList.append("None ");
@@ -247,7 +261,8 @@ public class ClientUI {
                 buildList.append(game.whiteUsername()).append(" ");
             }
 
-            buildList.append("Black username: ");
+            buildList.append(EscapeSequences.SET_TEXT_BOLD + "| ")
+                    .append("Black username: ");
             if(game.blackUsername() == null){
                 buildList.append("None ");
             }
