@@ -4,7 +4,6 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
-import server.ResponseException;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -14,7 +13,6 @@ import static ui.EscapeSequences.*;
 public class Chessboard {
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 1;
-    private static final int LINE_WIDTH_IN_PADDED_CHARS = 1;
 
     private static final String EMPTY = EscapeSequences.EMPTY;
     private static final String WHITE_KING = EscapeSequences.WHITE_KING;
@@ -173,42 +171,9 @@ public class Chessboard {
 
     }
 
-//    private static void parseChessBoardRow(PrintStream out, ChessBoard board, int row, int boardCol){
-//        for(int col = 1; col <= 8; ++col){
-//            ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-//            if(piece != null){
-//                drawPiece(out, row, col, piece);
-//            }
-//        }
-//    }
-
 
     private static void setDarkGrey(PrintStream out){
         out.print(EscapeSequences.SET_BG_COLOR_DARK_GREY);
         out.print(EscapeSequences.SET_TEXT_COLOR_DARK_GREY);
-    }
-
-    private static void setLightGrey(PrintStream out){
-        out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-        out.print(EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY);
-    }
-
-    private static void setDarkGreen(PrintStream out){
-        out.print(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
-    }
-
-    private static void setYellow(PrintStream out){
-        out.print(EscapeSequences.SET_BG_COLOR_YELLOW);
-        out.print(EscapeSequences.SET_TEXT_COLOR_YELLOW);
-    }
-
-    private static void setWhite(PrintStream out){
-        out.print(EscapeSequences.SET_BG_COLOR_WHITE);
-        out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
-    }
-
-    private static void setBlack(PrintStream out){
-        out.print(EscapeSequences.SET_BG_COLOR_BLACK);
-        out.print(EscapeSequences.SET_TEXT_COLOR_BLACK);
     }
 }

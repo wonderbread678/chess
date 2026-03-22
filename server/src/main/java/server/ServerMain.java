@@ -1,8 +1,6 @@
 package server;
 
 import chess.*;
-import io.javalin.Javalin;
-import io.javalin.http.Context;
 
 
 public class ServerMain {
