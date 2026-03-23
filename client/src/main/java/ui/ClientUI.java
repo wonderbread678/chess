@@ -10,7 +10,6 @@ import client.*;
 import model.AuthData;
 import model.ListGamesData;
 import model.ListGamesResponse;
-import server.ResponseException;
 
 public class ClientUI {
 
@@ -56,11 +55,13 @@ public class ClientUI {
         System.out.printf("\n" + "[%s] >>> " + EscapeSequences.SET_TEXT_COLOR_MAGENTA, strState);
     }
 
-    private String exceptionHandler(ResponseException ex){
+    private String exceptionHandler(ClientException ex){
         return switch(ex.getCode()){
             case 400 -> "Invalid input";
             case 401 -> "Unauthorized";
             case 403 -> "Already taken";
+            case 405 -> "Invalid game";
+            case 406 -> "Invalid color";
             default -> "Server Error";
         };
     }
@@ -96,14 +97,14 @@ public class ClientUI {
             }
             return "Error: You are in invalid state";
         }
-        catch (ResponseException ex){
+        catch (ClientException ex){
             return exceptionHandler(ex);
         }
     }
 
-    private void isSignedIn() throws ResponseException {
+    private void isSignedIn() throws ClientException {
         if (state == State.SIGNED_OUT) {
-            throw new ResponseException(401, "You must sign in");
+            throw new ClientException(401, "You must sign in");
         }
     }
 
@@ -112,32 +113,32 @@ public class ClientUI {
         return "Exited game";
     }
 
-    private String observeGame(String... params) throws ResponseException{
+    private String observeGame(String... params) throws ClientException{
         try{
             if(params.length == 1){
                 int gameNum = Integer.parseInt(params[0]);
                 String name = listNumToName.get(gameNum);
                 if(name == null){
-                    throw new ResponseException(400, "Error: Invalid game");
+                    throw new ClientException(405, "Error: Invalid game");
                 }
                 state = State.GAME;
                 String[] args = { "white" };
                 Chessboard.main(args);
                 return String.format("Observing game #%s: %s", params[0], listNumToName.get(Integer.parseInt(params[0])));
         }
-            throw new ResponseException(400, "Error: Bad input");
+            throw new ClientException(400, "Error: Bad input");
         }
-        catch(ResponseException ex){
+        catch(ClientException ex){
             return exceptionHandler(ex);
         }
     }
 
-    private String joinGame(String... params) throws ResponseException{
+    private String joinGame(String... params) throws ClientException{
         try{
             isSignedIn();
             if(params.length == 2){
-                int gameNum = Integer.parseInt(params[1]);
                 try{
+                    int gameNum = Integer.parseInt(params[1]);
                     int gameID = gameIDToListNum.get(gameNum);
                     ChessGame.TeamColor playerColor = null;
                     if (params[0].equals("black")){
@@ -147,7 +148,7 @@ public class ClientUI {
                         playerColor = ChessGame.TeamColor.WHITE;
                     }
                     else{
-                        throw new ResponseException(400, "Error: Invalid color");
+                        throw new ClientException(406, "Error: Invalid color");
                     }
 
                     server.joinGame(playerColor, gameID);
@@ -156,56 +157,56 @@ public class ClientUI {
                     Chessboard.main(args);
                     return "Joining game";
                 }
-                catch(NullPointerException ex){
-                    throw new ResponseException(400, "Error: bad input");
+                catch(NullPointerException | NumberFormatException ex){
+                    throw new ClientException(400, "Error: bad input");
                 }
             }
-            throw new ResponseException(400, "Error: Bad input");
+            throw new ClientException(400, "Error: Bad input");
         }
-        catch(ResponseException ex){
+        catch(ClientException ex){
             return exceptionHandler(ex);
         }
     }
 
-    private String listGames() throws ResponseException{
+    private String listGames() throws ClientException{
         try{
             isSignedIn();
             ListGamesResponse gamesList = server.listGames();
             Collection<ListGamesData> games = gamesList.games();
             return clientListBuilder(games);
         }
-        catch(ResponseException ex){
+        catch(ClientException ex){
             return exceptionHandler(ex);
         }
     }
 
-    private String createGame(String... params) throws ResponseException{
+    private String createGame(String... params) throws ClientException{
         try{
             isSignedIn();
             if(params.length == 1){
                 server.createGame(params[0]);
                 return String.format("Game \"%s\" created successfully", params[0]);
             }
-            throw new ResponseException(400, "Error: Invalid input");
+            throw new ClientException(400, "Error: Invalid input");
         }
-        catch(ResponseException ex){
+        catch(ClientException ex){
             return exceptionHandler(ex);
         }
     }
 
-    private String logout() throws ResponseException{
+    private String logout() throws ClientException{
         try{
             isSignedIn();
             server.logout();
             state = State.SIGNED_OUT;
             return "Logged out successfully";
         }
-        catch(ResponseException ex){
+        catch(ClientException ex){
             return exceptionHandler(ex);
         }
     }
 
-    private String register(String... params) throws ResponseException{
+    private String register(String... params) throws ClientException{
         try{
             if(params.length == 3){
                 AuthData newUserData = server.register(params[0], params[1], params[2]);
@@ -214,14 +215,14 @@ public class ClientUI {
                 state = State.SIGNED_IN;
                 return String.format("Welcome to the server, %s\n", username);
             }
-            throw new ResponseException(400, "Error: Invalid input");
+            throw new ClientException(400, "Error: Invalid input");
         }
-        catch(ResponseException ex){
+        catch(ClientException ex){
             return exceptionHandler(ex);
         }
     }
 
-    private String login(String... params) throws ResponseException{
+    private String login(String... params) throws ClientException{
         try{
             if(params.length == 2){
 
@@ -231,9 +232,9 @@ public class ClientUI {
                 state = State.SIGNED_IN;
                 return String.format("Welcome back, %s\n", username);
             }
-            throw new ResponseException(400, "Error: Invalid input");
+            throw new ClientException(400, "Error: Invalid input");
         }
-        catch(ResponseException ex){
+        catch(ClientException ex){
             return exceptionHandler(ex);
         }
     }

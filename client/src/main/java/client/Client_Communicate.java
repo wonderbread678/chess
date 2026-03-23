@@ -1,7 +1,5 @@
 package client;
 
-import server.ResponseException;
-
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -10,7 +8,7 @@ import java.net.http.HttpResponse;
 public class Client_Communicate {
     private final HttpClient client = HttpClient.newHttpClient();
 
-    public HttpResponse<String> getMethod(String serverUrl, String path, String authToken) throws ResponseException {
+    public HttpResponse<String> getMethod(String serverUrl, String path, String authToken) throws ClientException {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(serverUrl + path))
@@ -21,11 +19,11 @@ public class Client_Communicate {
 
             return client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
+            throw new ClientException(500, ex.getMessage());
         }
     }
 
-    public HttpResponse<String> postMethod(String serverUrl, String path, String body, String authToken) throws ResponseException {
+    public HttpResponse<String> postMethod(String serverUrl, String path, String body, String authToken) throws ClientException {
         try {
             HttpRequest.Builder request = HttpRequest.newBuilder()
                     .uri(URI.create(serverUrl + path))
@@ -39,13 +37,13 @@ public class Client_Communicate {
 
             return client.send(built_request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
+            throw new ClientException(500, ex.getMessage());
         }
 
     }
 
 
-    public void putMethod(String serverUrl, String path, String body, String authToken) throws ResponseException {
+    public void putMethod(String serverUrl, String path, String body, String authToken) throws ClientException {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(serverUrl + path))
@@ -58,11 +56,11 @@ public class Client_Communicate {
             client.send(request, HttpResponse.BodyHandlers.ofString());
 
         } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
+            throw new ClientException(500, ex.getMessage());
         }
     }
 
-    public void deleteMethod(String serverUrl, String path, String authToken) throws ResponseException {
+    public void deleteMethod(String serverUrl, String path, String authToken) throws ClientException {
         try {
             HttpRequest.Builder request = HttpRequest.newBuilder()
                     .uri(URI.create(serverUrl + path))
@@ -75,7 +73,7 @@ public class Client_Communicate {
 
             client.send(built_request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
+            throw new ClientException(500, ex.getMessage());
         }
     }
 }

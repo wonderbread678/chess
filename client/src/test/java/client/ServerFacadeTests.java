@@ -1,16 +1,12 @@
 package client;
 
 import chess.ChessGame;
-import com.google.gson.Gson;
 import model.ListGamesData;
-import model.ListGamesResponse;
 import org.junit.jupiter.api.*;
-import server.ResponseException;
 import server.Server;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,23 +31,23 @@ public class ServerFacadeTests {
     }
 
     @BeforeEach
-    public void setup() throws ResponseException{
+    public void setup() throws ClientException{
         facade.clear();
     }
 
     @Test
-    void testRegisterSuccess() throws ResponseException {
+    void testRegisterSuccess() throws ClientException {
         var authData = facade.register("player1", "password", "p1@email.com");
         assertTrue(authData.authToken().length() > 10);
     }
 
     @Test
-    void testRegisterFailure() throws ResponseException{
-        assertThrows(ResponseException.class, ()->facade.register(null, "password", "p1@email.com"));
+    void testRegisterFailure() throws ClientException{
+        assertThrows(ClientException.class, ()->facade.register(null, "password", "p1@email.com"));
     }
 
     @Test
-    void testLoginSuccess() throws ResponseException{
+    void testLoginSuccess() throws ClientException{
         facade.register("player1", "password", "p1@email.com");
 
         var authData = facade.login("player1", "password");
@@ -60,18 +56,18 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void testLoginInvalidInput() throws ResponseException{
+    void testLoginInvalidInput() throws ClientException{
         facade.register("player1", "password", "p1@email.com");
 
-        assertThrows(ResponseException.class, ()->facade.login(null, "password"));
-        assertThrows(ResponseException.class, ()->facade.login("player1", null));
-        assertThrows(ResponseException.class, ()->facade.login(null, null));
-        assertThrows(ResponseException.class, ()->facade.login("badUser", "password"));
-        assertThrows(ResponseException.class, ()->facade.login("player1", "badpassword"));
+        assertThrows(ClientException.class, ()->facade.login(null, "password"));
+        assertThrows(ClientException.class, ()->facade.login("player1", null));
+        assertThrows(ClientException.class, ()->facade.login(null, null));
+        assertThrows(ClientException.class, ()->facade.login("badUser", "password"));
+        assertThrows(ClientException.class, ()->facade.login("player1", "badpassword"));
     }
 
     @Test
-    void testLogoutSuccess() throws ResponseException{
+    void testLogoutSuccess() throws ClientException{
         facade.register("player1", "password", "p1@email.com");
         var authData = facade.login("player1", "password");
 
@@ -80,15 +76,15 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void testLogoutTwiceFailure() throws ResponseException{
+    void testLogoutTwiceFailure() throws ClientException{
         facade.register("player1", "password", "p1@email.com");
 
         facade.logout();
-        assertThrows(ResponseException.class, ()-> facade.logout());
+        assertThrows(ClientException.class, ()-> facade.logout());
     }
 
     @Test
-    void testCreateGameSuccess() throws ResponseException{
+    void testCreateGameSuccess() throws ClientException{
         facade.register("player1", "password", "p1@email.com");
 
         var createGame = facade.createGame("game1");
@@ -97,13 +93,13 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void testCreateGameInvalidInput() throws ResponseException{
+    void testCreateGameInvalidInput() throws ClientException{
         facade.register("player1", "password", "p1@email.com");
-        assertThrows(ResponseException.class, () -> facade.createGame(null));
+        assertThrows(ClientException.class, () -> facade.createGame(null));
     }
 
     @Test
-    void testListGameSuccess() throws ResponseException{
+    void testListGameSuccess() throws ClientException{
         Collection<ListGamesData> gamesComparison = new ArrayList<>();
 
         ListGamesData testGame1 = new ListGamesData(1, null, null, "game1");
@@ -126,12 +122,12 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void testListGameUnauthorized() throws ResponseException{
-        assertThrows(ResponseException.class, () -> facade.listGames());
+    void testListGameUnauthorized() throws ClientException{
+        assertThrows(ClientException.class, () -> facade.listGames());
     }
 
     @Test
-    void testJoinGameSuccess() throws ResponseException{
+    void testJoinGameSuccess() throws ClientException{
         facade.register("player1", "password", "p1@email.com");
         facade.createGame("game1");
         facade.joinGame(ChessGame.TeamColor.WHITE, 1);
@@ -145,8 +141,8 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void testJoinGameDoesNotExist() throws ResponseException{
+    void testJoinGameDoesNotExist() throws ClientException{
         facade.register("player1", "password", "p1@email.com");
-        assertThrows(ResponseException.class, () -> facade.joinGame(ChessGame.TeamColor.WHITE, 1));
+        assertThrows(ClientException.class, () -> facade.joinGame(ChessGame.TeamColor.WHITE, 1));
     }
 }
