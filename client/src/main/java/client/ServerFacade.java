@@ -25,34 +25,34 @@ public class ServerFacade {
 
     public AuthData register(String username, String password, String email) throws ClientException{
         RegisterRequest registerRequest = new RegisterRequest(username, password, email);
-        var response = new Client_Communicate().postMethod(serverUrl, "/user", new Gson().toJson(registerRequest), null);
+        var response = new ClientCommunicate().postMethod(serverUrl, "/user", new Gson().toJson(registerRequest), null);
 
-        AuthData converted_response = handleResponse(response, AuthData.class);
-        authToken = converted_response.authToken();
+        AuthData convertedResponse = handleResponse(response, AuthData.class);
+        authToken = convertedResponse.authToken();
 
-        return converted_response;
+        return convertedResponse;
     }
 
     public AuthData login(String username, String password) throws ClientException{
         LoginRequest loginRequest = new LoginRequest(username, password);
-        var response = new Client_Communicate().postMethod(serverUrl, "/session", new Gson().toJson(loginRequest), null);
+        var response = new ClientCommunicate().postMethod(serverUrl, "/session", new Gson().toJson(loginRequest), null);
 
-        AuthData converted_response = handleResponse(response, AuthData.class);
-        authToken = converted_response.authToken();
+        AuthData convertedResponse = handleResponse(response, AuthData.class);
+        authToken = convertedResponse.authToken();
 
-        return converted_response;
+        return convertedResponse;
     }
 
     public void logout() throws ClientException{
         if(authToken == null){
             throw new ClientException(401, "Error: Unauthorized");
         }
-        new Client_Communicate().deleteMethod(serverUrl, "/session", authToken);
+        new ClientCommunicate().deleteMethod(serverUrl, "/session", authToken);
         authToken = null;
     }
 
     public ListGamesResponse listGames() throws ClientException{
-        var response = new Client_Communicate().getMethod(serverUrl, "/game", authToken);
+        var response = new ClientCommunicate().getMethod(serverUrl, "/game", authToken);
         return handleResponse(response, ListGamesResponse.class);
     }
 
@@ -61,17 +61,17 @@ public class ServerFacade {
             throw new ClientException(401, "Error: Unauthorized");
         }
         CreateGameRequest createGameRequest = new CreateGameRequest(authToken, gameName);
-        var response = new Client_Communicate().postMethod(serverUrl, "/game", new Gson().toJson(createGameRequest),authToken);
+        var response = new ClientCommunicate().postMethod(serverUrl, "/game", new Gson().toJson(createGameRequest),authToken);
         return handleResponse(response, CreateGameResponse.class);
     }
 
     public void joinGame(ChessGame.TeamColor playerColor, int gameID) throws ClientException{
         JoinGameRequest joinGameRequest = new JoinGameRequest(playerColor, gameID);
-        new Client_Communicate().putMethod(serverUrl, "/game", new Gson().toJson(joinGameRequest), authToken);
+        new ClientCommunicate().putMethod(serverUrl, "/game", new Gson().toJson(joinGameRequest), authToken);
     }
 
     public void clear() throws ClientException{
-        new Client_Communicate().deleteMethod(serverUrl, "/db", null);
+        new ClientCommunicate().deleteMethod(serverUrl, "/db", null);
     }
 
 

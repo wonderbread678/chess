@@ -5,7 +5,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-public class Client_Communicate {
+public class ClientCommunicate {
     private final HttpClient client = HttpClient.newHttpClient();
 
     public HttpResponse<String> getMethod(String serverUrl, String path, String authToken) throws ClientException {
@@ -33,9 +33,9 @@ public class Client_Communicate {
             if (authToken != null) {
                 request.header("authorization", authToken);
             }
-            HttpRequest built_request = request.build();
+            HttpRequest builtRequest = request.build();
 
-            return client.send(built_request, HttpResponse.BodyHandlers.ofString());
+            return client.send(builtRequest, HttpResponse.BodyHandlers.ofString());
         } catch (Exception ex) {
             throw new ClientException(500, ex.getMessage());
         }
@@ -69,9 +69,9 @@ public class Client_Communicate {
             if (authToken != null) {
                 request.header("authorization", authToken);
             }
-            HttpRequest built_request = request.build();
+            HttpRequest builtRequest = request.build();
 
-            client.send(built_request, HttpResponse.BodyHandlers.ofString());
+            client.send(builtRequest, HttpResponse.BodyHandlers.ofString());
         } catch (Exception ex) {
             throw new ClientException(500, ex.getMessage());
         }

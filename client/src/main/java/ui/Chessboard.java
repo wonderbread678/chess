@@ -83,10 +83,10 @@ public class Chessboard {
         setDarkGrey(out);
     }
 
-    private static void drawHeadersVertical(PrintStream out, int vert_header){
+    private static void drawHeadersVertical(PrintStream out, int vertHeader){
         out.print(SET_BG_COLOR_DARK_GREY);
         out.print(SET_TEXT_COLOR_YELLOW);
-        out.printf(" %d ", vert_header);
+        out.printf(" %d ", vertHeader);
 
         setDarkGrey(out);
     }
