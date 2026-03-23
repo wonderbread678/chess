@@ -1,8 +1,8 @@
-package server.request;
+package model.request;
 
 import com.google.gson.Gson;
 
-public record LogoutRequest(String authToken) {
+public record ListGamesRequest(String authToken) {
     public String toString() {
         return new Gson().toJson(this);
     }

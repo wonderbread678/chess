@@ -1,9 +1,6 @@
 package server;
 
 import dataaccess.DataAccessException;
-import dataaccess.memory.MemoryAuthDAO;
-import dataaccess.memory.MemoryGameDAO;
-import dataaccess.memory.MemoryUserDAO;
 import dataaccess.sql.SQLAuthDAO;
 import dataaccess.sql.SQLGameDAO;
 import dataaccess.sql.SQLUserDAO;
@@ -11,8 +8,8 @@ import io.javalin.*;
 import com.google.gson.Gson;
 import io.javalin.http.Context;
 import model.*;
-import server.request.CreateGameRequest;
-import server.request.JoinGameRequest;
+import model.request.CreateGameRequest;
+import model.request.JoinGameRequest;
 import service.*;
 
 public class Server {

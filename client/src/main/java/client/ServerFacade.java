@@ -5,10 +5,12 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import model.*;
 import model.ListGamesResponse;
-import server.request.*;
-import server.response.*;
+import model.request.CreateGameRequest;
+import model.request.JoinGameRequest;
+import model.request.LoginRequest;
+import model.request.RegisterRequest;
+import model.response.CreateGameResponse;
 
-import java.net.*;
 import java.net.http.*;
 
 public class ServerFacade {

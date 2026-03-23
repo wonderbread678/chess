@@ -1,12 +1,10 @@
 package service;
 import chess.ChessGame;
 import dataaccess.*;
-import dataaccess.memory.MemoryAuthDAO;
-import dataaccess.memory.MemoryGameDAO;
 import dataaccess.sql.SQLAuthDAO;
 import dataaccess.sql.SQLGameDAO;
 import model.*;
-import server.response.CreateGameResponse;
+import model.response.CreateGameResponse;
 import server.response.ListGamesResponse;
 import server.ResponseException;
 

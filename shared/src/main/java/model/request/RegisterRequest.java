@@ -1,8 +1,8 @@
-package server.request;
+package model.request;
 
 import com.google.gson.Gson;
 
-public record CreateGameRequest(String authToken, String gameName) {
+public record RegisterRequest(String username, String password, String email) {
     public String toString() {
         return new Gson().toJson(this);
     }
