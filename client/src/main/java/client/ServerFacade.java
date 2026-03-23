@@ -4,9 +4,9 @@ package client;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.*;
-import client.ClientException;
+import model.ListGamesResponse;
 import server.request.*;
-import server.response.CreateGameResponse;
+import server.response.*;
 
 import java.net.*;
 import java.net.http.*;
