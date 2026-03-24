@@ -229,7 +229,7 @@ public class ClientUI {
                 authToken = newUserData.authToken();
                 username = newUserData.username();
                 state = State.SIGNED_IN;
-                return String.format("Welcome to the server, %s\n", username);
+                return String.format("Welcome to the server, %s!\n", username);
             }
             throw new ClientException(411, "Error: Invalid input");
         }
@@ -246,7 +246,7 @@ public class ClientUI {
                 authToken = userData.authToken();
                 username = userData.username();
                 state = State.SIGNED_IN;
-                return String.format("Welcome back, %s\n", username);
+                return String.format("Welcome back, %s!\n", username);
             }
             throw new ClientException(410, "Error: Invalid input");
         }
