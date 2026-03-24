@@ -47,7 +47,8 @@ public class ServerFacade {
         if(authToken == null){
             throw new ClientException(401, "Error: Unauthorized");
         }
-        new ClientCommunicate().deleteMethod(serverUrl, "/session", authToken);
+        var response = new ClientCommunicate().deleteMethod(serverUrl, "/session", authToken);
+        handleResponse(response, null);
         authToken = null;
     }
 
@@ -67,11 +68,13 @@ public class ServerFacade {
 
     public void joinGame(ChessGame.TeamColor playerColor, int gameID) throws ClientException{
         JoinGameRequest joinGameRequest = new JoinGameRequest(playerColor, gameID);
-        new ClientCommunicate().putMethod(serverUrl, "/game", new Gson().toJson(joinGameRequest), authToken);
+        var response = new ClientCommunicate().putMethod(serverUrl, "/game", new Gson().toJson(joinGameRequest), authToken);
+        handleResponse(response, null);
     }
 
     public void clear() throws ClientException{
-        new ClientCommunicate().deleteMethod(serverUrl, "/db", null);
+        var response = new ClientCommunicate().deleteMethod(serverUrl, "/db", null);
+        handleResponse(response, null);
     }
 
 

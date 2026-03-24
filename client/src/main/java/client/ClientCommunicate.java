@@ -43,7 +43,7 @@ public class ClientCommunicate {
     }
 
 
-    public void putMethod(String serverUrl, String path, String body, String authToken) throws ClientException {
+    public HttpResponse<String> putMethod(String serverUrl, String path, String body, String authToken) throws ClientException {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(serverUrl + path))
@@ -53,14 +53,14 @@ public class ClientCommunicate {
                     .header("authorization", authToken)
                     .build();
 
-            client.send(request, HttpResponse.BodyHandlers.ofString());
+            return client.send(request, HttpResponse.BodyHandlers.ofString());
 
         } catch (Exception ex) {
             throw new ClientException(500, ex.getMessage());
         }
     }
 
-    public void deleteMethod(String serverUrl, String path, String authToken) throws ClientException {
+    public HttpResponse<String> deleteMethod(String serverUrl, String path, String authToken) throws ClientException {
         try {
             HttpRequest.Builder request = HttpRequest.newBuilder()
                     .uri(URI.create(serverUrl + path))
@@ -71,7 +71,7 @@ public class ClientCommunicate {
             }
             HttpRequest builtRequest = request.build();
 
-            client.send(builtRequest, HttpResponse.BodyHandlers.ofString());
+            return client.send(builtRequest, HttpResponse.BodyHandlers.ofString());
         } catch (Exception ex) {
             throw new ClientException(500, ex.getMessage());
         }

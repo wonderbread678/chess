@@ -55,16 +55,6 @@ public class ClientUI {
         System.out.printf("\n" + "[%s] >>> " + EscapeSequences.SET_TEXT_COLOR_MAGENTA, strState);
     }
 
-    private String exceptionHandler(ClientException ex){
-        return switch(ex.getCode()){
-            case 400 -> "Invalid input";
-            case 401 -> "Unauthorized";
-            case 403 -> "Already taken";
-            case 405 -> "Invalid game";
-            case 406 -> "Invalid color";
-            default -> "Server Error";
-        };
-    }
 
     public String eval(String input){
         try{
@@ -102,6 +92,24 @@ public class ClientUI {
         }
     }
 
+    private String exceptionHandler(ClientException ex){
+        return switch(ex.getCode()){
+            case 400 -> "Invalid input";
+            case 401 -> "Unauthorized";
+            case 403 -> "Already taken";
+            case 405 -> "Invalid game";
+            case 406 -> "Invalid color";
+            case 407 -> "Invalid observe input. Requires (<game number>)";
+            case 408 -> "Invalid input for join. Requires (<player color> <game number>)";
+            case 409 -> "Invalid input for create. Requires (<game name>)";
+            case 410 -> "Invalid input for login. Requires (<username> <password>)";
+            case 411 -> "Invalid input for register. Requires (<username> <password> <email>)";
+            case 412 -> "Game does not exist";
+            case 413 -> "Game number must be an integer";
+            default -> "Server Error";
+        };
+    }
+
     private void isSignedIn() throws ClientException {
         if (state == State.SIGNED_OUT) {
             throw new ClientException(401, "You must sign in");
@@ -116,17 +124,22 @@ public class ClientUI {
     private String observeGame(String... params) throws ClientException{
         try{
             if(params.length == 1){
-                int gameNum = Integer.parseInt(params[0]);
-                String name = listNumToName.get(gameNum);
-                if(name == null){
-                    throw new ClientException(405, "Error: Invalid game");
+                try{
+                    int gameNum = Integer.parseInt(params[0]);
+                    String name = listNumToName.get(gameNum);
+                    if(name == null){
+                        throw new ClientException(405, "Error: Invalid game");
+                    }
+                    state = State.GAME;
+                    String[] args = { "white" };
+                    Chessboard.main(args);
+                    return String.format("Observing game #%s: %s", params[0], listNumToName.get(Integer.parseInt(params[0])));
                 }
-                state = State.GAME;
-                String[] args = { "white" };
-                Chessboard.main(args);
-                return String.format("Observing game #%s: %s", params[0], listNumToName.get(Integer.parseInt(params[0])));
+                catch(NumberFormatException ex){
+                    throw new ClientException(413, "Error: bad input (gave string, but should have been integer)");
+                }
         }
-            throw new ClientException(400, "Error: Bad input");
+            throw new ClientException(407, "Error: Bad input for observe");
         }
         catch(ClientException ex){
             return exceptionHandler(ex);
@@ -157,11 +170,14 @@ public class ClientUI {
                     Chessboard.main(args);
                     return "Joining game";
                 }
-                catch(NullPointerException | NumberFormatException ex){
-                    throw new ClientException(400, "Error: bad input");
+                catch(NullPointerException ex){
+                    throw new ClientException(412, "Error: bad input (invalid game)");
+                }
+                catch(NumberFormatException ex){
+                    throw new ClientException(413, "Error: bad input (gave string, but should have been integer)");
                 }
             }
-            throw new ClientException(400, "Error: Bad input");
+            throw new ClientException(408, "Error: Bad input for join");
         }
         catch(ClientException ex){
             return exceptionHandler(ex);
@@ -187,7 +203,7 @@ public class ClientUI {
                 server.createGame(params[0]);
                 return String.format("Game \"%s\" created successfully", params[0]);
             }
-            throw new ClientException(400, "Error: Invalid input");
+            throw new ClientException(409, "Error: Invalid input");
         }
         catch(ClientException ex){
             return exceptionHandler(ex);
@@ -215,7 +231,7 @@ public class ClientUI {
                 state = State.SIGNED_IN;
                 return String.format("Welcome to the server, %s\n", username);
             }
-            throw new ClientException(400, "Error: Invalid input");
+            throw new ClientException(411, "Error: Invalid input");
         }
         catch(ClientException ex){
             return exceptionHandler(ex);
@@ -232,7 +248,7 @@ public class ClientUI {
                 state = State.SIGNED_IN;
                 return String.format("Welcome back, %s\n", username);
             }
-            throw new ClientException(400, "Error: Invalid input");
+            throw new ClientException(410, "Error: Invalid input");
         }
         catch(ClientException ex){
             return exceptionHandler(ex);

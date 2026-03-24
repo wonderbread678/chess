@@ -99,7 +99,7 @@ public class Chessboard {
         }
         for (int row = 0; row < 8; ++row){
             drawHeadersVertical(out, i);
-            drawRowsOfSquares(out, row % 2 != 0, i, board);
+            drawRowsOfSquares(out, row % 2 != 0, i, board,playerColor);
             drawHeadersVertical(out, i);
             out.println();
             if (playerColor == ChessGame.TeamColor.BLACK){
@@ -112,38 +112,22 @@ public class Chessboard {
         drawHeadersHorizontal(out, playerColor);
     }
 
-    private static void drawRowsOfSquares(PrintStream out, boolean isOdd, int row, ChessBoard board){
+    private static void drawRowsOfSquares(PrintStream out, boolean isOdd, int row, ChessBoard board, ChessGame.TeamColor playerColor){
         for (int boardCol = 0; boardCol < 8; ++boardCol){
-            drawPiece(out, row, boardCol, board, isOdd);
+            drawPiece(out, row, boardCol, board, isOdd, playerColor);
         }
 
     }
 
-    private static String getPieceIcon(ChessPiece piece){
-        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE){
-            return switch(piece.getPieceType()){
-                case KING -> WHITE_KING;
-                case QUEEN -> WHITE_QUEEN;
-                case ROOK -> WHITE_ROOK;
-                case BISHOP -> WHITE_BISHOP;
-                case KNIGHT -> WHITE_KNIGHT;
-                case PAWN -> WHITE_PAWN;
-            };
+
+    private static void drawPiece(PrintStream out, int row, int column, ChessBoard board, boolean isOdd, ChessGame.TeamColor playerColor){
+        ChessPiece piece;
+        if(playerColor == ChessGame.TeamColor.WHITE){
+            piece = board.getPiece(new ChessPosition(row, column + 1));
         }
         else{
-            return switch(piece.getPieceType()){
-                case KING -> BLACK_KING;
-                case QUEEN -> BLACK_QUEEN;
-                case ROOK -> BLACK_ROOK;
-                case BISHOP -> BLACK_BISHOP;
-                case KNIGHT -> BLACK_KNIGHT;
-                case PAWN -> BLACK_PAWN;
-            };
+            piece = board.getPiece(new ChessPosition(row, 8 - column));
         }
-    }
-
-    private static void drawPiece(PrintStream out, int row, int column, ChessBoard board, boolean isOdd){
-        ChessPiece piece = board.getPiece(new ChessPosition(row, column + 1));
         if(!isOdd){
             if(column % 2 == 0){
                 out.print(SET_BG_COLOR_WHITE);
@@ -169,6 +153,29 @@ public class Chessboard {
             out.print(EMPTY.repeat(SQUARE_SIZE_IN_PADDED_CHARS));
         }
 
+    }
+
+    private static String getPieceIcon(ChessPiece piece){
+        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE){
+            return switch(piece.getPieceType()){
+                case KING -> WHITE_KING;
+                case QUEEN -> WHITE_QUEEN;
+                case ROOK -> WHITE_ROOK;
+                case BISHOP -> WHITE_BISHOP;
+                case KNIGHT -> WHITE_KNIGHT;
+                case PAWN -> WHITE_PAWN;
+            };
+        }
+        else{
+            return switch(piece.getPieceType()){
+                case KING -> BLACK_KING;
+                case QUEEN -> BLACK_QUEEN;
+                case ROOK -> BLACK_ROOK;
+                case BISHOP -> BLACK_BISHOP;
+                case KNIGHT -> BLACK_KNIGHT;
+                case PAWN -> BLACK_PAWN;
+            };
+        }
     }
 
 
