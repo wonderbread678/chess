@@ -11,6 +11,7 @@ import model.*;
 import model.request.CreateGameRequest;
 import model.request.JoinGameRequest;
 import service.*;
+import websocket.WebsocketHandler;
 
 public class Server {
 
@@ -21,6 +22,7 @@ public class Server {
     private final UserService userService;
     private final GameService gameService;
     private final AuthService authService;
+    private final WebsocketHandler webSocketHandler;
 
 
     public Server() {
@@ -36,6 +38,7 @@ public class Server {
         userService = new UserService(authDAO, userDAO);
         gameService = new GameService(gameDAO, authDAO);
         authService = new AuthService(authDAO);
+        webSocketHandler = new WebsocketHandler();
 
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
@@ -46,7 +49,12 @@ public class Server {
                 .post("/game", this::createGame)
                 .put("/game", this::joinGame)
                 .delete("/db", this::clearAll)
-                .exception(ResponseException.class, this::exceptionHandler);
+                .exception(ResponseException.class, this::exceptionHandler)
+                .ws("/ws", ws ->{
+                   ws.onConnect(webSocketHandler);
+                   ws.onMessage(webSocketHandler);
+                   ws.onClose(webSocketHandler);
+                });
 
         // Register your endpoints and exception handlers here.
 
