@@ -9,6 +9,8 @@ import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
+import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -26,11 +28,12 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleMessage(WsMessageContext ctx){
         try {
-            ServerMessage serverMessage = new Gson().fromJson(ctx.message(), ServerMessage.class);
-            switch (serverMessage.getServerMessageType()) {
-                case LOAD_GAME -> loadGameWS(ctx.message(), ctx.session);
-                case ERROR -> errorWS(ctx.message(), ctx.session);
-                case NOTIFICATION -> notificationWS(ctx.message(), ctx.session);
+            UserGameCommand userCommand = new Gson().fromJson(ctx.message(), UserGameCommand.class);
+            switch (userCommand.getCommandType()) {
+                case CONNECT -> connectWS(ctx.message(), ctx.session);
+                case MAKE_MOVE -> makeMoveWS();
+                case LEAVE -> leaveWS();
+                case RESIGN -> resignWS();
             }
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -39,11 +42,11 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     @Override
     public void handleClose(WsCloseContext ctx){
-
+        System.out.print("Websocket closed");
     }
 
-    public void connectWS(){
-
+    public void connectWS(String ctxMessage, Session session){
+        connections.add();
     }
 
     public void makeMoveWS(){
@@ -58,16 +61,18 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     }
 
-    public void loadGameWS(String message, Session session){
-        GameData game = new Gson().fromJson(message, GameData.class);
-        connections.
-    }
-
-    public void errorWS(String message, Session session){
-
-    }
-
-    public void notificationWS(String message, Session session){
-
-    }
+//    public void loadGameWS(String message, Session session){
+//        GameData game = new Gson().fromJson(message, GameData.class);
+//        connections.add(game.gameID(), session);
+//    }
+//
+//    public void errorWS(String message, Session session){
+//        String msg = String.format("Error: %s", new Gson().fromJson(message, ErrorMessage.class));
+//        connections.gameBroadcast();
+//
+//    }
+//
+//    public void notificationWS(String message, Session session){
+//
+//    }
 }

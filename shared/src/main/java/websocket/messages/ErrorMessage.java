@@ -7,8 +7,4 @@ public class ErrorMessage {
     public ErrorMessage(String error){
         this.error = error;
     }
-
-    public void printError(){
-        System.out.printf("Error: %s", error);
-    }
 }

@@ -7,8 +7,4 @@ public class NotificationMessage {
     public NotificationMessage(String notification){
         this.notification = notification;
     }
-
-    public void printNotification(){
-        System.out.printf("%s", notification);
-    }
 }
