@@ -81,7 +81,11 @@ public class ClientUI {
             }
             else if(state == State.GAME){
                 return switch(cmd){
-                    case "exit" -> exitGame();
+                    case "leave" -> exitGame();
+                    case "makeMove" -> makeMove();
+                    case "resign" -> resign();
+                    case "redraw" -> redraw();
+                    case "highlight" -> highlightLegalMoves();
                     default -> help();
                 };
             }
@@ -91,6 +95,7 @@ public class ClientUI {
             return exceptionHandler(ex);
         }
     }
+
 
     private String exceptionHandler(ClientException ex){
         return switch(ex.getCode()){
@@ -114,6 +119,22 @@ public class ClientUI {
         if (state == State.SIGNED_OUT) {
             throw new ClientException(401, "You must sign in");
         }
+    }
+
+    private String highlightLegalMoves() {
+        return "need to implement";
+    }
+
+    private String redraw() {
+        return "need to implement";
+    }
+
+    private String resign() {
+        return "need to implement";
+    }
+
+    private String makeMove() {
+        return "need to implement";
     }
 
     private String exitGame(){
