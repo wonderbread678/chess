@@ -25,12 +25,10 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private final ConnectionManager connections = new ConnectionManager();
     private final GameDAO gameDAO;
-    private final UserDAO userDAO;
     private final AuthDAO authDAO;
 
-    public WebsocketHandler(GameDAO gameDAO, UserDAO userDAO, AuthDAO authDAO){
+    public WebsocketHandler(GameDAO gameDAO, AuthDAO authDAO){
         this.gameDAO = gameDAO;
-        this.userDAO = userDAO;
         this.authDAO = authDAO;
     }
 
@@ -64,7 +62,17 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try{
             connections.add(userCommand.getGameID(), session);
             AuthData user = authDAO.getAuth(userCommand.getAuthToken());
-            var message = String.format("%s has joined game %d", user.username(), userCommand.getGameID());
+            GameData game = gameDAO.getGame(userCommand.getGameID());
+            String message;
+            if(game.blackUsername().equals(user.username())){
+                message = String.format("%s has joined game as black", user.username());
+            }
+            else if (game.whiteUsername().equals(user.username())){
+                message = String.format("%s has joined game as white", user.username());
+            }
+            else{
+                message = String.format("%s has joined game as an observer", user.username());
+            }
             var notification = new NotificationMessage(message);
             connections.gameBroadcast(userCommand.getGameID(), session, notification);
         }
@@ -102,19 +110,4 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         NotificationMessage notification = new NotificationMessage(message);
         connections.gameBroadcast(userCommand.getGameID(), session, notification);
     }
-
-//    public void loadGameWS(String message, Session session){
-//        GameData game = new Gson().fromJson(message, GameData.class);
-//        connections.add(game.gameID(), session);
-//    }
-//
-//    public void errorWS(String message, Session session){
-//        String msg = String.format("Error: %s", new Gson().fromJson(message, ErrorMessage.class));
-//        connections.gameBroadcast();
-//
-//    }
-//
-//    public void notificationWS(String message, Session session){
-//
-//    }
 }

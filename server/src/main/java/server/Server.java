@@ -38,7 +38,7 @@ public class Server {
         userService = new UserService(authDAO, userDAO);
         gameService = new GameService(gameDAO, authDAO);
         authService = new AuthService(authDAO);
-        webSocketHandler = new WebsocketHandler(gameDAO, userDAO, authDAO);
+        webSocketHandler = new WebsocketHandler(gameDAO, authDAO);
 
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
