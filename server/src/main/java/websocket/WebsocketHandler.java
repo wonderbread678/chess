@@ -102,11 +102,11 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try{
             MakeMoveCommand moveCommand = new Gson().fromJson(ctxMessage, MakeMoveCommand.class);
             GameData game = gameDAO.getGame(moveCommand.getGameID());
-
-            if(authDAO.getAuth(moveCommand.getAuthToken()) == null){
+            AuthData user = authDAO.getAuth(moveCommand.getAuthToken());
+            if(user == null){
                 throw new ResponseException(401, "Error: Unauthorized");
             }
-//            TODO: bad test logic
+            extracted(user, game);
 
             game.game().makeMove(moveCommand.getMove());
             GameData updatedGame = gameDAO.getGame(moveCommand.getGameID());
@@ -134,6 +134,18 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
+    private static void extracted(AuthData user, GameData game) throws InvalidMoveException {
+        if(!user.username().equals(game.whiteUsername()) && !user.username().equals(game.blackUsername())){
+            throw new InvalidMoveException();
+        }
+        if(user.username().equals(game.whiteUsername()) && game.game().getTeamTurn() != ChessGame.TeamColor.WHITE){
+            throw new InvalidMoveException();
+        }
+        if(user.username().equals(game.blackUsername()) && game.game().getTeamTurn() != ChessGame.TeamColor.BLACK){
+            throw new InvalidMoveException();
+        }
+    }
+
     public void leaveWS(UserGameCommand userCommand, Session session) throws IOException{
         try{
             GameData game = gameDAO.getGame(userCommand.getGameID());
@@ -157,7 +169,7 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     public void resignWS(UserGameCommand userCommand, Session session) throws IOException{
         String message = "Resigned";
         NotificationMessage notification = new NotificationMessage(message);
-        connections.gameBroadcast(userCommand.getGameID(), session, new Gson().toJson(notification));
+        connections.gameBroadcast(userCommand.getGameID(), null, new Gson().toJson(notification));
     }
 
     public String mateCheck(ChessGame.TeamColor playerColor, ChessGame game){

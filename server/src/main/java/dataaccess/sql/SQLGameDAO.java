@@ -19,7 +19,7 @@ public class SQLGameDAO implements GameDAO {
     }
 
     public GameData createGame(GameData gameData) throws DataAccessException {
-        String sql = "INSERT INTO gameDataTable (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO gameDataTable (gameID, whiteUsername, blackUsername, gameName, game, gameState) VALUES (?, ?, ?, ?, ?, ?)";
 
         try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
             stmt.setInt(1, gameData.gameID());
@@ -27,6 +27,7 @@ public class SQLGameDAO implements GameDAO {
             stmt.setString(3, gameData.blackUsername());
             stmt.setString(4, gameData.gameName());
             stmt.setString(5, new Gson().toJson(gameData.game()));
+            stmt.setString(6, "PLAYING");
             stmt.executeUpdate();
 
             return gameData;
@@ -109,6 +110,39 @@ public class SQLGameDAO implements GameDAO {
         }
     }
 
+    public void updateGameState(int gameID, String gameState) throws DataAccessException{
+        String sql = "UPDATE gameDataTable" + " SET gameState = ?" + " WHERE gameID = ?";
+
+        try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
+            stmt.setString(1, gameState);
+            stmt.setInt(2, gameID);
+            int count = stmt.executeUpdate();
+            if(count == 0){
+                throw new DataAccessException("Error: No rows to update");
+            }
+        }
+        catch(SQLException ex){
+            throw new DataAccessException("Error: " + ex.getMessage());
+        }
+    }
+
+    public String getGameState(int gameID) throws DataAccessException{
+        String sql = "SELECT gameState FROM gameDataTable WHERE gameID = ?";
+        try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
+            stmt.setInt(1, gameID);
+            ResultSet rs = stmt.executeQuery();
+            if(rs.next()){
+                return rs.getString(1);
+            }
+            else{
+                return null;
+            }
+        }
+        catch(SQLException ex){
+            throw new DataAccessException("Error: " + ex.getMessage());
+        }
+    }
+
     private final String[] createGameStatements = {
             """
             CREATE TABLE IF NOT EXISTS gameDataTable (
@@ -117,6 +151,7 @@ public class SQLGameDAO implements GameDAO {
             `blackUsername` varchar(256) DEFAULT NULL,
             `gameName` varchar(256) NOT NULL,
             `game` TEXT NOT NULL,
+            `gameState` TEXT NOT NULL,
             PRIMARY KEY(`gameID`),
             INDEX(gameName)
             )
