@@ -3,10 +3,7 @@ package websocket;
 import chess.ChessGame;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
-import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
 import dataaccess.sql.SQLAuthDAO;
 import dataaccess.sql.SQLGameDAO;
 import dataaccess.sql.SQLUserDAO;
@@ -25,7 +22,6 @@ import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 
@@ -116,8 +112,6 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 playerColor = ChessGame.TeamColor.BLACK;
             }
 
-            System.out.print(gameDAO.getGameState(game.gameID()) + "\n");
-
             if(gameDAO.getGameState(game.gameID()).equals("FINISHED")){
                 throw new InvalidMoveException();
             }
@@ -188,20 +182,35 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     public void resignWS(UserGameCommand userCommand, Session session) throws IOException{
         try{
+            GameData game = gameDAO.getGame(userCommand.getGameID());
+            AuthData user = authDAO.getAuth(userCommand.getAuthToken());
+            if(user == null){
+                throw new ResponseException(401, "Error: Unauthorized");
+            }
+            if(!game.whiteUsername().equals(user.username()) && !game.blackUsername().equals(user.username())){
+                throw new ResponseException(485, "Error: Observers can't resign");
+            }
+            if(gameDAO.getGameState(userCommand.getGameID()).equals("FINISHED")){
+                throw new ResponseException(484, "Error: Double resign");
+            }
             String message = "Resigned";
             NotificationMessage notification = new NotificationMessage(message);
             connections.gameBroadcast(userCommand.getGameID(), null, new Gson().toJson(notification));
-            if(gameDAO.getGame(userCommand.getGameID()) != null){
-                if(gameDAO.getGameState(userCommand.getGameID()).equals("FINISHED")){
-                    gameDAO.updateGameState(userCommand.getGameID(), "FINISHED");
-                }
-                else{
-                    sendError("Error: Game already over", session);
-                }
-            }
+            gameDAO.updateGameState(userCommand.getGameID(), "FINISHED");
         }
         catch(DataAccessException ex){
             sendError("Error: Server error", session);
+        }
+        catch(ResponseException ex){
+            if(ex.getCode() == 401){
+                sendError("Error: Unauthorized", session);
+            }
+            else if(ex.getCode() == 484){
+                sendError("Error: Game already over", session);
+            }
+            else{
+                sendError("Error: Observers can't resign", session);
+            }
         }
     }
 
