@@ -1,5 +1,6 @@
 package websocket;
 
+import chess.ChessGame;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
@@ -17,8 +18,12 @@ import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
+import java.io.IO;
 import java.io.IOException;
 
 public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler{
@@ -75,9 +80,11 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
             var notification = new NotificationMessage(message);
             connections.gameBroadcast(userCommand.getGameID(), session, notification);
+
+            sendGame(game, session);
         }
         catch(DataAccessException ex){
-            System.out.print("Error: server error");
+            sendError("Error: Server error", session);
         }
     }
 
@@ -85,13 +92,22 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try{
             MakeMoveCommand moveCommand = new Gson().fromJson(ctxMessage, MakeMoveCommand.class);
             GameData game = gameDAO.getGame(moveCommand.getGameID());
+
             game.game().makeMove(moveCommand.getMove());
-            var message = String.format("Move: %s", moveCommand.getMove().toString());
-            NotificationMessage notification = new NotificationMessage(message);
+            LoadGameMessage loadGameMessage = new LoadGameMessage(game);
+
+            var moveMessage = String.format("Move: %s", moveCommand.getMove().toString());
+            NotificationMessage notification = new NotificationMessage(moveMessage);
             connections.gameBroadcast(moveCommand.getGameID(), session, notification);
+
+            String mateMessage = mateCheck(game.game().getTeamTurn(), game.game());
+            if(mateMessage != null){
+                NotificationMessage mateNotification = new NotificationMessage(mateMessage);
+                connections.gameBroadcast(moveCommand.getGameID(), null, mateNotification);
+            }
         }
         catch(DataAccessException ex){
-            System.out.print("Error: server error");
+            ServerMessage errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
         }
         catch(InvalidMoveException ex){
             System.out.print("Error: invalid move");
@@ -109,5 +125,38 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         String message = "Resigned";
         NotificationMessage notification = new NotificationMessage(message);
         connections.gameBroadcast(userCommand.getGameID(), session, notification);
+    }
+
+    public String mateCheck(ChessGame.TeamColor playerColor, ChessGame game){
+        String color;
+        String message = null;
+        if(playerColor == ChessGame.TeamColor.WHITE){
+            color = "White";
+        }
+        else{
+            color = "Black";
+        }
+        if(game.isInCheck(playerColor)){
+            message = String.format("%s is in check!", color);
+        }
+        else if(game.isInCheckmate(playerColor)){
+            message = String.format("%s is in checkmate!", color);
+        }
+        else if(game.isInStalemate(playerColor)){
+            message = "Stalemate";
+        }
+        return message;
+    }
+
+    public void sendError(String error, Session session) throws IOException{
+        ErrorMessage errorMessage = new ErrorMessage(error);
+        String errorString = new Gson().toJson(errorMessage);
+        session.getRemote().sendString(errorString);
+    }
+
+    public void sendGame(GameData game, Session session) throws IOException {
+        LoadGameMessage loadGameMessage = new LoadGameMessage(game);
+        String loadGameString = new Gson().toJson(loadGameMessage);
+        session.getRemote().sendString(loadGameString);
     }
 }
