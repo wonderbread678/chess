@@ -6,6 +6,10 @@ import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
+import dataaccess.UserDAO;
+import dataaccess.sql.SQLAuthDAO;
+import dataaccess.sql.SQLGameDAO;
+import dataaccess.sql.SQLUserDAO;
 import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsCloseHandler;
 import io.javalin.websocket.WsConnectContext;
@@ -15,6 +19,7 @@ import io.javalin.websocket.WsMessageHandler;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
+import server.ResponseException;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
@@ -27,12 +32,14 @@ import java.io.IOException;
 public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler{
 
     private final ConnectionManager connections = new ConnectionManager();
-    private final GameDAO gameDAO;
-    private final AuthDAO authDAO;
+    private final SQLGameDAO gameDAO;
+    private final SQLUserDAO userDAO;
+    private final SQLAuthDAO authDAO;
 
-    public WebsocketHandler(GameDAO gameDAO, AuthDAO authDAO){
+    public WebsocketHandler(SQLGameDAO gameDAO, SQLAuthDAO authDAO, SQLUserDAO userDAO){
         this.gameDAO = gameDAO;
         this.authDAO = authDAO;
+        this.userDAO = userDAO;
     }
 
     @Override
@@ -77,9 +84,11 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 messageString = String.format("%s has joined game as an observer", user.username());
             }
             var message = new NotificationMessage(messageString);
-            connections.gameBroadcast(userCommand.getGameID(), session, message);
+            String notification = new Gson().toJson(message);
+            connections.gameBroadcast(userCommand.getGameID(), session, notification);
 
-            sendGame(game, session);
+            String loadGameMessage = new Gson().toJson(new LoadGameMessage(game));
+            session.getRemote().sendString(loadGameMessage);
         }
         catch(DataAccessException ex){
             sendError("Error: Server error", session);
@@ -94,38 +103,61 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             MakeMoveCommand moveCommand = new Gson().fromJson(ctxMessage, MakeMoveCommand.class);
             GameData game = gameDAO.getGame(moveCommand.getGameID());
 
+            if(authDAO.getAuth(moveCommand.getAuthToken()) == null){
+                throw new ResponseException(401, "Error: Unauthorized");
+            }
+//            TODO: bad test logic
+
             game.game().makeMove(moveCommand.getMove());
-            LoadGameMessage loadGameMessage = new LoadGameMessage(game);
+            GameData updatedGame = gameDAO.getGame(moveCommand.getGameID());
+            String loadGameMessage = new Gson().toJson(new LoadGameMessage(updatedGame));
+            connections.gameBroadcast(moveCommand.getGameID(), null, loadGameMessage);
 
             var moveMessage = String.format("Move: %s", moveCommand.getMove().toString());
             NotificationMessage notification = new NotificationMessage(moveMessage);
-            connections.gameBroadcast(moveCommand.getGameID(), session, notification);
+            connections.gameBroadcast(moveCommand.getGameID(), session, new Gson().toJson(notification));
 
             String mateMessage = mateCheck(game.game().getTeamTurn(), game.game());
             if(mateMessage != null){
                 NotificationMessage mateNotification = new NotificationMessage(mateMessage);
-                connections.gameBroadcast(moveCommand.getGameID(), null, mateNotification);
+                connections.gameBroadcast(moveCommand.getGameID(), null, new Gson().toJson(mateNotification));
             }
         }
         catch(DataAccessException ex){
-            ServerMessage errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+            sendError("Error: Server error", session);
         }
         catch(InvalidMoveException ex){
-            System.out.print("Error: invalid move");
+            sendError("Error: invalid move", session);
+        }
+        catch(ResponseException ex){
+            sendError("Error: Unauthorized", session);
         }
     }
 
     public void leaveWS(UserGameCommand userCommand, Session session) throws IOException{
-        String message = "Leaving the game";
-        NotificationMessage notification = new NotificationMessage(message);
-        connections.gameBroadcast(userCommand.getGameID(), session, notification);
-        connections.remove(userCommand.getGameID(), session);
+        try{
+            GameData game = gameDAO.getGame(userCommand.getGameID());
+            AuthData user = authDAO.getAuth(userCommand.getAuthToken());
+            String message = "Leaving the game";
+            NotificationMessage notification = new NotificationMessage(message);
+            connections.gameBroadcast(userCommand.getGameID(), session, new Gson().toJson(notification));
+            connections.remove(userCommand.getGameID(), session);
+            if(game.whiteUsername().equals(user.username())){
+                gameDAO.updateGamePlayers(userCommand.getGameID(), null, game.blackUsername());
+            }
+            else if(game.blackUsername().equals(user.username())){
+                gameDAO.updateGamePlayers(userCommand.getGameID(), game.whiteUsername(), null);
+            }
+        }
+        catch(DataAccessException ex){
+            sendError("Error: server error", session);
+        }
     }
 
     public void resignWS(UserGameCommand userCommand, Session session) throws IOException{
         String message = "Resigned";
         NotificationMessage notification = new NotificationMessage(message);
-        connections.gameBroadcast(userCommand.getGameID(), session, notification);
+        connections.gameBroadcast(userCommand.getGameID(), session, new Gson().toJson(notification));
     }
 
     public String mateCheck(ChessGame.TeamColor playerColor, ChessGame game){
@@ -155,15 +187,5 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         session.getRemote().sendString(errorString);
     }
 
-    public void sendGame(GameData game, Session session) throws IOException {
-        LoadGameMessage loadGameMessage = new LoadGameMessage(game);
-        String loadGameString = new Gson().toJson(loadGameMessage);
-        session.getRemote().sendString(loadGameString);
-    }
 
-    public void sendNotification(String notification, Session session) throws IOException{
-        NotificationMessage notificationMessage = new NotificationMessage(notification);
-        String notificationString = new Gson().toJson(notificationMessage);
-        session.getRemote().sendString(notificationString);
-    }
 }

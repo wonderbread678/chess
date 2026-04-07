@@ -31,6 +31,14 @@ public class MakeMoveCommand {
         return gameID;
     }
 
+    public String getAuthToken() {
+        return authToken;
+    }
+
+    public UserGameCommand.CommandType getCommandType() {
+        return commandType;
+    }
+
     @Override
     public String toString() {
         return "MakeMoveCommand{" +
