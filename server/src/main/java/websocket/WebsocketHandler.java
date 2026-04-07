@@ -6,7 +6,6 @@ import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
-import dataaccess.UserDAO;
 import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsCloseHandler;
 import io.javalin.websocket.WsConnectContext;
@@ -23,7 +22,6 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
-import java.io.IO;
 import java.io.IOException;
 
 public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler{
@@ -68,23 +66,26 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.add(userCommand.getGameID(), session);
             AuthData user = authDAO.getAuth(userCommand.getAuthToken());
             GameData game = gameDAO.getGame(userCommand.getGameID());
-            String message;
+            String messageString;
             if(game.blackUsername().equals(user.username())){
-                message = String.format("%s has joined game as black", user.username());
+                messageString = String.format("%s has joined game as black", user.username());
             }
             else if (game.whiteUsername().equals(user.username())){
-                message = String.format("%s has joined game as white", user.username());
+                messageString = String.format("%s has joined game as white", user.username());
             }
             else{
-                message = String.format("%s has joined game as an observer", user.username());
+                messageString = String.format("%s has joined game as an observer", user.username());
             }
-            var notification = new NotificationMessage(message);
-            connections.gameBroadcast(userCommand.getGameID(), session, notification);
+            var message = new NotificationMessage(messageString);
+            connections.gameBroadcast(userCommand.getGameID(), session, message);
 
             sendGame(game, session);
         }
         catch(DataAccessException ex){
             sendError("Error: Server error", session);
+        }
+        catch(NullPointerException ex){
+            sendError("Error: Game does not exist", session);
         }
     }
 
@@ -158,5 +159,11 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         LoadGameMessage loadGameMessage = new LoadGameMessage(game);
         String loadGameString = new Gson().toJson(loadGameMessage);
         session.getRemote().sendString(loadGameString);
+    }
+
+    public void sendNotification(String notification, Session session) throws IOException{
+        NotificationMessage notificationMessage = new NotificationMessage(notification);
+        String notificationString = new Gson().toJson(notificationMessage);
+        session.getRemote().sendString(notificationString);
     }
 }
