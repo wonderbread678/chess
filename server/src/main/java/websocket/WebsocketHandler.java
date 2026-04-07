@@ -121,11 +121,11 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             String loadGameMessage = new Gson().toJson(new LoadGameMessage(game));
             connections.gameBroadcast(moveCommand.getGameID(), null, loadGameMessage);
 
-            var moveMessage = String.format("Move: %s", moveCommand.getMove().toString());
+            var moveMessage = String.format("%s has made the move: %s", user.username(), moveCommand.getMove().toString());
             NotificationMessage notification = new NotificationMessage(moveMessage);
             connections.gameBroadcast(moveCommand.getGameID(), session, new Gson().toJson(notification));
 
-            String mateMessage = mateCheck(game.game().getTeamTurn(), game.game());
+            String mateMessage = mateCheck(user.username(), game.game().getTeamTurn(), game.game());
             if(mateMessage != null){
                 NotificationMessage mateNotification = new NotificationMessage(mateMessage);
                 connections.gameBroadcast(moveCommand.getGameID(), null, new Gson().toJson(mateNotification));
@@ -164,7 +164,7 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try{
             GameData game = gameDAO.getGame(userCommand.getGameID());
             AuthData user = authDAO.getAuth(userCommand.getAuthToken());
-            String message = "Leaving the game";
+            String message = String.format("%s has left the game", user.username());
             NotificationMessage notification = new NotificationMessage(message);
             connections.gameBroadcast(userCommand.getGameID(), session, new Gson().toJson(notification));
             connections.remove(userCommand.getGameID(), session);
@@ -193,7 +193,7 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             if(gameDAO.getGameState(userCommand.getGameID()).equals("FINISHED")){
                 throw new ResponseException(484, "Error: Double resign");
             }
-            String message = "Resigned";
+            String message = String.format("%s has resigned", user.username());
             NotificationMessage notification = new NotificationMessage(message);
             connections.gameBroadcast(userCommand.getGameID(), null, new Gson().toJson(notification));
             gameDAO.updateGameState(userCommand.getGameID(), "FINISHED");
@@ -214,20 +214,13 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-    public String mateCheck(ChessGame.TeamColor playerColor, ChessGame game){
-        String color;
+    public String mateCheck(String username, ChessGame.TeamColor playerColor, ChessGame game){
         String message = null;
-        if(playerColor == ChessGame.TeamColor.WHITE){
-            color = "White";
-        }
-        else{
-            color = "Black";
-        }
         if(game.isInCheck(playerColor)){
-            message = String.format("%s is in check!", color);
+            message = String.format("%s is in check!", username);
         }
         else if(game.isInCheckmate(playerColor)){
-            message = String.format("%s is in checkmate!", color);
+            message = String.format("%s is in checkmate!", username);
         }
         else if(game.isInStalemate(playerColor)){
             message = "Stalemate";

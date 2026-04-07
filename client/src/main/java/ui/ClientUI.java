@@ -7,11 +7,15 @@ import java.util.Scanner;
 
 import chess.ChessGame;
 import client.*;
+import clientWebsocket.NotificationHandler;
+import clientWebsocket.WebsocketFacade;
 import model.AuthData;
 import model.ListGamesData;
 import model.ListGamesResponse;
+import server.ResponseException;
+import websocket.messages.NotificationMessage;
 
-public class ClientUI {
+public class ClientUI implements NotificationHandler {
 
     private String username = null;
     private String authToken = null;
@@ -19,9 +23,11 @@ public class ClientUI {
     private State state = State.SIGNED_OUT;
     private final HashMap<Integer, Integer> gameIDToListNum= new HashMap<>();
     private final HashMap<Integer, String> listNumToName= new HashMap<>();
+    private final WebsocketFacade ws;
 
-    public ClientUI(String serverURL){
+    public ClientUI(String serverURL) throws ResponseException {
         server = new ServerFacade(serverURL);
+        ws = new WebsocketFacade(serverURL, this);
     }
 
     public void run(){
@@ -55,6 +61,12 @@ public class ClientUI {
         System.out.printf("\n" + "[%s] >>> " + EscapeSequences.SET_TEXT_COLOR_MAGENTA, strState);
     }
 
+    @Override
+    public void notify(NotificationMessage notification) {
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + notification.getMessage());
+        printPrompt();
+    }
+
 
     public String eval(String input){
         try{
@@ -82,10 +94,10 @@ public class ClientUI {
             else if(state == State.GAME){
                 return switch(cmd){
                     case "leave" -> exitGame();
-                    case "makeMove" -> makeMove();
+                    case "makeMove" -> makeMove(params);
                     case "resign" -> resign();
                     case "redraw" -> redraw();
-                    case "highlight" -> highlightLegalMoves();
+                    case "highlight" -> highlightLegalMoves(params);
                     default -> help();
                 };
             }
@@ -121,24 +133,28 @@ public class ClientUI {
         }
     }
 
-    private String highlightLegalMoves() {
+    private String highlightLegalMoves(String...params) {
+
         return "need to implement";
     }
 
     private String redraw() {
+
         return "need to implement";
     }
 
     private String resign() {
+
         return "need to implement";
     }
 
-    private String makeMove() {
+    private String makeMove(String...params) {
         return "need to implement";
     }
 
     private String exitGame(){
         state = State.SIGNED_IN;
+//        ws.leaveGame(authToken, );
         return "Exited game";
     }
 
