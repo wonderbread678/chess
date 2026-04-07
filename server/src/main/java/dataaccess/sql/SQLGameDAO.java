@@ -143,6 +143,22 @@ public class SQLGameDAO implements GameDAO {
         }
     }
 
+    public void updateGameBoard(int gameID, ChessGame updatedGame) throws DataAccessException{
+        String sql = "UPDATE gameDataTable" + " SET game = ?" + " WHERE gameID = ?";
+
+        try(PreparedStatement stmt = DatabaseManager.getConnection().prepareStatement(sql)){
+            stmt.setString(1, new Gson().toJson(updatedGame));
+            stmt.setInt(2, gameID);
+            int count = stmt.executeUpdate();
+            if(count == 0){
+                throw new DataAccessException("Error: No rows to update");
+            }
+        }
+        catch(SQLException ex){
+            throw new DataAccessException("Error: " + ex.getMessage());
+        }
+    }
+
     private final String[] createGameStatements = {
             """
             CREATE TABLE IF NOT EXISTS gameDataTable (
