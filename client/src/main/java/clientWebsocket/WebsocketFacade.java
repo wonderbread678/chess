@@ -10,7 +10,10 @@ import com.google.gson.Gson;
 import jakarta.websocket.*;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.net.URI;
@@ -35,8 +38,19 @@ public class WebsocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    NotificationMessage notification = new Gson().fromJson(message, NotificationMessage.class);
-                    notificationHandler.notify(notification);
+                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                    if(serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION){
+                        NotificationMessage notification = new Gson().fromJson(message, NotificationMessage.class);
+                        notificationHandler.notify(notification);
+                    }
+                    else if(serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR){
+                        ErrorMessage error = new Gson().fromJson(message, ErrorMessage.class);
+                        notificationHandler.notifyError(error);
+                    }
+                    else if(serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME){
+                        LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
+                        notificationHandler.notifyGame(loadGameMessage);
+                    }
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {

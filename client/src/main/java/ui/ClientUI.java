@@ -5,14 +5,20 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessMove;
 import client.*;
 import clientWebsocket.NotificationHandler;
 import clientWebsocket.WebsocketFacade;
+import com.google.gson.Gson;
 import model.AuthData;
+import model.GameData;
 import model.ListGamesData;
 import model.ListGamesResponse;
 import server.ResponseException;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
 public class ClientUI implements NotificationHandler {
@@ -23,6 +29,7 @@ public class ClientUI implements NotificationHandler {
     private State state = State.SIGNED_OUT;
     private final HashMap<Integer, Integer> gameIDToListNum= new HashMap<>();
     private final HashMap<Integer, String> listNumToName= new HashMap<>();
+    private final HashMap<String, Integer> authTokenToGameID = new HashMap<>();
     private final WebsocketFacade ws;
 
     public ClientUI(String serverURL) throws ResponseException {
@@ -67,6 +74,19 @@ public class ClientUI implements NotificationHandler {
         printPrompt();
     }
 
+    @Override
+    public void notifyGame(LoadGameMessage loadGameMessage){
+        ChessBoard board = loadGameMessage.getGame().game().getBoard();
+        String stringBoard = new Gson().toJson(board);
+        Chessboard.main();
+
+    }
+
+    @Override
+    public void notifyError(ErrorMessage errorMessage){
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + errorMessage.getErrorMessage());
+        printPrompt();
+    }
 
     public String eval(String input){
         try{
@@ -93,9 +113,10 @@ public class ClientUI implements NotificationHandler {
             }
             else if(state == State.GAME){
                 return switch(cmd){
-                    case "leave" -> exitGame();
+                    case "leave" -> leave();
                     case "makeMove" -> makeMove(params);
-                    case "resign" -> resign();
+                    case "confirmResign" -> resign();
+                    case "resign" -> "Are you sure? Type \"confirmResign\" to resign";
                     case "redraw" -> redraw();
                     case "highlight" -> highlightLegalMoves(params);
                     default -> help();
@@ -133,29 +154,64 @@ public class ClientUI implements NotificationHandler {
         }
     }
 
-    private String highlightLegalMoves(String...params) {
-
-        return "need to implement";
+    private String highlightLegalMoves(String...params) throws ClientException{
+        try{
+            return "need to implement";
+        }
+        catch(ResponseException ex){
+            throw new ClientException(500, "Error: Server error");
+        }
     }
 
-    private String redraw() {
-
-        return "need to implement";
+    private String redraw() throws ClientException{
+        try{
+            return "need to implement";
+        }
+        catch(ResponseException ex){
+            throw new ClientException(500, "Error: Server error");
+        }
     }
 
-    private String resign() {
-
-        return "need to implement";
+    private String resign() throws ClientException{
+        try{
+            ws.resignGame(authToken, authTokenToGameID.get(authToken));
+            return "You have resigned";
+        }
+        catch(ResponseException ex){
+            throw new ClientException(500, "Error: Server error");
+        }
     }
 
-    private String makeMove(String...params) {
-        return "need to implement";
+    private String makeMove(String...params) throws ClientException{
+        try{
+            if(params.length == 2){
+                String startPosition = params[0];
+                String endPosition = params[1];
+                ChessMove move = moveConverter(startPosition, endPosition);
+                ws.makeMove();
+            }
+        }
+        catch(ResponseException ex){
+            throw new ClientException(500, "Error: Server error");
+        }
     }
 
-    private String exitGame(){
-        state = State.SIGNED_IN;
-//        ws.leaveGame(authToken, );
-        return "Exited game";
+    private ChessMove moveConverter(String startPosition, String endPosition) {
+        for (int i = 0; i < startPosition.length(); ++i){
+
+        }
+    }
+
+    private String leave() throws ClientException{
+        try{
+            state = State.SIGNED_IN;
+            ws.leaveGame(authToken, authTokenToGameID.get(authToken));
+            authTokenToGameID.remove(authToken);
+            return "Exited game";
+        }
+        catch(ResponseException ex){
+            throw new ClientException(500, "Error: Server error");
+        }
     }
 
     private String observeGame(String... params) throws ClientException{
@@ -202,6 +258,9 @@ public class ClientUI implements NotificationHandler {
                     }
 
                     server.joinGame(playerColor, gameID);
+
+                    authTokenToGameID.put(authToken, gameID);
+
                     state = State.GAME;
                     String[] args = { params[0] };
                     Chessboard.main(args);
@@ -311,7 +370,11 @@ public class ClientUI implements NotificationHandler {
         }
         else {
             return """
-                   - exit
+                   - leave
+                   - redraw
+                   - makeMove (<start position (ColRow)> <end position (ColRow)>)
+                   - resign
+                   - highlight (<piece position (ColRow)>)
                    - help
                    """;
         }
