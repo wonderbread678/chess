@@ -152,7 +152,14 @@ public class Chessboard {
         if(highlightFlag){
              endPositions = getEndPosition(moves);
         }
-        ChessPosition highlightCheck = new ChessPosition(row, column + 1);
+        ChessPosition highlightCheck;
+        if(playerColor == ChessGame.TeamColor.WHITE){
+            highlightCheck = new ChessPosition(row, column + 1);
+        }
+        else{
+            highlightCheck = new ChessPosition(row, 8 - column);
+        }
+
         if(!isOdd){
             if(highlightFlag && endPositions.contains(highlightCheck)){
                 out.print(SET_BG_COLOR_BLUE);

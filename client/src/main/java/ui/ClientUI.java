@@ -7,11 +7,9 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
 import client.*;
-import clientWebsocket.NotificationHandler;
-import clientWebsocket.WebsocketFacade;
-import com.google.gson.Gson;
+import clientwebsocket.NotificationHandler;
+import clientwebsocket.WebsocketFacade;
 import model.AuthData;
-import model.GameData;
 import model.ListGamesData;
 import model.ListGamesResponse;
 import websocket.messages.ErrorMessage;
@@ -73,6 +71,7 @@ public class ClientUI implements NotificationHandler {
     @Override
     public void notify(NotificationMessage notification) {
         System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + notification.getMessage());
+        System.out.print(EscapeSequences.SET_TEXT_COLOR_MAGENTA);
         printPrompt();
     }
 
@@ -87,6 +86,7 @@ public class ClientUI implements NotificationHandler {
     @Override
     public void notifyError(ErrorMessage errorMessage){
         System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + errorMessage.getErrorMessage());
+        System.out.print(EscapeSequences.SET_TEXT_COLOR_MAGENTA);
         printPrompt();
     }
 
@@ -147,6 +147,7 @@ public class ClientUI implements NotificationHandler {
             case 412 -> "Game does not exist";
             case 413 -> "Game number must be an integer";
             case 414 -> "Move contains invalid character";
+            case 415 -> "No piece at that position";
             default -> "Server Error";
         };
     }
@@ -161,6 +162,9 @@ public class ClientUI implements NotificationHandler {
         if(params.length == 1){
             String positionString = params[0];
             ChessPosition position = positionConverter(positionString);
+            if(gameBoard.getPiece(position) == null){
+                throw new ClientException(415, "Error: No piece aat that position");
+            }
             boardDrawer.highlightMoves(gameBoard, currentColor, position);
             return String.format("Displaying moves for %s", positionString);
         }

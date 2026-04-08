@@ -1,6 +1,5 @@
-package clientWebsocket;
+package clientwebsocket;
 
-import model.GameData;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;

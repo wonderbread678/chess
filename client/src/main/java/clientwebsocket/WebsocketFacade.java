@@ -1,4 +1,4 @@
-package clientWebsocket;
+package clientwebsocket;
 
 import chess.ChessMove;
 import client.ClientException;
