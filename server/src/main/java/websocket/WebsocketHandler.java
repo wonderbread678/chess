@@ -70,14 +70,14 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             AuthData user = authDAO.getAuth(userCommand.getAuthToken());
             GameData game = gameDAO.getGame(userCommand.getGameID());
             String messageString;
-            if(game.blackUsername().equals(user.username())){
-                messageString = String.format("%s has joined game as black", user.username());
+            if(game.blackUsername() != null && game.blackUsername().equals(user.username())){
+                messageString = String.format("%s has joined game as black\n", user.username());
             }
-            else if (game.whiteUsername().equals(user.username())){
-                messageString = String.format("%s has joined game as white", user.username());
+            else if (game.whiteUsername() != null && game.whiteUsername().equals(user.username())){
+                messageString = String.format("%s has joined game as white\n", user.username());
             }
             else{
-                messageString = String.format("%s has joined game as an observer", user.username());
+                messageString = String.format("%s has joined game as an observer\n", user.username());
             }
             var message = new NotificationMessage(messageString);
             String notification = new Gson().toJson(message);
@@ -87,10 +87,10 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             session.getRemote().sendString(loadGameMessage);
         }
         catch(DataAccessException ex){
-            sendError("Error: Server error", session);
+            sendError("Error: Server error\n", session);
         }
         catch(NullPointerException ex){
-            sendError("Error: Game does not exist", session);
+            sendError("Error: Game does not exist\n", session);
         }
     }
 
@@ -100,7 +100,7 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             GameData game = gameDAO.getGame(moveCommand.getGameID());
             AuthData user = authDAO.getAuth(moveCommand.getAuthToken());
             if(user == null){
-                throw new ResponseException(401, "Error: Unauthorized");
+                throw new ResponseException(401, "Error: Unauthorized\n");
             }
             moveCheck(user, game);
 
@@ -121,7 +121,7 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             String loadGameMessage = new Gson().toJson(new LoadGameMessage(game));
             connections.gameBroadcast(moveCommand.getGameID(), null, loadGameMessage);
 
-            var moveMessage = String.format("%s has made the move: %s", user.username(), moveCommand.getMove().toString());
+            var moveMessage = String.format("%s has made the move: %s\n", user.username(), moveCommand.getMove().toString());
             NotificationMessage notification = new NotificationMessage(moveMessage);
             connections.gameBroadcast(moveCommand.getGameID(), session, new Gson().toJson(notification));
 
@@ -185,13 +185,13 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             GameData game = gameDAO.getGame(userCommand.getGameID());
             AuthData user = authDAO.getAuth(userCommand.getAuthToken());
             if(user == null){
-                throw new ResponseException(401, "Error: Unauthorized");
+                throw new ResponseException(401, "Error: Unauthorized\n");
             }
             if(!game.whiteUsername().equals(user.username()) && !game.blackUsername().equals(user.username())){
-                throw new ResponseException(485, "Error: Observers can't resign");
+                throw new ResponseException(485, "Error: Observers can't resign\n");
             }
             if(gameDAO.getGameState(userCommand.getGameID()).equals("FINISHED")){
-                throw new ResponseException(484, "Error: Double resign");
+                throw new ResponseException(484, "Error: Double resign\n");
             }
             String message = String.format("%s has resigned", user.username());
             NotificationMessage notification = new NotificationMessage(message);
@@ -199,17 +199,17 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             gameDAO.updateGameState(userCommand.getGameID(), "FINISHED");
         }
         catch(DataAccessException ex){
-            sendError("Error: Server error", session);
+            sendError("Error: Server error\n", session);
         }
         catch(ResponseException ex){
             if(ex.getCode() == 401){
-                sendError("Error: Unauthorized", session);
+                sendError("Error: Unauthorized\n", session);
             }
             else if(ex.getCode() == 484){
-                sendError("Error: Game already over", session);
+                sendError("Error: Game already over\n", session);
             }
             else{
-                sendError("Error: Observers can't resign", session);
+                sendError("Error: Observers can't resign\n", session);
             }
         }
     }
@@ -217,13 +217,13 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     public String mateCheck(String username, ChessGame.TeamColor playerColor, ChessGame game){
         String message = null;
         if(game.isInCheck(playerColor)){
-            message = String.format("%s is in check!", username);
+            message = String.format("%s is in check!\n", username);
         }
         else if(game.isInCheckmate(playerColor)){
-            message = String.format("%s is in checkmate!", username);
+            message = String.format("%s is in checkmate!\n", username);
         }
         else if(game.isInStalemate(playerColor)){
-            message = "Stalemate";
+            message = "Stalemate\n";
         }
         return message;
     }

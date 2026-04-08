@@ -1,12 +1,11 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import static ui.EscapeSequences.*;
 
@@ -29,30 +28,34 @@ public class Chessboard {
     private static final String BLACK_KNIGHT = EscapeSequences.BLACK_KNIGHT;
     private static final String BLACK_PAWN = EscapeSequences.BLACK_PAWN;
 
-    public static void main(String[] args){
+    public void makeBoard(ChessGame.TeamColor playerColor, ChessBoard board){
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
-
-        ChessGame.TeamColor playerColor;
-        if(args[0].equals("white")){
-            playerColor = ChessGame.TeamColor.WHITE;
-        }
-        else{
-            playerColor = ChessGame.TeamColor.BLACK;
-        }
 
         out.print(EscapeSequences.ERASE_SCREEN);
 
-        drawChessBoard(out, board, playerColor);
+        drawChessBoard(out, board, playerColor, false, null);
 
         out.print(EscapeSequences.SET_BG_COLOR_DARK_GREY);
         out.print(EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY);
 
     }
 
-    private static void drawHeadersHorizontal(PrintStream out, ChessGame.TeamColor playerColor) {
+    public void highlightMoves(ChessBoard board,ChessGame.TeamColor playerColor, ChessPosition piecePosition){
+        ChessPiece piece = board.getPiece(piecePosition);
+        Collection<ChessMove> moves = piece.pieceMoves(board, piecePosition);
+
+        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+
+        out.print(EscapeSequences.ERASE_SCREEN);
+
+        drawChessBoard(out, board, playerColor, true, moves);
+
+        out.print(EscapeSequences.SET_BG_COLOR_DARK_GREY);
+        out.print(EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY);
+    }
+
+    private void drawHeadersHorizontal(PrintStream out, ChessGame.TeamColor playerColor) {
         setDarkGrey(out);
         String[] whiteHeaders = { "a", "b", "c", "d", "e", "f", "g", "h"};
         String[] blackHeaders = { "h", "g", "f", "e", "d", "c", "b", "a"};
@@ -72,7 +75,7 @@ public class Chessboard {
 
     }
 
-    private static void printHeaderText(PrintStream out, String headerText){
+    private void printHeaderText(PrintStream out, String headerText){
         out.print(SET_BG_COLOR_DARK_GREY);
         out.print(SET_TEXT_COLOR_YELLOW);
 
@@ -83,7 +86,7 @@ public class Chessboard {
         setDarkGrey(out);
     }
 
-    private static void drawHeadersVertical(PrintStream out, int vertHeader){
+    private void drawHeadersVertical(PrintStream out, int vertHeader){
         out.print(SET_BG_COLOR_DARK_GREY);
         out.print(SET_TEXT_COLOR_YELLOW);
         out.printf(" %d ", vertHeader);
@@ -91,7 +94,11 @@ public class Chessboard {
         setDarkGrey(out);
     }
 
-    private static void drawChessBoard(PrintStream out, ChessBoard board,ChessGame.TeamColor playerColor) {
+    private void drawChessBoard(PrintStream out,
+                                ChessBoard board,
+                                ChessGame.TeamColor playerColor,
+                                boolean highlightFlag,
+                                Collection<ChessMove> moves) {
         drawHeadersHorizontal(out, playerColor);
         int i = 8;
         if (playerColor == ChessGame.TeamColor.BLACK){
@@ -99,7 +106,7 @@ public class Chessboard {
         }
         for (int row = 0; row < 8; ++row){
             drawHeadersVertical(out, i);
-            drawRowsOfSquares(out, row % 2 != 0, i, board,playerColor);
+            drawRowsOfSquares(out, row % 2 != 0, i, board,playerColor, highlightFlag, moves);
             drawHeadersVertical(out, i);
             out.println();
             if (playerColor == ChessGame.TeamColor.BLACK){
@@ -112,15 +119,28 @@ public class Chessboard {
         drawHeadersHorizontal(out, playerColor);
     }
 
-    private static void drawRowsOfSquares(PrintStream out, boolean isOdd, int row, ChessBoard board, ChessGame.TeamColor playerColor){
+    private void drawRowsOfSquares(PrintStream out,
+                                   boolean isOdd,
+                                   int row,
+                                   ChessBoard board,
+                                   ChessGame.TeamColor playerColor,
+                                   boolean highlightFlag,
+                                   Collection<ChessMove> moves){
         for (int boardCol = 0; boardCol < 8; ++boardCol){
-            drawPiece(out, row, boardCol, board, isOdd, playerColor);
+            drawPiece(out, row, boardCol, board, isOdd, playerColor, highlightFlag, moves);
         }
 
     }
 
 
-    private static void drawPiece(PrintStream out, int row, int column, ChessBoard board, boolean isOdd, ChessGame.TeamColor playerColor){
+    private void drawPiece(PrintStream out,
+                           int row,
+                           int column,
+                           ChessBoard board,
+                           boolean isOdd,
+                           ChessGame.TeamColor playerColor,
+                           boolean highlightFlag,
+                           Collection<ChessMove> moves){
         ChessPiece piece;
         if(playerColor == ChessGame.TeamColor.WHITE){
             piece = board.getPiece(new ChessPosition(row, column + 1));
@@ -128,21 +148,36 @@ public class Chessboard {
         else{
             piece = board.getPiece(new ChessPosition(row, 8 - column));
         }
+        Collection<ChessPosition> endPositions = new ArrayList<>();
+        if(highlightFlag){
+             endPositions = getEndPosition(moves);
+        }
+        ChessPosition highlightCheck = new ChessPosition(row, column + 1);
         if(!isOdd){
-            if(column % 2 == 0){
-                out.print(SET_BG_COLOR_WHITE);
+            if(highlightFlag && endPositions.contains(highlightCheck)){
+                out.print(SET_BG_COLOR_BLUE);
             }
             else{
-                out.print(SET_BG_COLOR_DARK_GREEN);
+                if(column % 2 == 0){
+                    out.print(SET_BG_COLOR_WHITE);
+                }
+                else{
+                    out.print(SET_BG_COLOR_DARK_GREEN);
+                }
             }
         }
         else{
-            if(column % 2 == 0){
-
-                out.print(SET_BG_COLOR_DARK_GREEN);
+            if(highlightFlag && endPositions.contains(highlightCheck)){
+                out.print(SET_BG_COLOR_BLUE);
             }
             else{
-                out.print(SET_BG_COLOR_WHITE);
+                if(column % 2 == 0){
+
+                    out.print(SET_BG_COLOR_DARK_GREEN);
+                }
+                else{
+                    out.print(SET_BG_COLOR_WHITE);
+                }
             }
         }
         if(piece != null){
@@ -155,7 +190,15 @@ public class Chessboard {
 
     }
 
-    private static String getPieceIcon(ChessPiece piece){
+    Collection<ChessPosition> getEndPosition(Collection<ChessMove> moves){
+        Collection<ChessPosition> endPositions = new ArrayList<>();
+        for(ChessMove move : moves){
+            endPositions.add(move.getEndPosition());
+        }
+        return endPositions;
+    }
+
+    private String getPieceIcon(ChessPiece piece){
         if (piece.getTeamColor() == ChessGame.TeamColor.WHITE){
             return switch(piece.getPieceType()){
                 case KING -> WHITE_KING;
@@ -179,7 +222,7 @@ public class Chessboard {
     }
 
 
-    private static void setDarkGrey(PrintStream out){
+    private void setDarkGrey(PrintStream out){
         out.print(EscapeSequences.SET_BG_COLOR_DARK_GREY);
         out.print(EscapeSequences.SET_TEXT_COLOR_DARK_GREY);
     }

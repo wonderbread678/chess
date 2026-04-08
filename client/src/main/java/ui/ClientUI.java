@@ -1,13 +1,11 @@
 package ui;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPosition;
 import client.*;
 import clientWebsocket.NotificationHandler;
 import clientWebsocket.WebsocketFacade;
@@ -31,10 +29,15 @@ public class ClientUI implements NotificationHandler {
     private final HashMap<Integer, String> listNumToName= new HashMap<>();
     private final HashMap<String, Integer> authTokenToGameID = new HashMap<>();
     private final WebsocketFacade ws;
+    private final Chessboard boardDrawer;
+
+    private ChessBoard gameBoard;
+    private ChessGame.TeamColor currentColor;
 
     public ClientUI(String serverURL) throws ResponseException {
         server = new ServerFacade(serverURL);
         ws = new WebsocketFacade(serverURL, this);
+        boardDrawer = new Chessboard();
     }
 
     public void run(){
@@ -76,10 +79,10 @@ public class ClientUI implements NotificationHandler {
 
     @Override
     public void notifyGame(LoadGameMessage loadGameMessage){
-        ChessBoard board = loadGameMessage.getGame().game().getBoard();
-        String stringBoard = new Gson().toJson(board);
-        Chessboard.main();
-
+        gameBoard = loadGameMessage.getGame().game().getBoard();
+        System.out.println();
+        boardDrawer.makeBoard(currentColor, gameBoard);
+        printPrompt();
     }
 
     @Override
@@ -114,9 +117,9 @@ public class ClientUI implements NotificationHandler {
             else if(state == State.GAME){
                 return switch(cmd){
                     case "leave" -> leave();
-                    case "makeMove" -> makeMove(params);
-                    case "confirmResign" -> resign();
-                    case "resign" -> "Are you sure? Type \"confirmResign\" to resign";
+                    case "move" -> makeMove(params);
+                    case "confirm" -> resign();
+                    case "resign" -> "Are you sure? Type \"confirm\" to resign\n";
                     case "redraw" -> redraw();
                     case "highlight" -> highlightLegalMoves(params);
                     default -> help();
@@ -144,6 +147,7 @@ public class ClientUI implements NotificationHandler {
             case 411 -> "Invalid input for register. Requires (<username> <password> <email>)";
             case 412 -> "Game does not exist";
             case 413 -> "Game number must be an integer";
+            case 414 -> "Move contains invalid character";
             default -> "Server Error";
         };
     }
@@ -155,21 +159,18 @@ public class ClientUI implements NotificationHandler {
     }
 
     private String highlightLegalMoves(String...params) throws ClientException{
-        try{
-            return "need to implement";
+        if(params.length == 1){
+            String positionString = params[0];
+            ChessPosition position = positionConverter(positionString);
+            boardDrawer.highlightMoves(gameBoard, currentColor, position);
+            return String.format("Displaying moves for %s", positionString);
         }
-        catch(ResponseException ex){
-            throw new ClientException(500, "Error: Server error");
-        }
+        return "Implement error here";
     }
 
     private String redraw() throws ClientException{
-        try{
-            return "need to implement";
-        }
-        catch(ResponseException ex){
-            throw new ClientException(500, "Error: Server error");
-        }
+       boardDrawer.makeBoard(currentColor, gameBoard);
+       return "Redrawing board";
     }
 
     private String resign() throws ClientException{
@@ -185,27 +186,54 @@ public class ClientUI implements NotificationHandler {
     private String makeMove(String...params) throws ClientException{
         try{
             if(params.length == 2){
-                String startPosition = params[0];
-                String endPosition = params[1];
-                ChessMove move = moveConverter(startPosition, endPosition);
-                ws.makeMove();
+                String startString = params[0];
+                String endString = params[1];
+                ChessPosition startPosition = positionConverter(startString);
+                ChessPosition endPosition = positionConverter(endString);
+                ChessMove move = new ChessMove(startPosition, endPosition, null);
+                ws.makeMove(authToken, authTokenToGameID.get(authToken), move);
+                return String.format("Moved: %s to %s", startString, endString);
             }
+            return "Invalid move";
         }
         catch(ResponseException ex){
             throw new ClientException(500, "Error: Server error");
         }
     }
 
-    private ChessMove moveConverter(String startPosition, String endPosition) {
-        for (int i = 0; i < startPosition.length(); ++i){
-
+    private ChessPosition positionConverter(String posString) throws ClientException{
+        List<Integer> positionVals = new ArrayList<>();
+        for (int i = 0; i < posString.length(); ++i){
+            char character = posString.charAt(i);
+            if(!Character.isDigit(character) && Character.isLetter(character)){
+                switch(Character.toLowerCase(character)){
+                    case 'a' -> positionVals.add(1);
+                    case 'b' -> positionVals.add(2);
+                    case 'c' -> positionVals.add(3);
+                    case 'd' -> positionVals.add(4);
+                    case 'e' -> positionVals.add(5);
+                    case 'f' -> positionVals.add(6);
+                    case 'g' -> positionVals.add(7);
+                    case 'h' -> positionVals.add(8);
+                }
+            }
+            else if(Character.isDigit(character)){
+                int pos = Character.getNumericValue(character);
+                if(pos < 9 && pos > 0){
+                    positionVals.add(pos);
+                }
+            }
+            else{
+                throw new ClientException(414, "Error: Move contains invalid character");
+            }
         }
+        return new ChessPosition(positionVals.get(1), positionVals.get(0));
     }
 
     private String leave() throws ClientException{
         try{
-            state = State.SIGNED_IN;
             ws.leaveGame(authToken, authTokenToGameID.get(authToken));
+            state = State.SIGNED_IN;
             authTokenToGameID.remove(authToken);
             return "Exited game";
         }
@@ -224,14 +252,16 @@ public class ClientUI implements NotificationHandler {
                         throw new ClientException(405, "Error: Invalid game");
                     }
                     state = State.GAME;
-                    String[] args = { "white" };
-                    Chessboard.main(args);
+                    authTokenToGameID.put(authToken, gameIDToListNum.get(gameNum));
+                    ws.connectGame(authToken, gameIDToListNum.get(gameNum));
                     return String.format("Observing game #%s: %s", params[0], listNumToName.get(Integer.parseInt(params[0])));
                 }
                 catch(NumberFormatException ex){
                     throw new ClientException(413, "Error: bad input (gave string, but should have been integer)");
+                } catch (ResponseException e) {
+                    throw new RuntimeException(e);
                 }
-        }
+            }
             throw new ClientException(407, "Error: Bad input for observe");
         }
         catch(ClientException ex){
@@ -246,24 +276,22 @@ public class ClientUI implements NotificationHandler {
                 try{
                     int gameNum = Integer.parseInt(params[1]);
                     int gameID = gameIDToListNum.get(gameNum);
-                    ChessGame.TeamColor playerColor = null;
                     if (params[0].equals("black")){
-                        playerColor = ChessGame.TeamColor.BLACK;
+                        currentColor = ChessGame.TeamColor.BLACK;
                     }
                     else if(params[0].equals("white")){
-                        playerColor = ChessGame.TeamColor.WHITE;
+                        currentColor = ChessGame.TeamColor.WHITE;
                     }
                     else{
                         throw new ClientException(406, "Error: Invalid color");
                     }
 
-                    server.joinGame(playerColor, gameID);
+                    server.joinGame(currentColor, gameID);
 
                     authTokenToGameID.put(authToken, gameID);
 
                     state = State.GAME;
-                    String[] args = { params[0] };
-                    Chessboard.main(args);
+                    ws.connectGame(authToken, gameID);
                     return "Joining game";
                 }
                 catch(NullPointerException ex){
@@ -271,6 +299,8 @@ public class ClientUI implements NotificationHandler {
                 }
                 catch(NumberFormatException ex){
                     throw new ClientException(413, "Error: bad input (gave string, but should have been integer)");
+                } catch (ResponseException ex) {
+                    throw new ClientException(500, "Server error");
                 }
             }
             throw new ClientException(408, "Error: Bad input for join");
