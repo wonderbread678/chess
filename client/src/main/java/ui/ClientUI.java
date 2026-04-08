@@ -14,7 +14,6 @@ import model.AuthData;
 import model.GameData;
 import model.ListGamesData;
 import model.ListGamesResponse;
-import server.ResponseException;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -34,7 +33,7 @@ public class ClientUI implements NotificationHandler {
     private ChessBoard gameBoard;
     private ChessGame.TeamColor currentColor;
 
-    public ClientUI(String serverURL) throws ResponseException {
+    public ClientUI(String serverURL) throws ClientException {
         server = new ServerFacade(serverURL);
         ws = new WebsocketFacade(serverURL, this);
         boardDrawer = new Chessboard();
@@ -178,7 +177,7 @@ public class ClientUI implements NotificationHandler {
             ws.resignGame(authToken, authTokenToGameID.get(authToken));
             return "You have resigned";
         }
-        catch(ResponseException ex){
+        catch(ClientException ex){
             throw new ClientException(500, "Error: Server error");
         }
     }
@@ -196,8 +195,8 @@ public class ClientUI implements NotificationHandler {
             }
             return "Invalid move";
         }
-        catch(ResponseException ex){
-            throw new ClientException(500, "Error: Server error");
+        catch(ClientException ex){
+            return exceptionHandler(ex);
         }
     }
 
@@ -237,8 +236,8 @@ public class ClientUI implements NotificationHandler {
             authTokenToGameID.remove(authToken);
             return "Exited game";
         }
-        catch(ResponseException ex){
-            throw new ClientException(500, "Error: Server error");
+        catch(ClientException ex){
+            return exceptionHandler(ex);
         }
     }
 
@@ -258,8 +257,6 @@ public class ClientUI implements NotificationHandler {
                 }
                 catch(NumberFormatException ex){
                     throw new ClientException(413, "Error: bad input (gave string, but should have been integer)");
-                } catch (ResponseException e) {
-                    throw new RuntimeException(e);
                 }
             }
             throw new ClientException(407, "Error: Bad input for observe");
@@ -299,8 +296,6 @@ public class ClientUI implements NotificationHandler {
                 }
                 catch(NumberFormatException ex){
                     throw new ClientException(413, "Error: bad input (gave string, but should have been integer)");
-                } catch (ResponseException ex) {
-                    throw new ClientException(500, "Server error");
                 }
             }
             throw new ClientException(408, "Error: Bad input for join");
