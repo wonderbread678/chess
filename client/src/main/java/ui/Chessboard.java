@@ -41,7 +41,7 @@ public class Chessboard {
 
     }
 
-    public void highlightMoves(ChessBoard board, ChessGame.TeamColor playerColor, ChessPosition piecePosition, ChessGame game){
+    public void highlightMoves(ChessGame.TeamColor playerColor, ChessPosition piecePosition, ChessGame game){
         Collection<ChessMove> moves = game.validMoves(piecePosition);
 
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);

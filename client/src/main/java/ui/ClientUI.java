@@ -169,7 +169,7 @@ public class ClientUI implements NotificationHandler {
                     throw new ClientException(415, "Error: No piece aat that position");
                 }
                 ChessGame game = gameData.game();
-                boardDrawer.highlightMoves(gameBoard, currentColor, position, game);
+                boardDrawer.highlightMoves(currentColor, position, game);
                 return String.format("Displaying moves for %s", positionString);
             }
             return "Invalid input. Should be \"highlight <game square>\"";
