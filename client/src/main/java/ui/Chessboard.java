@@ -41,15 +41,15 @@ public class Chessboard {
 
     }
 
-    public void highlightMoves(ChessBoard board,ChessGame.TeamColor playerColor, ChessPosition piecePosition){
-        ChessPiece piece = board.getPiece(piecePosition);
-        Collection<ChessMove> moves = piece.pieceMoves(board, piecePosition);
+    public void highlightMoves(ChessBoard board, ChessGame.TeamColor playerColor, ChessPosition piecePosition, ChessGame game){
+        Collection<ChessMove> moves = game.validMoves(piecePosition);
 
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
         out.print(EscapeSequences.ERASE_SCREEN);
 
-        drawChessBoard(out, board, playerColor, true, moves);
+        ChessBoard testGameBoard = game.getGameBoard();
+        drawChessBoard(out, testGameBoard, playerColor, true, moves);
 
         out.print(EscapeSequences.SET_BG_COLOR_DARK_GREY);
         out.print(EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY);

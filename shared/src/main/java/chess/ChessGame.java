@@ -138,9 +138,7 @@ public class ChessGame {
             if(!isInCheck(colorCheck)){
                 moves.add(move);
             }
-            String test = "You've made it here";
             gameBoard = cloneBoard;
-
         }
         return moves;
     }
@@ -256,6 +254,10 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
+        return gameBoard;
+    }
+
+    public ChessBoard getGameBoard() {
         return gameBoard;
     }
 }

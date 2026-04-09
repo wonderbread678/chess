@@ -7,6 +7,7 @@ import client.*;
 import clientwebsocket.NotificationHandler;
 import clientwebsocket.WebsocketFacade;
 import model.AuthData;
+import model.GameData;
 import model.ListGamesData;
 import model.ListGamesResponse;
 import websocket.messages.ErrorMessage;
@@ -26,6 +27,7 @@ public class ClientUI implements NotificationHandler {
     private final Chessboard boardDrawer;
 
     private ChessBoard gameBoard;
+    private GameData gameData;
     private ChessGame.TeamColor currentColor;
 
     public ClientUI(String serverURL) throws ClientException {
@@ -74,9 +76,11 @@ public class ClientUI implements NotificationHandler {
 
     @Override
     public void notifyGame(LoadGameMessage loadGameMessage){
+        gameData = loadGameMessage.getGame();
         gameBoard = loadGameMessage.getGame().game().getBoard();
         System.out.println();
         boardDrawer.makeBoard(currentColor, gameBoard);
+        System.out.print(EscapeSequences.SET_TEXT_COLOR_MAGENTA);
         printPrompt();
     }
 
@@ -157,16 +161,25 @@ public class ClientUI implements NotificationHandler {
     }
 
     private String highlightLegalMoves(String...params) throws ClientException{
-        if(params.length == 1){
-            String positionString = params[0];
-            ChessPosition position = positionConverter(positionString);
-            if(gameBoard.getPiece(position) == null){
-                throw new ClientException(415, "Error: No piece aat that position");
+        try{
+            if(params.length == 1){
+                String positionString = params[0];
+                ChessPosition position = positionConverter(positionString);
+                if(gameBoard.getPiece(position) == null){
+                    throw new ClientException(415, "Error: No piece aat that position");
+                }
+                ChessGame game = gameData.game();
+                boardDrawer.highlightMoves(gameBoard, currentColor, position, game);
+                return String.format("Displaying moves for %s", positionString);
             }
-            boardDrawer.highlightMoves(gameBoard, currentColor, position);
-            return String.format("Displaying moves for %s", positionString);
+            return "Invalid input. Should be \"highlight <game square>\"";
         }
-        return "Implement error here";
+        catch(NullPointerException ex){
+            throw new ClientException(415, "No piece at this position");
+        }
+        catch(ClientException ex){
+            return exceptionHandler(ex);
+        }
     }
 
     private String redraw() throws ClientException{
@@ -206,9 +219,12 @@ public class ClientUI implements NotificationHandler {
                 }
                 ChessMove move = new ChessMove(startPosition, endPosition, promotionType);
                 ws.makeMove(authToken, authTokenToGameID.get(authToken), move);
-                return String.format("Moved: %s to %s", startString, endString);
+                return String.format("Move: %s to %s", startString, endString);
             }
-            return "Invalid move";
+            return "Invalid input. Should be \"move <start position> <end position>\"";
+        }
+        catch(NullPointerException ex){
+            throw new ClientException(415, "Error: No piece at this position");
         }
         catch(ClientException ex){
             return exceptionHandler(ex);
@@ -223,7 +239,7 @@ public class ClientUI implements NotificationHandler {
             System.out.print("\n" + ">>> " + EscapeSequences.SET_TEXT_COLOR_MAGENTA);
             String line = scanner.nextLine();
 
-            return switch(line){
+            return switch(line.toLowerCase()){
                 case "queen" -> ChessPiece.PieceType.QUEEN;
                 case "rook" -> ChessPiece.PieceType.ROOK;
                 case "knight" -> ChessPiece.PieceType.KNIGHT;
@@ -290,6 +306,7 @@ public class ClientUI implements NotificationHandler {
                         throw new ClientException(405, "Error: Invalid game");
                     }
                     state = State.GAME;
+                    currentColor = ChessGame.TeamColor.WHITE;
                     authTokenToGameID.put(authToken, gameIDToListNum.get(gameNum));
                     ws.connectGame(authToken, gameIDToListNum.get(gameNum));
                     return String.format("Observing game #%s: %s", params[0], listNumToName.get(Integer.parseInt(params[0])));

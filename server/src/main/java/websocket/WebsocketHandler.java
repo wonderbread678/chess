@@ -1,6 +1,8 @@
 package websocket;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
@@ -24,6 +26,7 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler{
 
@@ -71,13 +74,13 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             GameData game = gameDAO.getGame(userCommand.getGameID());
             String messageString;
             if(game.blackUsername() != null && game.blackUsername().equals(user.username())){
-                messageString = String.format("%s has joined game as black\n", user.username());
+                messageString = String.format("%s has joined game as black", user.username());
             }
             else if (game.whiteUsername() != null && game.whiteUsername().equals(user.username())){
-                messageString = String.format("%s has joined game as white\n", user.username());
+                messageString = String.format("%s has joined game as white", user.username());
             }
             else{
-                messageString = String.format("%s has joined game as an observer\n", user.username());
+                messageString = String.format("%s has joined game as an observer", user.username());
             }
             var message = new NotificationMessage(messageString);
             String notification = new Gson().toJson(message);
@@ -87,10 +90,10 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             session.getRemote().sendString(loadGameMessage);
         }
         catch(DataAccessException ex){
-            sendError("Error: Server error\n", session);
+            sendError("Error: Server error", session);
         }
         catch(NullPointerException ex){
-            sendError("Error: Game does not exist\n", session);
+            sendError("Error: Game does not exist", session);
         }
     }
 
@@ -100,7 +103,7 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             GameData game = gameDAO.getGame(moveCommand.getGameID());
             AuthData user = authDAO.getAuth(moveCommand.getAuthToken());
             if(user == null){
-                throw new ResponseException(401, "Error: Unauthorized\n");
+                throw new ResponseException(401, "Error: Unauthorized");
             }
             moveCheck(user, game);
 
@@ -121,11 +124,12 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             String loadGameMessage = new Gson().toJson(new LoadGameMessage(game));
             connections.gameBroadcast(moveCommand.getGameID(), null, loadGameMessage);
 
-            var moveMessage = String.format("%s has made the move: %s\n", user.username(), moveCommand.getMove().toString());
+            String moved = moveConverter(moveCommand.getMove());
+            var moveMessage = String.format("%s %s", user.username(), moved);
             NotificationMessage notification = new NotificationMessage(moveMessage);
             connections.gameBroadcast(moveCommand.getGameID(), session, new Gson().toJson(notification));
 
-            String mateMessage = mateCheck(user.username(), game.game().getTeamTurn(), game.game());
+            String mateMessage = mateCheck(game.game().getTeamTurn(), game);
             if(mateMessage != null){
                 NotificationMessage mateNotification = new NotificationMessage(mateMessage);
                 connections.gameBroadcast(moveCommand.getGameID(), null, new Gson().toJson(mateNotification));
@@ -148,6 +152,39 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
+    private String moveConverter(ChessMove move){
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
+        HashMap<String, Character> positions = new HashMap<>();
+
+        switch(startPosition.getColumn()){
+          case 1 -> positions.put("start", 'a');
+          case 2 -> positions.put("start", 'b');
+          case 3 -> positions.put("start", 'c');
+          case 4 -> positions.put("start", 'd');
+          case 5 -> positions.put("start", 'e');
+          case 6 -> positions.put("start", 'f');
+          case 7 -> positions.put("start", 'g');
+          case 8 -> positions.put("start", 'h');
+        };
+
+        switch(endPosition.getColumn()){
+            case 1 -> positions.put("end", 'a');
+            case 2 -> positions.put("end", 'b');
+            case 3 -> positions.put("end", 'c');
+            case 4 -> positions.put("end", 'd');
+            case 5 -> positions.put("end", 'e');
+            case 6 -> positions.put("end", 'f');
+            case 7 -> positions.put("end", 'g');
+            case 8 -> positions.put("end", 'h');
+        };
+
+        return String.format("moved %s%d to %s%d", positions.get("start"),
+                startPosition.getRow(),
+                positions.get("end"),
+                endPosition.getRow());
+    }
+
     private static void moveCheck(AuthData user, GameData game) throws InvalidMoveException {
         if(!user.username().equals(game.whiteUsername()) && !user.username().equals(game.blackUsername())){
             throw new InvalidMoveException();
@@ -168,10 +205,10 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             NotificationMessage notification = new NotificationMessage(message);
             connections.gameBroadcast(userCommand.getGameID(), session, new Gson().toJson(notification));
             connections.remove(userCommand.getGameID(), session);
-            if(game.whiteUsername().equals(user.username())){
+            if(game.whiteUsername()!= null && game.whiteUsername().equals(user.username())){
                 gameDAO.updateGamePlayers(userCommand.getGameID(), null, game.blackUsername());
             }
-            else if(game.blackUsername().equals(user.username())){
+            else if(game.blackUsername()!= null && game.blackUsername().equals(user.username())){
                 gameDAO.updateGamePlayers(userCommand.getGameID(), game.whiteUsername(), null);
             }
         }
@@ -185,13 +222,13 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             GameData game = gameDAO.getGame(userCommand.getGameID());
             AuthData user = authDAO.getAuth(userCommand.getAuthToken());
             if(user == null){
-                throw new ResponseException(401, "Error: Unauthorized\n");
+                throw new ResponseException(401, "Error: Unauthorized");
             }
             if(!game.whiteUsername().equals(user.username()) && !game.blackUsername().equals(user.username())){
-                throw new ResponseException(485, "Error: Observers can't resign\n");
+                throw new ResponseException(485, "Error: Observers can't resign");
             }
             if(gameDAO.getGameState(userCommand.getGameID()).equals("FINISHED")){
-                throw new ResponseException(484, "Error: Double resign\n");
+                throw new ResponseException(484, "Error: Double resign");
             }
             String message = String.format("%s has resigned", user.username());
             NotificationMessage notification = new NotificationMessage(message);
@@ -199,31 +236,40 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             gameDAO.updateGameState(userCommand.getGameID(), "FINISHED");
         }
         catch(DataAccessException ex){
-            sendError("Error: Server error\n", session);
+            sendError("Error: Server error", session);
         }
         catch(ResponseException ex){
             if(ex.getCode() == 401){
-                sendError("Error: Unauthorized\n", session);
+                sendError("Error: Unauthorized", session);
             }
             else if(ex.getCode() == 484){
-                sendError("Error: Game already over\n", session);
+                sendError("Error: Game already over", session);
             }
             else{
-                sendError("Error: Observers can't resign\n", session);
+                sendError("Error: Observers can't resign", session);
             }
         }
     }
 
-    public String mateCheck(String username, ChessGame.TeamColor playerColor, ChessGame game){
+    public String mateCheck(ChessGame.TeamColor playerColor, GameData gameData){
         String message = null;
-        if(game.isInCheck(playerColor)){
-            message = String.format("%s is in check!\n", username);
+        String username;
+        ChessGame game = gameData.game();
+        if(playerColor == ChessGame.TeamColor.WHITE){
+            username = gameData.whiteUsername();
         }
-        else if(game.isInCheckmate(playerColor)){
-            message = String.format("%s is in checkmate!\n", username);
+        else{
+            username = gameData.blackUsername();
+        }
+
+        if(game.isInCheckmate(playerColor)){
+            message = String.format("%s is in checkmate!", username);
         }
         else if(game.isInStalemate(playerColor)){
-            message = "Stalemate\n";
+            message = "Stalemate";
+        }
+        else if(game.isInCheck(playerColor)){
+            message = String.format("%s is in check!", username);
         }
         return message;
     }
