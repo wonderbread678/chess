@@ -26,7 +26,7 @@ public class ClientUI implements NotificationHandler {
     private final WebsocketFacade ws;
     private final Chessboard boardDrawer;
 
-    private ChessBoard gameBoard;
+    private ChessBoard gameBoardTest;
     private GameData gameData;
     private ChessGame.TeamColor currentColor;
 
@@ -77,9 +77,9 @@ public class ClientUI implements NotificationHandler {
     @Override
     public void notifyGame(LoadGameMessage loadGameMessage){
         gameData = loadGameMessage.getGame();
-        gameBoard = loadGameMessage.getGame().game().getBoard();
+        gameBoardTest = loadGameMessage.getGame().game().getBoard();
         System.out.println();
-        boardDrawer.makeBoard(currentColor, gameBoard);
+        boardDrawer.makeBoard(currentColor, gameBoardTest, false, null);
         System.out.print(EscapeSequences.SET_TEXT_COLOR_MAGENTA);
         printPrompt();
     }
@@ -165,11 +165,13 @@ public class ClientUI implements NotificationHandler {
             if(params.length == 1){
                 String positionString = params[0];
                 ChessPosition position = positionConverter(positionString);
-                if(gameBoard.getPiece(position) == null){
+                if(gameBoardTest.getPiece(position) == null){
                     throw new ClientException(415, "Error: No piece aat that position");
                 }
                 ChessGame game = gameData.game();
-                boardDrawer.highlightMoves(currentColor, position, game);
+                ChessGame test = game;
+                Collection<ChessMove> validMoves = test.validMoves(position);
+                boardDrawer.makeBoard(currentColor, game.getBoard(), true, validMoves);
                 return String.format("Displaying moves for %s", positionString);
             }
             return "Invalid input. Should be \"highlight <game square>\"";
@@ -183,7 +185,7 @@ public class ClientUI implements NotificationHandler {
     }
 
     private String redraw() throws ClientException{
-       boardDrawer.makeBoard(currentColor, gameBoard);
+       boardDrawer.makeBoard(currentColor, gameBoardTest, false, null);
        return "Redrawing board";
     }
 
@@ -206,13 +208,13 @@ public class ClientUI implements NotificationHandler {
                 ChessPosition endPosition = positionConverter(endString);
                 ChessPiece.PieceType promotionType = null;
                 if(currentColor == ChessGame.TeamColor.WHITE){
-                    if(gameBoard.getPiece(startPosition).getPieceType() == ChessPiece.PieceType.PAWN &&
+                    if(gameBoardTest.getPiece(startPosition).getPieceType() == ChessPiece.PieceType.PAWN &&
                     endPosition.getRow() == 8){
                         promotionType = pawnPromotion();
                     }
                 }
                 else{
-                    if(gameBoard.getPiece(startPosition).getPieceType() == ChessPiece.PieceType.PAWN &&
+                    if(gameBoardTest.getPiece(startPosition).getPieceType() == ChessPiece.PieceType.PAWN &&
                             endPosition.getRow() == 1){
                         promotionType = pawnPromotion();
                     }
@@ -229,59 +231,6 @@ public class ClientUI implements NotificationHandler {
         catch(ClientException ex){
             return exceptionHandler(ex);
         }
-    }
-
-    private ChessPiece.PieceType pawnPromotion(){
-        try{
-            System.out.println("Your pawn can be promoted! Which piece type will you choose?");
-            System.out.print("- queen\n- rook\n- knight\n- bishop\n");
-            Scanner scanner = new Scanner(System.in);
-            System.out.print("\n" + ">>> " + EscapeSequences.SET_TEXT_COLOR_MAGENTA);
-            String line = scanner.nextLine();
-
-            return switch(line.toLowerCase()){
-                case "queen" -> ChessPiece.PieceType.QUEEN;
-                case "rook" -> ChessPiece.PieceType.ROOK;
-                case "knight" -> ChessPiece.PieceType.KNIGHT;
-                case "bishop" -> ChessPiece.PieceType.BISHOP;
-                default -> throw new ClientException(416, "Error: Invalid promotion piece");
-            };
-        }
-        catch(ClientException ex){
-            System.out.println("Error: Invalid promotion piece. Try again\n");
-            pawnPromotion();
-        }
-
-        return null;
-    }
-
-    private ChessPosition positionConverter(String posString) throws ClientException{
-        List<Integer> positionVals = new ArrayList<>();
-        for (int i = 0; i < posString.length(); ++i){
-            char character = posString.charAt(i);
-            if(!Character.isDigit(character) && Character.isLetter(character)){
-                switch(Character.toLowerCase(character)){
-                    case 'a' -> positionVals.add(1);
-                    case 'b' -> positionVals.add(2);
-                    case 'c' -> positionVals.add(3);
-                    case 'd' -> positionVals.add(4);
-                    case 'e' -> positionVals.add(5);
-                    case 'f' -> positionVals.add(6);
-                    case 'g' -> positionVals.add(7);
-                    case 'h' -> positionVals.add(8);
-                }
-            }
-            else if(Character.isDigit(character)){
-                int pos = Character.getNumericValue(character);
-                if(pos < 9 && pos > 0){
-                    positionVals.add(pos);
-                }
-            }
-            else{
-                throw new ClientException(414, "Error: Move contains invalid character");
-            }
-        }
-        return new ChessPosition(positionVals.get(1), positionVals.get(0));
     }
 
     private String leave() throws ClientException{
@@ -459,6 +408,59 @@ public class ClientUI implements NotificationHandler {
                    - help
                    """;
         }
+    }
+
+    private ChessPiece.PieceType pawnPromotion(){
+        try{
+            System.out.println("Your pawn can be promoted! Which piece type will you choose?");
+            System.out.print("- queen\n- rook\n- knight\n- bishop\n");
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("\n" + ">>> " + EscapeSequences.SET_TEXT_COLOR_MAGENTA);
+            String line = scanner.nextLine();
+
+            return switch(line.toLowerCase()){
+                case "queen" -> ChessPiece.PieceType.QUEEN;
+                case "rook" -> ChessPiece.PieceType.ROOK;
+                case "knight" -> ChessPiece.PieceType.KNIGHT;
+                case "bishop" -> ChessPiece.PieceType.BISHOP;
+                default -> throw new ClientException(416, "Error: Invalid promotion piece");
+            };
+        }
+        catch(ClientException ex){
+            System.out.println("Error: Invalid promotion piece. Try again\n");
+            pawnPromotion();
+        }
+
+        return null;
+    }
+
+    private ChessPosition positionConverter(String posString) throws ClientException{
+        List<Integer> positionVals = new ArrayList<>();
+        for (int i = 0; i < posString.length(); ++i){
+            char character = posString.charAt(i);
+            if(!Character.isDigit(character) && Character.isLetter(character)){
+                switch(Character.toLowerCase(character)){
+                    case 'a' -> positionVals.add(1);
+                    case 'b' -> positionVals.add(2);
+                    case 'c' -> positionVals.add(3);
+                    case 'd' -> positionVals.add(4);
+                    case 'e' -> positionVals.add(5);
+                    case 'f' -> positionVals.add(6);
+                    case 'g' -> positionVals.add(7);
+                    case 'h' -> positionVals.add(8);
+                }
+            }
+            else if(Character.isDigit(character)){
+                int pos = Character.getNumericValue(character);
+                if(pos < 9 && pos > 0){
+                    positionVals.add(pos);
+                }
+            }
+            else{
+                throw new ClientException(414, "Error: Move contains invalid character");
+            }
+        }
+        return new ChessPosition(positionVals.get(1), positionVals.get(0));
     }
 
     private String clientListBuilder(Collection<ListGamesData> games) {

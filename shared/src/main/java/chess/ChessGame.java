@@ -133,12 +133,15 @@ public class ChessGame {
         for(ChessMove move : unfilteredMoves){
             ChessBoard cloneBoard = getBoard().clone();
             ChessPosition endPosition = move.getEndPosition();
-            gameBoard.addPiece(endPosition, currentPiece);
-            gameBoard.squares[startPosition.getRow() - 1][startPosition.getColumn() - 1] = null;
+            cloneBoard.addPiece(endPosition, currentPiece);
+            cloneBoard.squares[startPosition.getRow() - 1][startPosition.getColumn() - 1] = null;
+
+            ChessBoard originalBoard = gameBoard;
+            gameBoard = cloneBoard;
             if(!isInCheck(colorCheck)){
                 moves.add(move);
             }
-            gameBoard = cloneBoard;
+            gameBoard = originalBoard;
         }
         return moves;
     }

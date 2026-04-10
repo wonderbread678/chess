@@ -28,31 +28,16 @@ public class Chessboard {
     private static final String BLACK_KNIGHT = EscapeSequences.BLACK_KNIGHT;
     private static final String BLACK_PAWN = EscapeSequences.BLACK_PAWN;
 
-    public void makeBoard(ChessGame.TeamColor playerColor, ChessBoard board){
-        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-
-
-        out.print(EscapeSequences.ERASE_SCREEN);
-
-        drawChessBoard(out, board, playerColor, false, null);
-
-        out.print(EscapeSequences.SET_BG_COLOR_DARK_GREY);
-        out.print(EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY);
-
-    }
-
-    public void highlightMoves(ChessGame.TeamColor playerColor, ChessPosition piecePosition, ChessGame game){
-        Collection<ChessMove> moves = game.validMoves(piecePosition);
-
+    public void makeBoard(ChessGame.TeamColor playerColor, ChessBoard board, boolean highlightFlag, Collection<ChessMove> moves){
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
         out.print(EscapeSequences.ERASE_SCREEN);
 
-        ChessBoard testGameBoard = game.getGameBoard();
-        drawChessBoard(out, testGameBoard, playerColor, true, moves);
+        drawChessBoard(out, board, playerColor, highlightFlag, moves);
 
         out.print(EscapeSequences.SET_BG_COLOR_DARK_GREY);
         out.print(EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY);
+
     }
 
     private void drawHeadersHorizontal(PrintStream out, ChessGame.TeamColor playerColor) {
@@ -141,6 +126,7 @@ public class Chessboard {
                            ChessGame.TeamColor playerColor,
                            boolean highlightFlag,
                            Collection<ChessMove> moves){
+        ChessBoard testBoard1 = board;
         ChessPiece piece;
         if(playerColor == ChessGame.TeamColor.WHITE){
             piece = board.getPiece(new ChessPosition(row, column + 1));
@@ -194,7 +180,7 @@ public class Chessboard {
         else{
             out.print(EMPTY.repeat(SQUARE_SIZE_IN_PADDED_CHARS));
         }
-
+        ChessBoard testBoard2 = board;
     }
 
     Collection<ChessPosition> getEndPosition(Collection<ChessMove> moves){

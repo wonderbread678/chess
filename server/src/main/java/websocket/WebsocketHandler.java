@@ -145,7 +145,7 @@ public class WebsocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             sendError("Error: Server error", session);
         }
         catch(InvalidMoveException ex){
-            sendError("Error: invalid move", session);
+            sendError("Error: Unable to complete move.\nCheck if move is valid, it is your turn, or if game is over", session);
         }
         catch(ResponseException ex){
             sendError("Error: Unauthorized", session);
